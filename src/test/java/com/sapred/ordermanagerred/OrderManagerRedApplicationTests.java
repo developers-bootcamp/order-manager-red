@@ -1,10 +1,10 @@
-package com.sapred.order.manager.red;
+package com.sapred.ordermanagerred;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ApplicationTests {
+class OrderManagerRedApplicationTests {
 
 	@Test
 	void contextLoads() {

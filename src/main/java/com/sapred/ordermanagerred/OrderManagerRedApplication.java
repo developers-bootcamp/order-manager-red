@@ -1,13 +1,13 @@
-package com.sapred.order.manager.red;
+package com.sapred.ordermanagerred;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Application {
+public class OrderManagerRedApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
+		SpringApplication.run(OrderManagerRedApplication.class, args);
 	}
 
 }
