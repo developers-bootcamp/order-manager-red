@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.annotation.Collation;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-enum DiscountType{PERCENTAGE,FIXED,AMOUNT};
 @Data
 @AllArgsConstructor
 @Document(collection="Product")

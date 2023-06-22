@@ -7,8 +7,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.annotation.Collation;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-enum RoleOptions{ADMIN,EMPLOYEE,CUSTOMER};
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
