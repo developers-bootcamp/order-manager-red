@@ -29,7 +29,6 @@ public class Orders {
     private Date ExpiryOn;
     private int cvc;
     private boolean notificationFlag;
-    @DBRef
     private  AuditData auditData;
 
     public Orders(String s, String employee, String customer, int i,Company companyId, AuditData d) {

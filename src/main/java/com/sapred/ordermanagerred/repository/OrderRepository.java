@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface OrderRepository extends MongoRepository<Orders, String> {
     //should it be also filterd also by status????
     //findByCompanyIdAndOrderStatusId(String companyId,String orderStatusId,Pageable pageable);
-    Page<Orders> findByCompanyId(String companyId,Pageable pageable);
-    Page<Orders> findAll(Pageable pageable);
+    Page<Orders> findByCompanyId_Id(String companyId,Pageable pageable);
+//    Page<Orders> findAll(Pageable pageable);
 }

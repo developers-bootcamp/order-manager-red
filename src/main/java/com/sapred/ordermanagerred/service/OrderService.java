@@ -25,13 +25,12 @@ public class OrderService {
     private int pageSize;
     public List<Orders> getOrders( String companyId, String statusId,int pageNumber) {
 
-        Sort.Order sortOrder = Sort.Order.asc("auditData.updateData"); // Replace "yourSortField" with the actual field to sort by
+        Sort.Order sortOrder = Sort.Order.desc("auditData.updateDate");
         Sort sort = Sort.by(sortOrder);
 //sort
-        Pageable pageable = PageRequest.of(pageNumber, pageSize/* pageSize parameter omitted */);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize/* pageSize parameter omitted */,sort);
 
-//        Page<Orders> pageOrders= orderRepository.findByCompanyId(companyId,pageable);
-        Page<Orders> pageOrders=orderRepository.findAll(pageable);
+        Page<Orders> pageOrders= orderRepository.findByCompanyId_Id(companyId,pageable);
         return pageOrders.getContent();
 //        return orderRepository.findAll();
     }

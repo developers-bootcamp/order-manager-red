@@ -14,5 +14,5 @@ public class AuditData {
     @Id
     private  String id;
     private Date createDate;
-    private Date updateData;
+    private Date updateDate;
 }
