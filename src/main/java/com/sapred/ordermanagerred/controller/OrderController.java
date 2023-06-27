@@ -19,8 +19,8 @@ public class OrderController
     //the params should be pathparams?...
     @GetMapping("/allOrders/{userId}/{status}/{pageNumber}")
     public List<Orders> getOrders(@PathVariable("userId") String userId, @PathVariable("status") String statusId, @PathVariable("pageNumber") int pageNumber) {
-        String companyId="11";//should be by the user id?
-        return orderService.getOrders(companyId,statusId,pageNumber);
+        String companyId="11";//should be by the taken!
+        return orderService.getOrders(companyId,statusId,pageNumber,userId);
     }
     // זה פונקציה שמכניסה נתונים רק בשביל לבדוק שההתחברות עובדת
     @GetMapping("/fill")

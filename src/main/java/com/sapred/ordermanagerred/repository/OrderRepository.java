@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrderRepository extends MongoRepository<Orders, String> {
-    //should it be also filterd also by status????
-    //findByCompanyIdAndOrderStatusId(String companyId,String orderStatusId,Pageable pageable);
-    Page<Orders> findByCompanyId_Id(String companyId,Pageable pageable);
-//    Page<Orders> findAll(Pageable pageable);
+    //also find by user id- employee field in the orders??????????
+    Page<Orders> findByCompanyId_IdAndOrderStatusIdAndEmployee(String companyId,String  orderStatusId,String employee, Pageable pageable);
+
+//    Page<Orders> findByCompanyId_IdAndOrderStatusId(String companyId,String  orderStatusId, Pageable pageable);
 }
