@@ -9,9 +9,7 @@ import org.springframework.data.annotation.Id;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Address {
-    @Id
-    private String id;
-    private String telephone;
+    private String phone;
     private String address;
     private String email;
 }

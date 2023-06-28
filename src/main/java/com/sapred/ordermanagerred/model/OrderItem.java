@@ -3,15 +3,14 @@ package com.sapred.ordermanagerred.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderItems {
-    @Id
-    private  String id;
-    private Product productId;
+public class OrderItem {
+    @DBRef
+    private Product productId;//?product
     private double amount;
     private int quantity;
 }

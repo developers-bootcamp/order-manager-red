@@ -11,8 +11,6 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuditData {
-    @Id
-    private  String id;
     private Date createDate;
-    private Date updateData;
+    private Date updateDate;
 }

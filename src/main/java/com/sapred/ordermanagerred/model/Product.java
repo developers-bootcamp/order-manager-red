@@ -9,18 +9,19 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @AllArgsConstructor
-@Document(collection="Product")
+@Document(collection = "Product")
 public class Product {
     @Id
-    private  String id;
-    private  String name;
-    private  String desc;
-    private  double price;
-    private  double discount;
-    private  DiscountType discountType;
-    private  ProductCategory productCategoryId;
-    private  int inventory;
-    private  Company companyId;
+    private String id;
+    private String name;
+    private String desc;
+    private double price;
+    private double discount;
+    private DiscountType discountType;
     @DBRef
-    private  AuditData data;
+    private ProductCategory productCategoryId;
+    private int inventory;
+    @DBRef
+    private Company companyId;
+    private AuditData auditData;
 }
