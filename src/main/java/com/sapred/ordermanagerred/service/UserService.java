@@ -37,8 +37,7 @@ public class UserService {
     }
 
     public List<User> getAll() {
-        ArrayList<User> listAll = new ArrayList<>();
-        userRepository.findAll().forEach(u -> listAll.add(u));
+        List<User> listAll = userRepository.findAll();
         return listAll;
     }
 
