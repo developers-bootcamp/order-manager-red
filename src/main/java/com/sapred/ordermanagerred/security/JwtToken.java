@@ -16,7 +16,6 @@ public class JwtToken {
 
     @Autowired
     private RoleRepository roleRepository;
-
     private static final String SECRET = "secret";
     private static final long EXPIRATION_TIME = 864_000_000; // 10 days
 
