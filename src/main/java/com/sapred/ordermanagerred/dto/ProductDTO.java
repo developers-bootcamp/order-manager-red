@@ -1,4 +1,4 @@
 package com.sapred.ordermanagerred.dto;
 
-public class productDto {
+public class ProductDTO {
 }
