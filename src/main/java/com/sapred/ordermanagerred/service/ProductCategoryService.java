@@ -23,7 +23,7 @@ public class ProductCategoryService {
                 throw new ResponseStatusException(HttpStatus.CONFLICT,"the name of the category already exists");
             AuditData auditData=new AuditData();
             auditData.setCreateDate(new Date());
-            auditData.setUpdateData(new Date());
+            auditData.setUpdateDate(new Date());
             productCategory.setAuditData(auditData);
             productCategoryRepository.save(productCategory);
             return ResponseEntity.ok("success: true");

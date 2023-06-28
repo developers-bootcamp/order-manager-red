@@ -6,17 +6,16 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.annotation.Collation;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Collation("ProductCategory")
-public class ProductCategory {
+@Document(collection = "Role")
+public class Role {
     @Id
     private String id;
-    private String name;
+    private RoleOptions name;
     private String desc;
-    @DBRef
-    private Company companyId;
     private AuditData auditData;
 }
