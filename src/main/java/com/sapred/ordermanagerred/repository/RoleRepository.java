@@ -2,6 +2,8 @@ package com.sapred.ordermanagerred.repository;
 
 import com.sapred.ordermanagerred.model.Role;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
-public interface RoleRepository extends MongoRepository<Role,String> {
+@Repository
+public interface RoleRepository extends MongoRepository<Role, String> {
 }
