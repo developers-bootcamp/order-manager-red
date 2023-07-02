@@ -11,16 +11,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection="Users")
-public class Users {
+@Document(collection = "User")
+public class User {
     @Id
     private String id;
     private String fullName;
     private String password;
+    private Address address;
     @DBRef
-    private  Address address ;
-    private Roles roleId;
+    private Role roleId;
+    @DBRef
     private Company companyId;
-    @DBRef
-    private  AuditData auditData;
+    private AuditData auditData;
 }

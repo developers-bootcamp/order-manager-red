@@ -13,10 +13,10 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 @Collation("ProductCategory")
 public class ProductCategory {
     @Id
-    private  String id;
-    private  String name;
-    private  String desc;
-    private  Company companyId;
+    private String id;
+    private String name;
+    private String desc;
     @DBRef
-    private  AuditData auditData;
+    private Company companyId;
+    private AuditData auditData;
 }

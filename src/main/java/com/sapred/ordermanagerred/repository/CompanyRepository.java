@@ -1,9 +1,9 @@
 package com.sapred.ordermanagerred.repository;
 
-import com.sapred.ordermanagerred.model.Address;
+import com.sapred.ordermanagerred.model.Company;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AddressRepository extends MongoRepository<Address, String> {
+public interface CompanyRepository extends MongoRepository<Company, String> {
 }

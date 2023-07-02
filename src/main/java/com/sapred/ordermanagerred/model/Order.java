@@ -14,22 +14,22 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection="Orders")
-public class Orders {
+@Document(collection = "Order")
+public class Order {
     @Id
-    private  String id;
+    private String id;
     private String employee;
     private String customer;
     private int totalAmount;
+    private List<OrderItem> orderItemsList;
+    private String orderStatusId;
     @DBRef
-    private List<OrderItems> orderItemsList;
-    private String  orderStatusId;
     private Company companyId;
     private int creditCardNumber;
     private Date ExpiryOn;
     private int cvc;
     private boolean notificationFlag;
-    private  AuditData auditData;
+    private AuditData auditData;
 
     public Orders(String s, String employee, String customer, int i,Company companyId, AuditData d,String orderStatusId) {
         id=s;
