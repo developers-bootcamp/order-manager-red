@@ -68,7 +68,7 @@ public class ProductService {
         return HttpStatus.OK;
     }
     public  HttpStatus deleteProduct(String id){
-        if (!productRepository.existsById(id)!=true)
+        if (productRepository.existsById(id))
             return HttpStatus.NOT_FOUND;
         productRepository.deleteById(id);
         return  HttpStatus.OK;
