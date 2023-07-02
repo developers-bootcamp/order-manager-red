@@ -1,12 +1,9 @@
 package com.sapred.ordermanagerred.controller;
 
-import com.sapred.ordermanagerred.model.Orders;
+import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,13 +13,13 @@ public class OrderController
 {
     @Autowired
     private OrderService orderService;
+
     //the params should be pathparams?...
-    @GetMapping("/allOrders/{userId}/{status}/{pageNumber}")
-    public List<Orders> getOrders(@PathVariable("userId") String userId, @PathVariable("status") String statusId, @PathVariable("pageNumber") int pageNumber) {
-        String companyId="11";//should be by the taken!
-        return orderService.getOrders(companyId,statusId,pageNumber,userId);
+    @GetMapping("/getOrders/{userId}/{status}/{pageNumber}")
+    public List<Order> getOrders(@RequestHeader("token") String token ,@PathVariable("userId") String userId, @PathVariable("status") String statusId, @PathVariable("pageNumber") int pageNumber) {
+        return orderService.getOrders(token,statusId,pageNumber,userId);
     }
-    // זה פונקציה שמכניסה נתונים רק בשביל לבדוק שההתחברות עובדת
+    // it is a function just to fill data
     @GetMapping("/fill")
     public void fill() {
         orderService.fill();
