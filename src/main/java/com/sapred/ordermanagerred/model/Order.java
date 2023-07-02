@@ -31,7 +31,7 @@ public class Order {
     private boolean notificationFlag;
     private AuditData auditData;
 
-    public Orders(String s, String employee, String customer, int i,Company companyId, AuditData d,String orderStatusId) {
+    public Order(String s, String employee, String customer, int i,Company companyId, AuditData d,String orderStatusId) {
         id=s;
         this.employee=employee;
         this.customer=customer;
