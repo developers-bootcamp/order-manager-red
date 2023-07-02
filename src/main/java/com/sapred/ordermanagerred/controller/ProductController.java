@@ -14,8 +14,17 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping
-    public HttpStatus addProduct(@RequestBody Product product){
-        return  productService.addProduct(product);
+    public ResponseEntity addProduct(@RequestBody Product product) {
+        try {
+            Product newProduct = productService.addProduct(product);
+            return ResponseEntity.ok().body(newProduct);
+        }
+        catch(Exception e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+//        catch(Exception e){
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
     }
 
     @GetMapping("/names")
@@ -24,7 +33,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public HttpStatus getAllProduct(){
+    public ResponseEntity getAllProduct(){
         return  productService.getAllProducts();
     }
 
