@@ -3,10 +3,7 @@ package com.sapred.ordermanagerred.controller;
 import com.sapred.ordermanagerred.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/User")
@@ -24,5 +21,10 @@ public class UserController {
     @GetMapping("/fill")
     public void fill() {
         userService.fill();
+    }
+
+    @PostMapping("/signUp")
+    public ResponseEntity<String> signUP(@RequestParam("fullName") String fullName,@RequestParam("companyName") String companyName, @RequestParam("email") String email,@RequestParam("password") String password){
+        return userService.signUp(fullName, companyName, email, password);
     }
 }
