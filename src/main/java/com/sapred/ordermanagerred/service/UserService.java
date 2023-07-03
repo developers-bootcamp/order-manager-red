@@ -33,12 +33,12 @@ public class UserService {
     // שימי לב: זו סתם פונקציה שמכניסה נתונים בשביל הבדיקה
     public void fill() {
         AuditData d = new AuditData(new Date(), new Date());
-        Role roles = new Role("1", RoleOptions.CUSTOMER, "cust", d);
+        Role roles = new Role("1", RoleOptions.ADMIN, "cust", d);
         roleRepository.save(roles);
-        Company c = new Company("1", "osherad", 55, d);
-        companyRepository.save(c);
-        Address a = new Address("0580000000", "mezada 7", "emailCust@gmail.com");
-        User user = new User("4", "new full name", "passCust", a, roles, c, d);
+        Company b = new Company("2", "osherad", 55, d);
+        companyRepository.save(b);
+        Address a = new Address("0580000000", "mezada 7", "a@a.a");
+        User user = new User("2", "aaa", "a", a, roles, b, d);
         userRepository.save(user);
     }
 
