@@ -13,7 +13,7 @@ public class ProductCategoryController {
     private ProductCategoryService productCategoryService;
 
     @PostMapping("/create")
-    public ResponseEntity<String> createProductCategory(@RequestBody ProductCategory productCategory){
-        return productCategoryService.createProductCategory(productCategory);
+    public ResponseEntity<String> createProductCategory(@RequestHeader String token, @RequestBody ProductCategory productCategory){
+        return productCategoryService.createProductCategory(productCategory, token);
     }
 }

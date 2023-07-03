@@ -2,6 +2,8 @@ package com.sapred.ordermanagerred.service;
 
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.AddressRepository;
+import com.sapred.ordermanagerred.repository.CompanyRepository;
+import com.sapred.ordermanagerred.repository.RoleRepository;
 import com.sapred.ordermanagerred.repository.UserRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,10 +19,13 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CompanyRepository companyRepository;
 
     @Autowired
     private AddressRepository addressRepository;
-
+    @Autowired
+    RoleRepository roleRepository;
     @Autowired
     private JwtToken jwtToken;
 
@@ -66,6 +70,38 @@ public class UserService {
     public boolean authenticateUserPassword(User user, String password) {
         return user.getPassword().equals(password);
     }
+
+    public ResponseEntity<String> signUp(String fullName, String companyName, String email, String password) {
+        try {
+            if (userRepository.existsByAddressEmail(email) ||
+                    companyRepository.existsByName(companyName))
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("some of the data already exists");
+            AuditData auditData = new AuditData(new Date(), new Date());
+            Address address = new Address();
+            address.setEmail(email);
+            Company company = new Company();
+            company.setName(companyName);
+            company.setAuditData(auditData);
+            companyRepository.insert(company);
+            Role role = new Role();
+            role.setName(RoleOptions.ADMIN);
+            role.setAuditData(auditData);
+            roleRepository.insert(role);
+            User user = new User();
+            user.setAddress(address);
+            user.setAuditData(auditData);
+            user.setFullName(fullName);
+            user.setCompanyId(company);
+            user.setPassword(password);
+            user.setRoleId(role);
+            userRepository.insert(user);
+            String token = jwtToken.generateToken(user);
+            return new ResponseEntity<>(token, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("it's this its don't go well");
+        }
+    }
+
 
 
 
