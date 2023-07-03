@@ -1,5 +1,6 @@
 package com.sapred.ordermanagerred.repository;
 
+import com.sapred.ordermanagerred.model.RoleOptions;
 import com.sapred.ordermanagerred.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -13,5 +14,9 @@ public interface UserRepository extends MongoRepository<User, String> {
     User getByAddressEmail(String email);
 
     @Autowired
-    List<User> getAllByCompanyId(String companyId);
+    User getById(String id);
+
+    @Autowired
+    List<User> findByCompanyId_IdAndRoleId_Id(String companyId, String id);
+
 }

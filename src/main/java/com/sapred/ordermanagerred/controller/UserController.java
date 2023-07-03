@@ -9,6 +9,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,11 @@ public class UserController {
 
     @GetMapping("/logIn/{email}/{password}")
     public ResponseEntity<String> logIn(@PathVariable("email") String email, @PathVariable("password") String password) {
-        return userService.logIn(email, password);
+        try {
+            return new ResponseEntity<String>(userService.logIn(email, password), HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<String>(e.getMessage(), e.getStatusCode());
+        }
     }
 
     @GetMapping("/fill")
@@ -31,7 +36,7 @@ public class UserController {
         userService.fill();
     }
 
-    @DeleteMapping("/deleteUser/{userId}")
+    @DeleteMapping("/{userId}")
     public ResponseEntity<Boolean> deleteUser(@RequestHeader("token") String token, @PathVariable("userId") String userId) {
         try {
             userService.deleteUser(token, userId);
@@ -45,7 +50,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/editUser")
+    @PutMapping
     public ResponseEntity<Boolean> editUser(@RequestHeader("token") String token, @RequestBody User user) {
         try {
             userService.editUser(token, user);
@@ -59,8 +64,8 @@ public class UserController {
         }
     }
 
-    @GetMapping("/getAllNamesOfCustomers")
-    public List<Map.Entry<String, String>> getAllNamesOfCustomers(@RequestHeader("token") String token) {
-        return userService.getAllNamesOfCustomers(token);
+    @GetMapping("/getNamesOfCustomersByPrefix/{prefix}")
+    public List<Map.Entry<String, String>> getNamesOfCustomersByPrefix(@RequestHeader("token") String token, @PathVariable String prefix) {
+        return userService.getNamesOfCustomersByPrefix(token, prefix);
     }
 }

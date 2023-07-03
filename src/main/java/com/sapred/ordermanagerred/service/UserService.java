@@ -13,6 +13,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -38,18 +39,19 @@ public class UserService {
         Company c = new Company("1", "osherad", 55, d);
         companyRepository.save(c);
         Address a = new Address("0580000000", "mezada 7", "emailCust@gmail.com");
-        User user = new User("4", "new full name", "passCust", a, roles, c, d);
+        User user = new User("8", "dasi", "passCst", a, roles, c, d);
         userRepository.save(user);
     }
 
-    public ResponseEntity<String> logIn(String email, String password) {
+    @SneakyThrows
+    public String logIn(String email, String password) {
         User authenticatedUserEmail = userRepository.getByAddressEmail(email);
         if (authenticatedUserEmail == null)
-            return new ResponseEntity<>("Resource not found", HttpStatus.NOT_FOUND); // 404
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         if(!authenticatedUserEmail.getPassword().equals(password))
-            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED); // 401
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         String token = jwtToken.generateToken(authenticatedUserEmail);
-        return new ResponseEntity<>(token, HttpStatus.OK);
+        return token;
     }
 
 
@@ -57,7 +59,7 @@ public class UserService {
     public void deleteUser(String token, String userId) {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
-        User user = userRepository.findById(userId).get();
+        User user = userRepository.getById(userId);
         if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken))
             throw new NoPermissionException("You do not have the appropriate permission to delete user");
         userRepository.deleteById(userId);
@@ -67,7 +69,7 @@ public class UserService {
     public void editUser(String token, User user) {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
-        User userTOEdit = userRepository.findById(user.getId()).get();
+        User userTOEdit = userRepository.getById(user.getId());
         if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken))
             throw new NoPermissionException("You do not have the appropriate permission to edit user");
         userTOEdit.setFullName(user.getFullName());
@@ -75,19 +77,16 @@ public class UserService {
                 user.getAddress().getName(), user.getAddress().getEmail());
         userTOEdit.setAddress(address);
         userTOEdit.getAuditData().setUpdateDate(new Date());
-        userRepository.save(user);
+        userRepository.save(userTOEdit);
     }
 
-    public List<Map.Entry<String, String>> getAllNamesOfCustomers(String token) {
+    public List<Map.Entry<String, String>> getNamesOfCustomersByPrefix(String token, String prefix) {
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
-        List<User> us = userRepository.getAllByCompanyId(companyIdFromToken)
-                .stream().filter(u -> u.getRoleId().getName().equals(RoleOptions.CUSTOMER)).toList();
-        List<Map.Entry<String, String>> listNames = new ArrayList<>();
+        List<User> us = userRepository.findByCompanyId_IdAndRoleId_Id(companyIdFromToken, "1");
+        List<Map.Entry<String, String>> filteredNames = new ArrayList<>();
         for (User user : us)
-            listNames.add(new HashMap.SimpleEntry<>(user.getId(), user.getFullName()));
-        return listNames;
+            if (user.getFullName().toLowerCase().startsWith(prefix.toLowerCase()))
+                filteredNames.add(new HashMap.SimpleEntry<>(user.getId(), user.getFullName()));
+        return filteredNames;
     }
-
-
-
 }
