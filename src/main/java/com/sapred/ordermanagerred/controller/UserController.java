@@ -1,11 +1,9 @@
 package com.sapred.ordermanagerred.controller;
 
-import com.sapred.ordermanagerred.dto.UserDTO;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.model.User;
 import com.sapred.ordermanagerred.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +26,8 @@ public class UserController {
             return new ResponseEntity<String>(userService.logIn(email, password), HttpStatus.OK);
         } catch (ResponseStatusException e) {
             return new ResponseEntity<String>(e.getMessage(), e.getStatusCode());
+        } catch (RuntimeException e) {
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -43,24 +43,20 @@ public class UserController {
             return new ResponseEntity<>(true, HttpStatus.OK);
         } catch (NoPermissionException e) {
             return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
-        } catch (RuntimeException e) {
+        }  catch (Exception e) {
             return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (Exception e) {
-            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
         }
     }
 
     @PutMapping
     public ResponseEntity<Boolean> editUser(@RequestHeader("token") String token, @RequestBody User user) {
         try {
-            userService.editUser(token, user);
+            User u = userService.editUser(token, user);
             return new ResponseEntity<>(true, HttpStatus.OK);
         } catch (NoPermissionException e) {
             return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
-            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
