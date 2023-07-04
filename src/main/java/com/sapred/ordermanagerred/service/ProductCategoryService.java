@@ -6,6 +6,7 @@ import com.sapred.ordermanagerred.repository.CompanyRepository;
 import com.sapred.ordermanagerred.repository.RoleRepository;
 import com.sapred.ordermanagerred.repository.UserRepository;
 
+import com.sapred.ordermanagerred.security.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,8 @@ public class ProductCategoryService {
     private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private JwtToken jwtToken;
 
 
     //יצירת מופע של productCategory
@@ -55,10 +58,11 @@ public class ProductCategoryService {
         ProductCategory productCategory = new ProductCategory("5", "aaa", "aaa", c, d);
         productCategoryRepository.save(productCategory);
     }
-    public  HttpStatus editProductCategory( String token,ProductCategory productCategory){
-//        if(!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)))
+    public  ResponseEntity<String> editProductCategory(ProductCategory productCategory){
+//        if(!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)) ||jwtToken.getRoleIdFromToken(token)==RoleOptions.CUSTOMER)
 //            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to access this resource.");
+        productCategory.getAuditData().setUpdateDate(new Date());
         productCategoryRepository.save(productCategory);
-        return HttpStatus.OK;
+        return ResponseEntity.status(HttpStatus.OK).body("success");
     }
 }

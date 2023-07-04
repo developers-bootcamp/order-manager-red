@@ -24,8 +24,9 @@ public class ProductCategoryController {
     public void fill() {
         productCategoryService.fill();
     }
-    @PutMapping
-    public HttpStatus editProductCategory(@RequestHeader("token") String token,@RequestBody ProductCategory productCategory){
-        return productCategoryService.editProductCategory(token,productCategory);
+    @PutMapping("/editProductCategory")
+    public  ResponseEntity<String>  editProductCategory(@RequestBody ProductCategory productCategory){
+
+        return productCategoryService.editProductCategory(productCategory);
     }
 }
