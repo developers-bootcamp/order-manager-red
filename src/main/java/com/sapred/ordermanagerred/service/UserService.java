@@ -3,6 +3,7 @@ package com.sapred.ordermanagerred.service;
 import com.sapred.ordermanagerred.dto.UserDTO;
 import com.sapred.ordermanagerred.dto.UserMapper;
 import com.sapred.ordermanagerred.model.*;
+import com.sapred.ordermanagerred.repository.CompanyRepository;
 import com.sapred.ordermanagerred.repository.RoleRepository;
 import com.sapred.ordermanagerred.repository.UserRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
@@ -33,7 +34,7 @@ public class UserService {
     private RoleRepository roleRepository;
 
     @Autowired
-
+    CompanyRepository companyRepository;
 
 //     שימי לב: זו סתם פונקציה שמכניסה נתונים בשביל הבדיקה
     public void fill() {
@@ -51,7 +52,7 @@ public class UserService {
         User authenticatedUserEmail = userRepository.getByAddressEmail(email);
         if (authenticatedUserEmail == null)
             return new ResponseEntity<>("Resource not found", HttpStatus.NOT_FOUND); // 404
-        if(!authenticatedUserEmail.getPassword().equals(password))
+        if (!authenticatedUserEmail.getPassword().equals(password))
             return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED); // 401
         String token = jwtToken.generateToken(authenticatedUserEmail);
         return new ResponseEntity<>(token, HttpStatus.OK);
@@ -79,22 +80,23 @@ public class UserService {
     public boolean authenticateUserPassword(User user, String password) {
         return user.getPassword().equals(password);
     }
+
     @SneakyThrows
-    public User addUser(User user){
-        if (userRepository.existsByAddress_Email(user.getAddress().getEmail())==true)
+    public User addUser(User user) {
+        if (userRepository.existsByAddress_Email(user.getAddress().getEmail()) == true)
             throw new Exception();
         return userRepository.insert(user);
     }
 
-@Value("${pageSize}")
-private int pageSize;
-    public List<UserDTO> getUsers(int numPage){
+    @Value("${pageSize}")
+    private int pageSize;
 
-        Pageable pageable= PageRequest.of(numPage,pageSize);
-        Page<User> userPage=userRepository.findAll(pageable);
+    public List<UserDTO> getUsers(int numPage) {
+
+        Pageable pageable = PageRequest.of(numPage, pageSize);
+        Page<User> userPage = userRepository.findAll(pageable);
         return UserMapper.INSTANCE.userToDTO(userRepository.findAll());
     }
-
 
 
 }
