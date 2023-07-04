@@ -34,8 +34,12 @@ public class UserController {
         try {
             User newUser = userService.addUser(user);
             return ResponseEntity.ok().body(newUser);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+        catch (RuntimeException e) {
+            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -45,20 +49,13 @@ public class UserController {
            List<UserDTO> user= userService.getUsers(pageNumber);
             return ResponseEntity.ok().body(user);
         }
-        catch (Exception e){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        catch (RuntimeException e) {
+            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
         }
     }
 
 
-//    @GetMapping
-//    public ResponseEntity getAll() {
-//        try {
-//            List<User>users=userService.getAllUser()
-//            return ResponseEntity.ok().body(users);
-//        }
-//    catch (Exception e){
-//        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-//        }
-//    }
+
 }
