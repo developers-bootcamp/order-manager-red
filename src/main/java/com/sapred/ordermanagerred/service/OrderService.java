@@ -1,6 +1,4 @@
 package com.sapred.ordermanagerred.service;
-
-
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +7,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.sapred.ordermanagerred.security.JwtToken;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
+import java.util.*;
+import java.time.LocalDate;
+import java.time.Month;
 
 @Service
 public class OrderService {
@@ -35,6 +34,7 @@ public class OrderService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize/* pageSize parameter omitted */, sort);
 
         Page<Order> pageOrders = orderRepository.findByCompanyId_IdAndOrderStatusIdAndEmployee(companyId, statusId, userId, pageable);
+
         return pageOrders.getContent();
     }
 
@@ -52,6 +52,28 @@ public class OrderService {
         }
         orderRepository.saveAll(orders);
 
+
+    }
+
+    public Map<String, Map<Integer,Integer>> getStatus() {
+        LocalDate currentdate = LocalDate.now();
+        int cancel =0, deliver = 0;
+        Map<String, Map<Integer,Integer>> mapOrder =  new HashMap<>();
+        for(int i =0;i<3;i++){
+            Month currentMonth = currentdate.minusMonths(i).getMonth();
+//            List<Order> OrderMonth = orderRepository.findByAuditDataCreateDateMonth(currentMonth);
+            List<Order> OrderMonth = orderRepository.findByAuditDataCreateDate(currentdate);
+            for(Order o:OrderMonth){
+                if(o.getOrderStatusId().equals("cancel"))
+                    cancel++;
+                else
+                    deliver++;
+            }
+            Map<Integer,Integer> mapMonth = new HashMap<>();
+            mapMonth.put(cancel,deliver);
+            mapOrder.put(String.valueOf(currentMonth),mapMonth);
+        }
+        return mapOrder;
     }
 }
 

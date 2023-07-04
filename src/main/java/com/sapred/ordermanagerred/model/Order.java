@@ -2,6 +2,7 @@ package com.sapred.ordermanagerred.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.annotation.Collation;
@@ -22,6 +23,7 @@ public class Order {
     private String customer;
     private int totalAmount;
     private List<OrderItem> orderItemsList;
+    @Getter
     private String orderStatusId;
     @DBRef
     private Company companyId;
