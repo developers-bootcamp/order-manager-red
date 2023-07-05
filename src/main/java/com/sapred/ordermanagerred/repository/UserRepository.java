@@ -19,10 +19,10 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     boolean existsByAddress_Email(String email);
 
-    Page<User> findAll(Pageable pageable);
-    @Autowired
+//    Page<User> findAll(Pageable pageable);
+//    @Autowired
     User getByAddressEmail(String email);
 
-    @Autowired
-    List<User> getAllByCompanyId(String companyId);
+//    @Autowired
+//    List<User> getAllByCompanyId(String companyId);
 }
