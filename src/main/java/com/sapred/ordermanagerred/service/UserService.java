@@ -72,14 +72,14 @@ public class UserService {
     }
 
     @SneakyThrows
-    public User editUser(String token, User user) {
+    public User editUser(String token, String userId, User user) {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
-        User userTOEdit = userRepository.findById(user.getId()).get();
+        User userTOEdit = userRepository.findById(userId).get();
         if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
                 (role == RoleOptions.EMPLOYEE && userTOEdit.getRoleId().getName().equals(RoleOptions.ADMIN)))
             throw new NoPermissionException("You do not have the appropriate permission to edit user");
-        Query query = new Query(Criteria.where("id").is(user.getId()));
+        Query query = new Query(Criteria.where("id").is(userId));
         Update update = new Update()
                 .set("fullName", user.getFullName())
                 .set("password", user.getPassword())

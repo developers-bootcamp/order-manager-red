@@ -48,10 +48,10 @@ public class UserController {
         }
     }
 
-    @PutMapping
-    public ResponseEntity<Boolean> editUser(@RequestHeader("token") String token, @RequestBody User user) {
+    @PutMapping("/{userId}")
+    public ResponseEntity<Boolean> editUser(@RequestHeader("token") String token, @PathVariable("userId") String userId, @RequestBody User user) {
         try {
-            User u = userService.editUser(token, user);
+            User u = userService.editUser(token, userId, user);
             return new ResponseEntity<>(true, HttpStatus.OK);
         } catch (NoPermissionException e) {
             return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
