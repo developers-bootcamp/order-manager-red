@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.naming.NoPermissionException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -84,7 +85,8 @@ public class UserService {
     @SneakyThrows
     public User addUser(User user) {
         if (userRepository.existsByAddress_Email(user.getAddress().getEmail()) == true)
-            throw new Exception();
+            throw new NoPermissionException("You dont have permission to add the user");
+        user.setAuditData(new AuditData(new Date(),new Date()));
         return userRepository.insert(user);
     }
 

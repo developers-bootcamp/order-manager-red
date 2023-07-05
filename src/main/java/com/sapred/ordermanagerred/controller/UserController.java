@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.NoPermissionException;
 import java.util.List;
 
 @RestController
@@ -34,8 +35,7 @@ public class UserController {
         try {
             User newUser = userService.addUser(user);
             return ResponseEntity.ok().body(newUser);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         catch (Exception e) {
