@@ -7,6 +7,7 @@ import com.sapred.ordermanagerred.model.AuditData;
 import com.sapred.ordermanagerred.model.Product;
 import com.sapred.ordermanagerred.repository.AuditDataRepository;
 import com.sapred.ordermanagerred.repository.ProductRepository;
+import com.sapred.ordermanagerred.security.JwtToken;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,7 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
     @Autowired
-    private AuditDataRepository auditDataRepository;
+    private JwtToken jwtToken;
 
     @SneakyThrows
     public Product addProduct(Product product) {
@@ -48,14 +49,15 @@ public class ProductService {
         return HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
-    public ResponseEntity getAllProducts() {
-        List<Product> products = productRepository.findAll().stream().toList();
+    @SneakyThrows
+    public List<ProductDTO> getAllProducts(String token) {
+        String companyId=jwtToken.ge
+        List<Product> products = productRepository.findAllByCompanyId().stream().toList();
         if (products == null)
-            return ResponseEntity.status(207).body("mmmm");
-            //return HttpStatus.INTERNAL_SERVER_ERROR;
+            throw new Exception();
+        //return HttpStatus.INTERNAL_SERVER_ERROR;
         List<ProductDTO> productDTOs = productMapper.INSTANCE.productToDto(products);
-        //return HttpStatus.OK;
-        return ResponseEntity.ok(productDTOs);
+        return productDTOs;
     }
 
     public HttpStatus editProduct(Product product) {

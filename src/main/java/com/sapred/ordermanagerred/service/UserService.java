@@ -33,6 +33,7 @@ public class UserService {
         Address a = new Address( "0580000000","mezada 7","kamatek@gmail.com");
         addressRepository.save(a);
         User user = new User("123","user","mypass",a,roles,c,d);
+        user.getRoleId().getName();
         userRepository.save(user);
     }
 
