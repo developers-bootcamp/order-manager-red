@@ -35,11 +35,15 @@ public class UserService {
         AuditData d = new AuditData(new Date(), new Date());
         Role roles = new Role("1", RoleOptions.CUSTOMER, "cust", d);
         roleRepository.save(roles);
+        Role roles2 = new Role("2", RoleOptions.ADMIN, "admin", d);
+        roleRepository.save(roles2);
         Company c = new Company("1", "osherad", 55, d);
         companyRepository.save(c);
         Address a = new Address("0580000000", "mezada 7", "emailCust@gmail.com");
         User user = new User("4", "new full name", "passCust", a, roles, c, d);
+        User user2 = new User("2", "new name", "passadmin", a, roles2, c, d);
         userRepository.save(user);
+        userRepository.save(user2);
     }
 
     public ResponseEntity<String> logIn(String email, String password) {
