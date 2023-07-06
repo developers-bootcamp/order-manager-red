@@ -3,6 +3,7 @@ package com.sapred.ordermanagerred.service;
 
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.OrderRepository;
+import com.sapred.ordermanagerred.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -11,9 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.sapred.ordermanagerred.security.JwtToken;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+
+import java.util.*;
 
 
 @Service
@@ -22,6 +22,10 @@ public class OrderService {
     private OrderRepository orderRepository;
     @Autowired
     private JwtToken jwtToken;
+
+    @Autowired
+    private ProductRepository productRepository;
+
     @Value("${pageSize}")
     private int pageSize;
 
@@ -52,6 +56,22 @@ public class OrderService {
         }
         orderRepository.saveAll(orders);
 
+    }
+
+    public List<Map.Entry<String, Integer>> calculateOrderAmount(List<Map.Entry<String, Integer>> listOfProducts) {
+        List<Map.Entry<String, Integer>> res = new ArrayList<Map.Entry<String, Integer>>();
+        double sum = 0, globalSum = 0;
+        for (Map.Entry<String, Integer> product: listOfProducts) {
+            sum = 0;
+            Product p = productRepository.findById(product.getKey()).get();
+            if(p.getDiscountType() == DiscountType.PERCENTAGE)
+                sum = p.getPrice() * product.getValue() * p.getDiscount() * 0.01;
+            else if(p.getDiscountType() == DiscountType.FIXED_AMOUNT)
+                sum = p.getPrice() * product.getValue() - p.getDiscount();
+//            res.add(new HashMap.SimpleEntry<>())
+            globalSum += sum;
+        }
+        return res;
     }
 }
 

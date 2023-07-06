@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/Order")
@@ -30,5 +31,11 @@ public class OrderController {
     @GetMapping("/fill")
     public void fill() {
         orderService.fill();
+    }
+
+
+    @PostMapping("/calculateOrderAmount")
+    public List<Map.Entry<String, Integer>> calculateOrderAmount(@RequestBody List<Map.Entry<String, Integer>> listOfProducts) {
+        return orderService.calculateOrderAmount(listOfProducts);
     }
 }
