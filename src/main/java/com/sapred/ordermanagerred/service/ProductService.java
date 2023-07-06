@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -63,8 +64,8 @@ public class ProductService {
         return product;
     }
 
-    public HttpStatus deleteProduct(String id) {
-        if (productRepository.existsById(id) != true)
+    public  HttpStatus deleteProduct(String id){
+        if (productRepository.existsById(id))
             return HttpStatus.NOT_FOUND;
         productRepository.deleteById(id);
         return HttpStatus.OK;
