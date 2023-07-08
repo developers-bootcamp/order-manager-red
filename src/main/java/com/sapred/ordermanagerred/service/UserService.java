@@ -39,16 +39,32 @@ public class UserService {
     CompanyRepository companyRepository;
 
 //     שימי לב: זו סתם פונקציה שמכניסה נתונים בשביל הבדיקה
+
+    //    public void fill() {
+//        AuditData d = new AuditData(new Date(), new Date());
+//        Role roles = new Role("1", RoleOptions.CUSTOMER, "cust", d);
+//        roleRepository.save(roles);
+//        Company c = new Company("1", "osherad", 55, d);
+//        companyRepository.save(c);
+//        Address a = new Address("0580000000", "mezada 7", "emailCust@gmail.com");
+//        User user = new User("4", "new full name", "passCust", a, roles, c, d);
+//        userRepository.save(user);
+//    }
     public void fill() {
         AuditData d = new AuditData(new Date(), new Date());
         Role roles = new Role("1", RoleOptions.CUSTOMER, "cust", d);
         roleRepository.save(roles);
+        Role roles2 = new Role("2", RoleOptions.ADMIN, "admin", d);
+        roleRepository.save(roles2);
         Company c = new Company("1", "osherad", 55, d);
         companyRepository.save(c);
         Address a = new Address("0580000000", "mezada 7", "emailCust@gmail.com");
         User user = new User("4", "new full name", "passCust", a, roles, c, d);
+        User user2 = new User("2", "new name", "passadmin", a, roles2, c, d);
         userRepository.save(user);
+        userRepository.save(user2);
     }
+
 
     public ResponseEntity<String> logIn(String email, String password) {
         User authenticatedUserEmail = userRepository.getByAddressEmail(email);
@@ -84,14 +100,15 @@ public class UserService {
     }
 
     @SneakyThrows
-    public User addUser(String token,User user) {
+    public User addUser(String token, User user) {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
+        System.out.println(role);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken))
-            throw  new UnsupportedOperationException();
+            throw new UnsupportedOperationException();
         if (userRepository.existsByAddress_Email(user.getAddress().getEmail()) == true)
             throw new IllegalArgumentException();
-        user.setAuditData(new AuditData(new Date(),new Date()));
+        user.setAuditData(new AuditData(new Date(), new Date()));
         return userRepository.insert(user);
     }
 

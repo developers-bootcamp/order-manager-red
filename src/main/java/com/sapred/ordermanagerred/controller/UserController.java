@@ -38,16 +38,13 @@ public class UserController {
             return ResponseEntity.ok().body(newUser);
         }
         catch (IllegalArgumentException e){
-            return new ResponseEntity(false,HttpStatus.CONFLICT);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("1");
         }
         catch (UnsupportedOperationException e){
-            return new ResponseEntity(false, HttpStatus.FORBIDDEN);
-        }
-        catch (RuntimeException e) {
-            return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR);
+            return  ResponseEntity.status( HttpStatus.FORBIDDEN).body("2");
         }
         catch (Exception e) {
-            return new ResponseEntity(false, HttpStatus.NOT_FOUND);
+            return  ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR).body("4");
         }
     }
 
@@ -57,10 +54,8 @@ public class UserController {
            List<UserDTO> user= userService.getUsers(pageNumber);
             return ResponseEntity.ok().body(user);
         }
-        catch (RuntimeException e) {
+        catch (Exception e) {
             return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (Exception e) {
-            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
         }
     }
 
