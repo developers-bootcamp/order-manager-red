@@ -14,23 +14,28 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping
-    public HttpStatus addProduct(@RequestBody Product product){
-        return  productService.addProduct(product);
+    public HttpStatus addProduct(@RequestBody Product product) {
+        return productService.addProduct(product);
     }
 
     @GetMapping("/names")
-    public HttpStatus getAllNamesProducts(){
-        return  productService.getAllNamesProducts();
+    public HttpStatus getAllNamesProducts() {
+        return productService.getAllNamesProducts();
     }
 
     @GetMapping
-    public HttpStatus getAllProduct(){
-        return  productService.getAllProducts();
+    public HttpStatus getAllProduct() {
+        return productService.getAllProducts();
     }
 
     @PutMapping
-    public HttpStatus editProduct(@RequestBody Product product){return productService.editProduct(product);}
+    public HttpStatus editProduct(@RequestBody Product product) {
+        return productService.editProduct(product);
+    }
+
     @DeleteMapping("/:id")
-    public HttpStatus deleteProduct(@PathVariable("id") String id){return productService.deleteProduct(id);}
+    public HttpStatus deleteProduct(@PathVariable("id") String id) {
+        return productService.deleteProduct(id);
+    }
 
 }

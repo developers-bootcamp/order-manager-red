@@ -32,33 +32,28 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity addUser(@RequestHeader("token") String token,@RequestBody User user) {
+    public ResponseEntity addUser(@RequestHeader("token") String token, @RequestBody User user) {
         try {
-            User newUser = userService.addUser(token,user);
+            User newUser = userService.addUser(token, user);
             return ResponseEntity.ok().body(newUser);
-        }
-        catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("1");
-        }
-        catch (UnsupportedOperationException e){
-            return  ResponseEntity.status( HttpStatus.FORBIDDEN).body("2");
-        }
-        catch (Exception e) {
-            return  ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR).body("4");
+        } catch (UnsupportedOperationException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("2");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("4");
         }
     }
 
     @GetMapping("{pageNumber}")
     public ResponseEntity getUsers(@PathVariable("pageNumber") int pageNumber) {
         try {
-           List<UserDTO> user= userService.getUsers(pageNumber);
+            List<UserDTO> user = userService.getUsers(pageNumber);
             return ResponseEntity.ok().body(user);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
 
 }

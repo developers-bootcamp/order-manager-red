@@ -23,5 +23,6 @@ public interface UserMapper {
     User DTOToUser(UserDTO u);
 
     List<UserDTO> userToDTO(List<User> list);
+
     List<User> DTOToUser(List<UserDTO> list);
 }
