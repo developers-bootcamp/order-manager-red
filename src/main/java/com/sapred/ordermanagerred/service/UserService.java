@@ -2,6 +2,7 @@ package com.sapred.ordermanagerred.service;
 
 import com.sapred.ordermanagerred.dto.UserDTO;
 import com.sapred.ordermanagerred.dto.UserMapper;
+import com.sapred.ordermanagerred.exception.MyCustomException;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.CompanyRepository;
 import com.sapred.ordermanagerred.repository.RoleRepository;
@@ -83,9 +84,13 @@ public class UserService {
     }
 
     @SneakyThrows
-    public User addUser(User user) {
+    public User addUser(String token,User user) {
+        RoleOptions role = jwtToken.getRoleIdFromToken(token);
+        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken))
+            throw  new UnsupportedOperationException();
         if (userRepository.existsByAddress_Email(user.getAddress().getEmail()) == true)
-            throw new NoPermissionException("You dont have permission to add the user");
+            throw new IllegalArgumentException();
         user.setAuditData(new AuditData(new Date(),new Date()));
         return userRepository.insert(user);
     }

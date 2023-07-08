@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.naming.NoPermissionException;
 import java.util.List;
@@ -31,15 +32,22 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity addUser(@RequestBody User user) {
+    public ResponseEntity addUser(@RequestHeader("token") String token,@RequestBody User user) {
         try {
-            User newUser = userService.addUser(user);
+            User newUser = userService.addUser(token,user);
             return ResponseEntity.ok().body(newUser);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        catch (IllegalArgumentException e){
+            return new ResponseEntity(false,HttpStatus.CONFLICT);
+        }
+        catch (UnsupportedOperationException e){
+            return new ResponseEntity(false, HttpStatus.FORBIDDEN);
+        }
+        catch (RuntimeException e) {
+            return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         catch (Exception e) {
-            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+            return new ResponseEntity(false, HttpStatus.NOT_FOUND);
         }
     }
 
