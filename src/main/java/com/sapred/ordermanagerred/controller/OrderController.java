@@ -34,8 +34,13 @@ public class OrderController {
     }
 
 
+    @GetMapping("/fillProducts")
+    public void fillProducts() {
+        orderService.fillProducts();
+    }
+
     @PostMapping("/calculateOrderAmount")
-    public List<Map.Entry<String, Integer>> calculateOrderAmount(@RequestBody List<Map.Entry<String, Integer>> listOfProducts) {
-        return orderService.calculateOrderAmount(listOfProducts);
+    public ResponseEntity<List<Map.Entry<String, Map.Entry<Double, Double>>>> calculateOrderAmount(@RequestHeader("token") String token, @RequestBody List<Map.Entry<String, Integer>> listOfProducts) {
+        return new ResponseEntity<>(orderService.calculateOrderAmount(listOfProducts), HttpStatus.OK);
     }
 }

@@ -39,12 +39,12 @@ public class UserService {
 
     public void fill() {
         AuditData d = new AuditData(new Date(), new Date());
-        Role roles = new Role("2", RoleOptions.EMPLOYEE, "cust", d);
+        Role roles = new Role("3", RoleOptions.CUSTOMER, "cust", d);
         roleRepository.save(roles);
         Company c = new Company("1", "osherad", 55, d);
         companyRepository.save(c);
-        Address a = new Address("0580000000", "mezada 7", "ccc");
-        User user = new User("8", "ccc", "pass", a, roles, c, d);
+        Address a = new Address("0580000000", "mezada 7", "custp");
+        User user = new User("2", "cust", "custp", a, roles, c, d);
         userRepository.save(user);
     }
 
