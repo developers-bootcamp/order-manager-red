@@ -1,6 +1,7 @@
 package com.sapred.ordermanagerred.controller;
 
-import com.sapred.ordermanagerred.model.Product;
+import com.sapred.ordermanagerred.exception.NoPremissionException;
+import com.sapred.ordermanagerred.exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.model.ProductCategory;
 import com.sapred.ordermanagerred.service.ProductCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ public class ProductCategoryController {
     @Autowired
     private ProductCategoryService productCategoryService;
 
+
     @PostMapping("/create")
     public ResponseEntity<String> createProductCategory(@RequestBody ProductCategory productCategory){
         return productCategoryService.createProductCategory(productCategory);
@@ -24,9 +26,20 @@ public class ProductCategoryController {
     public void fill() {
         productCategoryService.fill();
     }
-    @PutMapping("/editProductCategory")
-    public  ResponseEntity<String>  editProductCategory(@RequestBody ProductCategory productCategory){
+    @PutMapping()
+    public  ResponseEntity<String>  editProductCategory(@RequestHeader("token") String token,@RequestBody ProductCategory productCategory) {
+        try {
+             productCategoryService.editProductCategory(token, productCategory);
 
-        return productCategoryService.editProductCategory(productCategory);
+        } catch (NoPremissionException ex) {
+            return new ResponseEntity(ex, HttpStatus.FORBIDDEN);
+        }
+        catch (ObjectDoesNotExistException ex) {
+            return new ResponseEntity(ex, HttpStatus.NOT_FOUND);
+        }
+        catch (Exception ex) {
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

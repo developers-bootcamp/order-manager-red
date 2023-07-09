@@ -1,5 +1,7 @@
 package com.sapred.ordermanagerred.service;
 
+import com.sapred.ordermanagerred.exception.NoPremissionException;
+import com.sapred.ordermanagerred.exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.ProductCategoryRepository;
 import com.sapred.ordermanagerred.repository.CompanyRepository;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.ObjectStreamException;
 import java.util.Date;
 
 @Service
@@ -30,22 +33,22 @@ public class ProductCategoryService {
 
 
     //יצירת מופע של productCategory
-    public ResponseEntity<String> createProductCategory(ProductCategory productCategory){
+    public ResponseEntity<String> createProductCategory(ProductCategory productCategory) {
         try {
-            if(productCategoryRepository.existsByName(productCategory.getName()))
-                throw new ResponseStatusException(HttpStatus.CONFLICT,"the name of the category already exists");
-            AuditData auditData=new AuditData();
+            if (productCategoryRepository.existsByName(productCategory.getName()))
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "the name of the category already exists");
+            AuditData auditData = new AuditData();
             auditData.setCreateDate(new Date());
             auditData.setUpdateDate(new Date());
             productCategory.setAuditData(auditData);
             productCategoryRepository.save(productCategory);
             return ResponseEntity.ok("success: true");
-        }
-        catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error create productCategory"+ e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error create productCategory" + e.getMessage());
         }
 
     }
+
     public void fill() {
         AuditData d = new AuditData(new Date(), new Date());
         Company c = new Company("5", "aaaaa", 55, d);
@@ -58,11 +61,14 @@ public class ProductCategoryService {
         ProductCategory productCategory = new ProductCategory("5", "aaa", "aaa", c, d);
         productCategoryRepository.save(productCategory);
     }
-    public  ResponseEntity<String> editProductCategory(ProductCategory productCategory){
-//        if(!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)) ||jwtToken.getRoleIdFromToken(token)==RoleOptions.CUSTOMER)
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to access this resource.");
+
+    public void editProductCategory(String token, ProductCategory productCategory) {
+       if (!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)) || jwtToken.getRoleIdFromToken(token) == RoleOptions.CUSTOMER)
+            throw new NoPremissionException("You dont have permission to delete the product");
+        if (productCategoryRepository.existsById(productCategory.getId()) == true)
+            throw new ObjectDoesNotExistException("This object does not exist");
         productCategory.getAuditData().setUpdateDate(new Date());
         productCategoryRepository.save(productCategory);
-        return ResponseEntity.status(HttpStatus.OK).body("success");
+
     }
 }
