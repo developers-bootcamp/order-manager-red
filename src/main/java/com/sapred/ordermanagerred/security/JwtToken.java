@@ -19,7 +19,6 @@ public class JwtToken {
     private static final String SECRET = "secret";
     private static final long EXPIRATION_TIME = 864_000_000; // 10 days
 
-    // פונקציה שמקבלת משתמש ומחזירה טוקן
     public String generateToken(User user) {
         Algorithm algorithm = Algorithm.HMAC256(SECRET.getBytes());
         String access_token = JWT.create()
@@ -31,7 +30,6 @@ public class JwtToken {
         return access_token;
     }
 
-    // פונקציה שמקבלת טוקן ומחזירה קוד של חברה
     public String getCompanyIdFromToken(String jwtToken) {
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
         DecodedJWT decodedJWT = JWT.require(algorithm).build().verify(jwtToken);
@@ -39,7 +37,6 @@ public class JwtToken {
         return companyId;
     }
 
-    // פונקציה שמקבלת טוקן ומחזירה קוד של משתמש
     public String getUserIdFromToken(String jwtToken) {
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
         DecodedJWT decodedJWT = JWT.require(algorithm).build().verify(jwtToken);
@@ -47,7 +44,6 @@ public class JwtToken {
         return userId;
     }
 
-    // פונקציה שמקבלת טוקן ומחזירה קוד של תפקיד
     public RoleOptions getRoleIdFromToken(String jwtToken) {
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
         DecodedJWT decodedJWT = JWT.require(algorithm).build().verify(jwtToken);
