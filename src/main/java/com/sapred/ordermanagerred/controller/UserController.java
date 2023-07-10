@@ -38,7 +38,7 @@ public class UserController {
         userService.fill();
     }
 
-    @PostMapping("/signup")
+    @PostMapping()
     public ResponseEntity signUP(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName, @RequestParam("email") String email, @RequestParam("password") String password) {
         try {
             String token = userService.signUp(fullName, companyName, email, password);
