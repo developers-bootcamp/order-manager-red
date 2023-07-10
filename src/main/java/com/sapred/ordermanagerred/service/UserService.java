@@ -4,20 +4,29 @@ import com.sapred.ordermanagerred.Exception.DataExistException;
 import com.sapred.ordermanagerred.Exception.InvalidDataException;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.AddressRepository;
+import com.sapred.ordermanagerred.exception.NoPermissionException;
+import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.CompanyRepository;
 import com.sapred.ordermanagerred.repository.RoleRepository;
 import com.sapred.ordermanagerred.repository.UserRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
 import com.sapred.ordermanagerred.security.PasswordValidator;
 import org.apache.commons.validator.routines.EmailValidator;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.PrivateKey;
 import java.util.Date;
 import java.util.List;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -27,55 +36,38 @@ public class UserService {
     @Autowired
     private CompanyRepository companyRepository;
     @Autowired
-    private AddressRepository addressRepository;
-    @Autowired
     private RoleRepository roleRepository;
     @Autowired
     private JwtToken jwtToken;
     @Autowired
     private PasswordValidator passwordValidator;
 
+    @Autowired
+    private CompanyRepository companyRepository;
 
-    // שימי לב: זו סתם פונקציה שמכניסה נתונים בשביל הבדיקה
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
     public void fill() {
         AuditData d = new AuditData(new Date(), new Date());
-        Role roles = new Role("11", RoleOptions.CUSTOMER, "kkkR", d);
-        Company c = new Company("52", "gg", 55, d);
-        Address a = new Address("0580000000", "mezada 7", "kamatek@gmail.com");
-        addressRepository.save(a);
-        User user = new User("123", "user", "mypass", a, roles, c, d);
+        Role roles = new Role("2", RoleOptions.EMPLOYEE, "cust", d);
+        roleRepository.save(roles);
+        Company c = new Company("1", "osherad", 55, d);
+        companyRepository.save(c);
+        Address a = new Address("0580000000", "mezada 7", "ccc");
+        User user = new User("8", "ccc", "pass", a, roles, c, d);
         userRepository.save(user);
     }
 
-    public List<User> getAll() {
-        List<User> listAll = userRepository.findAll();
-        return listAll;
-    }
-
-
-    public ResponseEntity<String> logIn(String email, String password) {
-        User authenticatedUserEmail = authenticateUserEmail(email);
+    @SneakyThrows
+    public String logIn(String email, String password) {
+        User authenticatedUserEmail = userRepository.getByAddressEmail(email);
         if (authenticatedUserEmail == null)
-            return new ResponseEntity<>("Resource not found", HttpStatus.NOT_FOUND); // 404
-        if (!authenticateUserPassword(authenticatedUserEmail, password))
-            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED); // 401
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (!authenticatedUserEmail.getPassword().equals(password))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         String token = jwtToken.generateToken(authenticatedUserEmail);
-        return new ResponseEntity<>(token, HttpStatus.OK);
-    }
-
-    // אימות מייל משתמש
-    public User authenticateUserEmail(String email) {
-        List<User> us = getAll();
-        User user = us.stream()
-                .filter(u -> u.getAddress().getEmail().equals(email))
-                .findFirst()
-                .orElse(null);
-        return user;
-    }
-
-    // אימות ססמת משתמש
-    public boolean authenticateUserPassword(User user, String password) {
-        return user.getPassword().equals(password);
+        return token;
     }
 
     public String signUp(String fullName, String companyName, String email, String password) {
@@ -108,5 +100,41 @@ public class UserService {
         return companyRepository.findByName(companyName);
     }
 
+    @SneakyThrows
+    public void deleteUser(String token, String userId) {
+        RoleOptions role = jwtToken.getRoleIdFromToken(token);
+        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
+        User user = userRepository.findById(userId).get();
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
+                (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN)))
+            throw new NoPermissionException("You do not have the appropriate permission to delete user");
+        userRepository.deleteById(userId);
+    }
 
+    @SneakyThrows
+    public User editUser(String token, String userId, User user) {
+        RoleOptions role = jwtToken.getRoleIdFromToken(token);
+        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
+        User userTOEdit = userRepository.findById(userId).get();
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
+                (role == RoleOptions.EMPLOYEE && userTOEdit.getRoleId().getName().equals(RoleOptions.ADMIN)))
+            throw new NoPermissionException("You do not have the appropriate permission to edit user");
+        Query query = new Query(Criteria.where("id").is(userId));
+        Update update = new Update()
+                .set("fullName", user.getFullName())
+                .set("password", user.getPassword())
+                .set("address", user.getAddress())
+                .set("auditData.updateDate", new Date());
+        FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
+        return mongoTemplate.findAndModify(query, update, options, User.class);
+    }
+
+    public List<Map.Entry<String, String>> getNamesOfCustomersByPrefix(String token, String prefix) {
+        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
+        List<User> us = userRepository.findByCompanyIdAndRoleIdAndPrefix(companyIdFromToken, "3", prefix);
+        List<Map.Entry<String, String>> filteredNames = new ArrayList<>();
+        for (User user : us)
+            filteredNames.add(new HashMap.SimpleEntry<>(user.getId(), user.getFullName()));
+        return filteredNames;
+    }
 }

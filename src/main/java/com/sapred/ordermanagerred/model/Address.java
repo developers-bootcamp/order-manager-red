@@ -10,6 +10,6 @@ import org.springframework.data.annotation.Id;
 @NoArgsConstructor
 public class Address {
     private String phone;
-    private String address;
+    private String name;
     private String email;
 }

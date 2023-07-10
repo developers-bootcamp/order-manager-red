@@ -1,17 +1,12 @@
 package com.sapred.ordermanagerred.service;
 
-import com.mongodb.client.model.ReturnDocument;
 import com.sapred.ordermanagerred.model.AuditData;
 import com.sapred.ordermanagerred.model.Product;
-import com.sapred.ordermanagerred.repository.AuditDataRepository;
 import com.sapred.ordermanagerred.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,8 +14,7 @@ import java.util.stream.Collectors;
 public class ProductService {
     @Autowired
     private ProductRepository productRepository;
-    @Autowired
-    private AuditDataRepository auditDataRepository;
+
     public HttpStatus addProduct(Product product){
         if (productRepository.existsByName(product.getName())==true)
             return HttpStatus.CONFLICT;
@@ -74,7 +68,7 @@ public class ProductService {
         return HttpStatus.OK;
     }
     public  HttpStatus deleteProduct(String id){
-        if (!productRepository.existsById(id)!=true)
+        if (productRepository.existsById(id))
             return HttpStatus.NOT_FOUND;
         productRepository.deleteById(id);
         return  HttpStatus.OK;
