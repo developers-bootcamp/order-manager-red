@@ -10,4 +10,5 @@ public class OrderManagerRedApplication {
 		SpringApplication.run(OrderManagerRedApplication.class, args);
 	}
 
+	
 }
