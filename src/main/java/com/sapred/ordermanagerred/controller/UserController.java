@@ -1,16 +1,12 @@
 package com.sapred.ordermanagerred.controller;
 
 import com.sapred.ordermanagerred.dto.UserDTO;
-import com.sapred.ordermanagerred.model.Product;
 import com.sapred.ordermanagerred.model.User;
 import com.sapred.ordermanagerred.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-
-import javax.naming.NoPermissionException;
 import java.util.List;
 
 @RestController

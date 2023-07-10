@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/ProductCategory")
+@CrossOrigin("http://localhost:3000")
 public class ProductCategoryController {
     @Autowired
     private ProductCategoryService productCategoryService;
