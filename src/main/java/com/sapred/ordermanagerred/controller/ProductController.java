@@ -24,7 +24,7 @@ public class ProductController {
     public ResponseEntity addProduct(@RequestHeader("token") String token, @RequestBody Product product) {
         try {
             Product newProduct = productService.addProduct(token, product);
-            return ResponseEntity.ok().body(newProduct);
+            return ResponseEntity.status(HttpStatus.OK).body(newProduct);
         } catch (ObjectAlreadyExists e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (NoPermissionException e) {
@@ -50,7 +50,7 @@ public class ProductController {
     public ResponseEntity getAllProduct(@RequestHeader("token") String token) {
         try {
             List<ProductDTO> products = productService.getAllProducts(token);
-            return ResponseEntity.ok().body(products);
+            return ResponseEntity.status(HttpStatus.OK).body(products);
         } catch (NoPermissionException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (Exception e) {
@@ -81,13 +81,4 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-
-}
-//{
-//        "name":"chocklate",
-//        "desc":"milk 1",
-//        "categoryId":"4",
-//        "inventory":121,
-//        "price":8,
-//        "discountType":1
-//}
+    
