@@ -50,7 +50,7 @@ public class UserService {
         User authenticatedUserEmail = userRepository.getByAddressEmail(email);
         if (authenticatedUserEmail == null)
             return new ResponseEntity<>("Resource not found", HttpStatus.NOT_FOUND); // 404
-        if(!authenticatedUserEmail.getPassword().equals(password))
+        if (!authenticatedUserEmail.getPassword().equals(password))
             return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED); // 401
         String token = jwtToken.generateToken(authenticatedUserEmail);
         return new ResponseEntity<>(token, HttpStatus.OK);
@@ -106,7 +106,6 @@ public class UserService {
             listNames.add(user.getFullName());
         return listNames;
     }
-
 
 
 }
