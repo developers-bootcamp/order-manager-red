@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
-import javax.naming.NoPermissionException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -86,7 +85,8 @@ public class UserService {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         System.out.println(role);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
-        if (role == RoleOptions.CUSTOMER)
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
+                (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN)))
             throw new UnsupportedOperationException();
         if (userRepository.existsByAddress_Email(user.getAddress().getEmail()) == true)
             throw new IllegalArgumentException();
@@ -130,6 +130,8 @@ public class UserService {
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         Pageable pageable = PageRequest.of(numPage, pageSize);
         Page<User> userPage = userRepository.findAll(pageable);
-        return UserMapper.INSTANCE.userToDTO(userRepository.findAll());
+        if(role == RoleOptions.CUSTOMER)
+            throw new UnsupportedOperationException();
+        return UserMapper.INSTANCE.userToDTO(userPage.getContent());
     }
 }
