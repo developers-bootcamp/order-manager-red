@@ -42,8 +42,6 @@ public class UserService {
     @Autowired
     private PasswordValidator passwordValidator;
 
-    @Autowired
-    private CompanyRepository companyRepository;
 
     @Autowired
     private MongoTemplate mongoTemplate;
