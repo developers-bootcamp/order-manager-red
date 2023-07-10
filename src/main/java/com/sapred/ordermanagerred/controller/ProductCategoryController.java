@@ -15,7 +15,7 @@ public class ProductCategoryController {
     @Autowired
     private ProductCategoryService productCategoryService;
 
-    @PostMapping("/create")
+    @PostMapping()
     public ResponseEntity createProductCategory(@RequestHeader String token, @RequestBody ProductCategory productCategory) {
         try {
             productCategoryService.createProductCategory(productCategory, token);

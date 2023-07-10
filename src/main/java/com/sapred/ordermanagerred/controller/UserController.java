@@ -1,7 +1,10 @@
 package com.sapred.ordermanagerred.controller;
 
+import com.sapred.ordermanagerred.Exception.DataExistException;
+import com.sapred.ordermanagerred.Exception.InvalidDataException;
 import com.sapred.ordermanagerred.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +26,17 @@ public class UserController {
         userService.fill();
     }
 
-    @PostMapping("/signUp")
-    public ResponseEntity<String> signUP(@RequestParam("fullName") String fullName,@RequestParam("companyName") String companyName, @RequestParam("email") String email,@RequestParam("password") String password){
-        return userService.signUp(fullName, companyName, email, password);
+    @PostMapping("/signup")
+    public ResponseEntity signUP(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName, @RequestParam("email") String email, @RequestParam("password") String password) {
+        try {
+            String token = userService.signUp(fullName, companyName, email, password);
+            return new ResponseEntity(token, HttpStatus.OK);
+        } catch (InvalidDataException ex) {
+            return new ResponseEntity(ex, HttpStatus.BAD_REQUEST);
+        } catch (DataExistException ex) {
+            return new ResponseEntity(ex, HttpStatus.CONFLICT);
+        } catch (Exception ex) {
+            return new ResponseEntity(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
