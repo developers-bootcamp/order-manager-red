@@ -104,7 +104,7 @@ public class UserService {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         System.out.println(role);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken))
+        if (role == RoleOptions.CUSTOMER)
             throw new UnsupportedOperationException();
         if (userRepository.existsByAddress_Email(user.getAddress().getEmail()) == true)
             throw new IllegalArgumentException();
@@ -115,8 +115,10 @@ public class UserService {
     @Value("${pageSize}")
     private int pageSize;
 
-    public List<UserDTO> getUsers(int numPage) {
-
+    public List<UserDTO> getUsers(String token,int numPage) {
+        RoleOptions role = jwtToken.getRoleIdFromToken(token);
+        System.out.println(role);
+        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         Pageable pageable = PageRequest.of(numPage, pageSize);
         Page<User> userPage = userRepository.findAll(pageable);
         return UserMapper.INSTANCE.userToDTO(userRepository.findAll());

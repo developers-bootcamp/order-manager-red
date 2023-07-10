@@ -46,9 +46,9 @@ public class UserController {
     }
 
     @GetMapping("{pageNumber}")
-    public ResponseEntity getUsers(@PathVariable("pageNumber") int pageNumber) {
+    public ResponseEntity getUsers(@RequestHeader("token") String token,@PathVariable("pageNumber") int pageNumber) {
         try {
-            List<UserDTO> user = userService.getUsers(pageNumber);
+            List<UserDTO> user = userService.getUsers(token,pageNumber);
             return ResponseEntity.ok().body(user);
         } catch (Exception e) {
             return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
