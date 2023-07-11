@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.sapred.ordermanagerred.security.JwtToken;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,24 +35,27 @@ public class OrderService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize/* pageSize parameter omitted */, sort);
 
-        Page<Order> pageOrders = orderRepository.findByCompanyId_IdAndOrderStatusIdAndEmployee(companyId, statusId, userId, pageable);
+        Page<Order> pageOrders = orderRepository.findByCompanyId_IdAndOrderStatusAndEmployeeId(companyId, statusId, userId, pageable);
         return pageOrders.getContent();
     }
 
     // note! it is a function just to fill data
-    public void fill() {
-        AuditData d = new AuditData(new Date(), new Date());
-        List<Order> orders = new ArrayList<Order>();
-        for (int i = 200; i < 500; i++) {
-            if (i % 3 == 0)
-                orders.add(new Order(Integer.toString(i), "employee", "customer", i * 2, new Company("11", "333", 88, d), new AuditData(new Date(), new Date(i * 1000)), "1"));
-            else if (i % 3 == 1)
-                orders.add(new Order(Integer.toString(i), "custumer", "customer", i * 2, new Company("22", "333", 88, d), new AuditData(new Date(), new Date(i * 1000)), "2"));
-            else
-                orders.add(new Order(Integer.toString(i), "111", "customer", i * 2, new Company("11", "333", 88, d), new AuditData(new Date(), new Date(i * i)), "3"));
-        }
-        orderRepository.saveAll(orders);
-
+//    public void fill() {
+//        AuditData d = new AuditData(new Date(), new Date());
+//        List<Order> orders = new ArrayList<Order>();
+//        for (int i = 200; i < 500; i++) {
+//            if (i % 3 == 0)
+//                orders.add(new Order(Integer.toString(i), "employee", "customer", i * 2, new Company("11", "333", 88, d), new AuditData(new Date(), new Date(i * 1000)), "1"));
+//            else if (i % 3 == 1)
+//                orders.add(new Order(Integer.toString(i), "custumer", "customer", i * 2, new Company("22", "333", 88, d), new AuditData(new Date(), new Date(i * 1000)), "2"));
+//            else
+//                orders.add(new Order(Integer.toString(i), "111", "customer", i * 2, new Company("11", "333", 88, d), new AuditData(new Date(), new Date(i * i)), "3"));
+//        }
+//        orderRepository.saveAll(orders);
+//
+//    }
+    public String createOrder(Order order) {
+        return orderRepository.save(order).getId();
     }
 }
 

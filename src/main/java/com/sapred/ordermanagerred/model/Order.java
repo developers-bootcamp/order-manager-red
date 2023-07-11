@@ -16,28 +16,37 @@ import java.util.List;
 @NoArgsConstructor
 @Document(collection = "Order")
 public class Order {
+
+    public enum StatusOptions {
+        DONE,
+        PROCESSING,
+        CREATED
+    }
+
     @Id
     private String id;
-    private String employee;
-    private String customer;
+    @DBRef
+    private User employeeId;
+    @DBRef
+    private User customerId;
     private int totalAmount;
     private List<OrderItem> orderItemsList;
-    private String orderStatusId;
+    private StatusOptions orderStatus;
     @DBRef
     private Company companyId;
     private int creditCardNumber;
-    private Date ExpiryOn;
+    private Date ExpireOn;
     private int cvc;
     private boolean notificationFlag;
     private AuditData auditData;
 
-    public Order(String s, String employee, String customer, int i,Company companyId, AuditData d,String orderStatusId) {
-        id=s;
-        this.employee=employee;
-        this.customer=customer;
-        this.totalAmount=i;
-        this.auditData=d;
-        this.companyId=companyId;
-        this.orderStatusId=orderStatusId;
-    }
+//    public Order(String s, String employee, String customer, int i,Company companyId, AuditData d,String orderStatusId) {
+//        id=s;
+//        this.employee=employee;
+//        this.customer=customer;
+//        this.totalAmount=i;
+//        this.auditData=d;
+//        this.companyId=companyId;
+//        this.orderStatusId=orderStatusId;
+//    }
 }

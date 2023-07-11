@@ -1,6 +1,7 @@
 package com.sapred.ordermanagerred.controller;
 
 import com.sapred.ordermanagerred.model.Order;
+import com.sapred.ordermanagerred.model.ProductCategory;
 import com.sapred.ordermanagerred.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,7 @@ public class OrderController {
     private OrderService orderService;
 
     //the params should be pathparams?...
-    @GetMapping("/getOrders/{userId}/{status}/{pageNumber}")
+    @GetMapping("/{userId}/{status}/{pageNumber}")
     public ResponseEntity getOrders(@RequestHeader("token") String token, @PathVariable("userId") String userId, @PathVariable("status") String statusId, @PathVariable("pageNumber") int pageNumber) {
         try {
             List<Order> orders = orderService.getOrders(token, statusId, pageNumber, userId);
@@ -26,9 +27,18 @@ public class OrderController {
         }
     }
 
-    // it is a function just to fill data
-    @GetMapping("/fill")
-    public void fill() {
-        orderService.fill();
+    @PostMapping("/")
+    public ResponseEntity createOrder(@RequestBody Order order) {
+        try {
+            String id = orderService.createOrder(order);
+            return ResponseEntity.ok().body(id);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
+    // it is a function just to fill data
+//    @GetMapping("/fill")
+//    public void fill() {
+//        orderService.fill();
+//    }
 }
