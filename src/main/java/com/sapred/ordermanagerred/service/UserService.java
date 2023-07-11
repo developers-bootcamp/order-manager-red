@@ -3,9 +3,7 @@ package com.sapred.ordermanagerred.service;
 import com.sapred.ordermanagerred.Exception.DataExistException;
 import com.sapred.ordermanagerred.Exception.InvalidDataException;
 import com.sapred.ordermanagerred.model.*;
-import com.sapred.ordermanagerred.repository.AddressRepository;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
-import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.CompanyRepository;
 import com.sapred.ordermanagerred.repository.RoleRepository;
 import com.sapred.ordermanagerred.repository.UserRepository;
@@ -68,6 +66,8 @@ public class UserService {
         return token;
     }
 
+    @SneakyThrows
+
     public String signUp(String fullName, String companyName, String email, String password) {
         if (!EmailValidator.getInstance().isValid(email) || !passwordValidator.isValid(password))
             throw new InvalidDataException("the password or the email invalid");
@@ -88,6 +88,7 @@ public class UserService {
 
     }
 
+    @SneakyThrows
     private Company createCompany(String companyName, AuditData auditData) {
         if (companyRepository.existsByName(companyName))
             throw new DataExistException("the name of the company already exist");
