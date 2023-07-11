@@ -51,6 +51,7 @@ public class UserController {
             return new ResponseEntity(ex, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @DeleteMapping("/{userId}")
     public ResponseEntity<Boolean> deleteUser(@RequestHeader("token") String token, @PathVariable("userId") String userId) {
         try {
@@ -58,7 +59,7 @@ public class UserController {
             return new ResponseEntity<>(true, HttpStatus.OK);
         } catch (NoPermissionException e) {
             return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
