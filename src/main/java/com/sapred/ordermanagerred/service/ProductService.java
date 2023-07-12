@@ -32,9 +32,9 @@ public class ProductService {
     public Product addProduct(String token, Product product) {
         if (jwtToken.getRoleIdFromToken(token) != RoleOptions.ADMIN)
             throw new NoPermissionException("You can't add product");
-        if (productRepository.existsByName(product.getName()) == true)
+        if (productRepository.existsByName(product.getName()))
             throw new ObjectAlreadyExists("The product already exists");
-        product.setAuditData(new AuditData(new Date(), null));
+        product.setAuditData(new AuditData(new Date(), new Date()));
         Company company = companyService.getCompany(jwtToken.getCompanyIdFromToken(token));
         product.setCompanyId(company);
         return productRepository.insert(product);
@@ -44,7 +44,7 @@ public class ProductService {
     public List<ProductNameDTO> getAllNamesProducts(String token, String prefix) {
         if (jwtToken.getRoleIdFromToken(token) == RoleOptions.CUSTOMER)
             throw new NoPermissionException("You can't get name's products");
-        List<Product> products = productRepository.findByCompanyId_NameAndPrefix(token, prefix).stream().toList();
+        List<Product> products = productRepository.findByCompanyIdAndNameAndPrefix(token, prefix).stream().toList();
         List<ProductNameDTO> productList = productMapper.INSTANCE.productToProductNameDto(products);
         return productList;
     }
