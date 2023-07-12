@@ -37,8 +37,6 @@ public class OrderController {
         orderService.fill();
     }
 
-
-
     @GetMapping("/fillProducts")
     public void fillProducts() {
         orderService.fillProducts();
@@ -49,8 +47,4 @@ public class OrderController {
         return new ResponseEntity<>(orderService.calculateOrderAmount(order), HttpStatus.OK);
     }
 
-    @GetMapping("/getCurrencies")
-    public ResponseEntity<List<Currency>> getCurrencies(@RequestHeader("token") String token) {
-        return new ResponseEntity<>(orderService.getCurrencies(), HttpStatus.OK);
-    }
 }

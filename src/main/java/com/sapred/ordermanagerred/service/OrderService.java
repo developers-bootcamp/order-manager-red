@@ -103,12 +103,5 @@ public class OrderService {
         listOfCart.add(new ProductCartDTO("Total", totalSum, totalDiscount, totalQuantity));
         return listOfCart;
     }
-
-    public List<Currency> getCurrencies() {
-        List<Currency> currencyList = new ArrayList<>();
-        return Arrays.stream(Currency.values()).toList();
-    }
-
-
 }
 

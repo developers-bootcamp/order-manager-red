@@ -26,6 +26,23 @@ public class ProductCategoryService {
     @Autowired
     private ProductCategoryMapper productCategoryMapper;
 
+    //יצירת מופע של productCategory
+    public ResponseEntity<String> createProductCategory(ProductCategory productCategory){
+        try {
+            if(productCategoryRepository.existsByName(productCategory.getName()))
+                throw new ResponseStatusException(HttpStatus.CONFLICT,"the name of the category already exists");
+            AuditData auditData=new AuditData();
+            auditData.setCreateDate(new Date());
+            auditData.setUpdateDate(new Date());
+            productCategory.setAuditData(auditData);
+            productCategoryRepository.save(productCategory);
+            return ResponseEntity.ok("success: true");
+        }
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error create productCategory"+ e.getMessage());
+        }
+    }
+
     public void deleteProductCategory(String token, String id) {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
