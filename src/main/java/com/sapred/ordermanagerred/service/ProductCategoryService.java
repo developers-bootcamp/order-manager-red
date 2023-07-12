@@ -41,7 +41,7 @@ public class ProductCategoryService {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         if (role == RoleOptions.CUSTOMER)
-            throw new NoPermissionException("You do not have the appropriate permission to delete product category");
+            throw new NoPermissionException("You do not have the appropriate permission to get all product category");
         List<ProductCategory> productCategories = productCategoryRepository.getAllByCompanyId(companyIdFromToken);
         List<ProductCategoryDto> productCategoryDtos = productCategoryMapper.productCategoryDtoToProductCategory(productCategories);
         return productCategoryDtos;
