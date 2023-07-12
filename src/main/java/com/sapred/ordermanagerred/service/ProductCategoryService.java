@@ -32,9 +32,9 @@ public class ProductCategoryService {
         ProductCategory productCategory = productCategoryRepository.findById(id).get();
 
         if (role == RoleOptions.CUSTOMER || !productCategory.getCompanyId().getId().equals(companyIdFromToken))
-                throw new NoPermissionException("You do not have the appropriate permission to delete product category");
+            throw new NoPermissionException("You do not have the appropriate permission to delete product category");
 
-            productCategoryRepository.deleteById(id);
+        productCategoryRepository.deleteById(id);
 
     }
     public List<ProductCategoryDto> getAllCategory(String token) {
@@ -45,5 +45,21 @@ public class ProductCategoryService {
         List<ProductCategory> productCategories = productCategoryRepository.getAllByCompanyId(companyIdFromToken);
         List<ProductCategoryDto> productCategoryDtos = productCategoryMapper.productCategoryDtoToProductCategory(productCategories);
         return productCategoryDtos;
+    }
+    //יצירת מופע של productCategory
+    public ResponseEntity<String> createProductCategory(ProductCategory productCategory){
+        try {
+            if(productCategoryRepository.existsByName(productCategory.getName()))
+                throw new ResponseStatusException(HttpStatus.CONFLICT,"the name of the category already exists");
+            AuditData auditData=new AuditData();
+            auditData.setCreateDate(new Date());
+            auditData.setUpdateDate(new Date());
+            productCategory.setAuditData(auditData);
+            productCategoryRepository.save(productCategory);
+            return ResponseEntity.ok("success: true");
+        }
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error create productCategory"+ e.getMessage());
+        }
     }
 }

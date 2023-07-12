@@ -129,7 +129,7 @@ public class UserService {
         System.out.println(role);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         Pageable pageable = PageRequest.of(numPage, pageSize);
-        Page<User> userPage = userRepository.findAllByCompany(companyIdFromToken,pageable);
+        Page<User> userPage = userRepository.findByCompanyId(companyIdFromToken,pageable);
         return UserMapper.INSTANCE.userToDTO(userPage.getContent());
     }
 }
