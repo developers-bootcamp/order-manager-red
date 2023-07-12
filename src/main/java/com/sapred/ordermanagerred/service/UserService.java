@@ -129,9 +129,7 @@ public class UserService {
         System.out.println(role);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         Pageable pageable = PageRequest.of(numPage, pageSize);
-        Page<User> userPage = userRepository.findAll(pageable);
-        if(role == RoleOptions.CUSTOMER)
-            throw new UnsupportedOperationException();
+        Page<User> userPage = userRepository.findAllByCompany(companyIdFromToken,pageable);
         return UserMapper.INSTANCE.userToDTO(userPage.getContent());
     }
 }
