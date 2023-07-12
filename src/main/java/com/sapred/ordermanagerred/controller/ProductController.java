@@ -15,28 +15,65 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping
-    public HttpStatus addProduct(@RequestBody Product product) {
-        return productService.addProduct(product);
+    public ResponseEntity addProduct(@RequestHeader("token") String token, @RequestBody Product product) {
+        try {
+            Product newProduct = productService.addProduct(token, product);
+            return ResponseEntity.status(HttpStatus.OK).body(newProduct);
+        } catch (ObjectAlreadyExists e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (NoPermissionException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
-    @GetMapping("/names")
-    public HttpStatus getAllNamesProducts() {
-        return productService.getAllNamesProducts();
+    @GetMapping("/names/{prefix}")
+    public ResponseEntity getAllNamesProducts(@RequestHeader("token") String token, @PathVariable("prefix") String prefix) {
+        try {
+            List<ProductNameDTO> listProduct = productService.getAllNamesProducts(token, prefix);
+            return ResponseEntity.status(HttpStatus.OK).body(listProduct);
+        } catch (NoPermissionException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @GetMapping
-    public HttpStatus getAllProduct() {
-        return productService.getAllProducts();
+    public ResponseEntity getAllProduct(@RequestHeader("token") String token) {
+        try {
+            List<ProductDTO> products = productService.getAllProducts(token);
+            return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (NoPermissionException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @PutMapping
-    public HttpStatus editProduct(@RequestBody Product product) {
-        return productService.editProduct(product);
+    public ResponseEntity editProduct(@RequestHeader("token") String token, @RequestBody Product product) {
+        try {
+            Product productEdit = productService.editProduct(token, product);
+            return ResponseEntity.ok(HttpStatus.OK);
+        } catch (NoPermissionException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
-    @DeleteMapping("/:id")
-    public HttpStatus deleteProduct(@PathVariable("id") String id) {
-        return productService.deleteProduct(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteProduct(@RequestHeader("token") String token, @PathVariable("id") String id) {
+        try {
+            productService.deleteProduct(token, id);
+            return ResponseEntity.status(HttpStatus.OK).body("true");
+        } catch (NoPermissionException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
 }
