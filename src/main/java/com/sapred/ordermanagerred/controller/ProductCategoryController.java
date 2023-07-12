@@ -1,6 +1,7 @@
 package com.sapred.ordermanagerred.controller;
 
-import com.sapred.ordermanagerred.exception.NoPremissionException;
+import com.sapred.ordermanagerred.Mapper.ProductCategoryMapper;
+import com.sapred.ordermanagerred.Mapper.ProductCategoryMapperImpl;
 import com.sapred.ordermanagerred.exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.dto.ProductCategoryDto;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
@@ -10,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import  com.sapred.ordermanagerred.Mapper.ProductCategoryMapperImpl.*;
+
+import java.util.List;
 
 
 @RestController
@@ -18,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 public class ProductCategoryController {
     @Autowired
     private ProductCategoryService productCategoryService;
+    @Autowired
+    private ProductCategoryMapper productCategoryMapper;
 
 
     @PostMapping("/create")
@@ -29,11 +35,12 @@ public class ProductCategoryController {
         productCategoryService.fill();
     }
     @PutMapping()
-    public  ResponseEntity<String>  editProductCategory(@RequestHeader("token") String token,@RequestBody ProductCategory productCategory) {
+    public  ResponseEntity<String> editProductCategory(@RequestHeader("token") String token,@RequestBody ProductCategoryDto productCategoryDto) {
         try {
-             productCategoryService.editProductCategory(token, productCategory);
+            ProductCategory productCategory=productCategoryMapper.productCategoryDtoToProductCategory(productCategoryDto);
+            productCategoryService.editProductCategory(token, productCategory);
 
-        } catch (NoPremissionException ex) {
+        } catch (NoPermissionException ex) {
             return new ResponseEntity(ex, HttpStatus.FORBIDDEN);
         }
         catch (ObjectDoesNotExistException ex) {

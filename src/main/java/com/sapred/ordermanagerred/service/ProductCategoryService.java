@@ -1,6 +1,5 @@
 package com.sapred.ordermanagerred.service;
 
-import com.sapred.ordermanagerred.exception.NoPremissionException;
 import com.sapred.ordermanagerred.exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.ProductCategoryRepository;
@@ -14,7 +13,6 @@ import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.model.AuditData;
 import com.sapred.ordermanagerred.model.ProductCategory;
 import com.sapred.ordermanagerred.model.RoleOptions;
-import com.sapred.ordermanagerred.repository.ProductCategoryRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.ObjectStreamException;
 import java.util.Date;
 import java.util.List;
 
@@ -72,8 +69,8 @@ public class ProductCategoryService {
     }
 
     public void editProductCategory(String token, ProductCategory productCategory) {
-       if (!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)) || jwtToken.getRoleIdFromToken(token) == RoleOptions.CUSTOMER)
-            throw new NoPremissionException("You dont have permission to delete the product");
+//       if (!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)) || jwtToken.getRoleIdFromToken(token) == RoleOptions.CUSTOMER)
+//            throw new NoPermissionException("You dont have permission to delete the product");
         if (productCategoryRepository.existsById(productCategory.getId()) == true)
             throw new ObjectDoesNotExistException("This object does not exist");
         productCategory.getAuditData().setUpdateDate(new Date());
