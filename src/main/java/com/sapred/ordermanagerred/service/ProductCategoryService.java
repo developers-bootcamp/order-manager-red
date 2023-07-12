@@ -8,6 +8,13 @@ import com.sapred.ordermanagerred.repository.CompanyRepository;
 import com.sapred.ordermanagerred.repository.RoleRepository;
 import com.sapred.ordermanagerred.repository.UserRepository;
 
+import com.sapred.ordermanagerred.Mapper.ProductCategoryMapper;
+import com.sapred.ordermanagerred.dto.ProductCategoryDto;
+import com.sapred.ordermanagerred.exception.NoPermissionException;
+import com.sapred.ordermanagerred.model.AuditData;
+import com.sapred.ordermanagerred.model.ProductCategory;
+import com.sapred.ordermanagerred.model.RoleOptions;
+import com.sapred.ordermanagerred.repository.ProductCategoryRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.ObjectStreamException;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class ProductCategoryService {
@@ -30,6 +38,7 @@ public class ProductCategoryService {
     private UserRepository userRepository;
     @Autowired
     private JwtToken jwtToken;
+    private ProductCategoryMapper productCategoryMapper;
 
 
     //יצירת מופע של productCategory
@@ -69,6 +78,26 @@ public class ProductCategoryService {
             throw new ObjectDoesNotExistException("This object does not exist");
         productCategory.getAuditData().setUpdateDate(new Date());
         productCategoryRepository.save(productCategory);
+    }
 
+    public void deleteProductCategory(String token, String id) {
+        RoleOptions role = jwtToken.getRoleIdFromToken(token);
+        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
+        ProductCategory productCategory = productCategoryRepository.findById(id).get();
+
+        if (role == RoleOptions.CUSTOMER || !productCategory.getCompanyId().getId().equals(companyIdFromToken))
+                throw new NoPermissionException("You do not have the appropriate permission to delete product category");
+
+            productCategoryRepository.deleteById(id);
+
+    }
+    public List<ProductCategoryDto> getAllCategory(String token) {
+        RoleOptions role = jwtToken.getRoleIdFromToken(token);
+        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
+        if (role == RoleOptions.CUSTOMER)
+            throw new NoPermissionException("You do not have the appropriate permission to get all product category");
+        List<ProductCategory> productCategories = productCategoryRepository.getAllByCompanyId(companyIdFromToken);
+        List<ProductCategoryDto> productCategoryDtos = productCategoryMapper.productCategoryDtoToProductCategory(productCategories);
+        return productCategoryDtos;
     }
 }
