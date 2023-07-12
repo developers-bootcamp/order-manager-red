@@ -9,8 +9,8 @@ import com.sapred.ordermanagerred.repository.RoleRepository;
 import com.sapred.ordermanagerred.repository.UserRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
 import com.sapred.ordermanagerred.security.PasswordValidator;
-import org.apache.commons.validator.routines.EmailValidator;
 import lombok.SneakyThrows;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -69,10 +69,11 @@ public class UserService {
     @SneakyThrows
 
     public String signUp(String fullName, String companyName, String email, String password) {
-        if (!EmailValidator.getInstance().isValid(email) || !passwordValidator.isValid(password))
+        if (//!EmailValidator.getInstance().isValid(email) ||
+                !passwordValidator.isValid(password))
             throw new InvalidDataException("the password or the email invalid");
         if (userRepository.existsByAddressEmail(email))
-            throw new DataExistException("some of the data already exists");
+            throw new DataExistException("the email address already exists");
         AuditData auditData = new AuditData(new Date(), new Date());
         Address address = new Address();
         address.setEmail(email);
@@ -95,8 +96,7 @@ public class UserService {
         Company company = new Company();
         company.setName(companyName);
         company.setAuditData(auditData);
-        companyRepository.save(company);
-        return companyRepository.findByName(companyName);
+        return companyRepository.save(company);
     }
 
     @SneakyThrows
