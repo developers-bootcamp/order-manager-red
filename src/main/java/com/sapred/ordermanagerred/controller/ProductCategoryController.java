@@ -21,7 +21,7 @@ public class ProductCategoryController {
     @PostMapping("/create")
     public ResponseEntity<String> createProductCategory(@RequestBody ProductCategory productCategory) {
         return productCategoryService.createProductCategory(productCategory);
-
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity deleteProductCategory(@RequestHeader("token") String token, @PathVariable("id") String id) {
         try {
