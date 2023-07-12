@@ -69,8 +69,7 @@ public class UserService {
     @SneakyThrows
 
     public String signUp(String fullName, String companyName, String email, String password) {
-        if (//!EmailValidator.getInstance().isValid(email) ||
-                !passwordValidator.isValid(password))
+        if (!EmailValidator.getInstance().isValid(email) || !passwordValidator.isValid(password))
             throw new InvalidDataException("the password or the email invalid");
         if (userRepository.existsByAddressEmail(email))
             throw new DataExistException("the email address already exists");
