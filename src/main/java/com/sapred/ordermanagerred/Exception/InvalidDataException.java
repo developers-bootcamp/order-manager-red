@@ -1,4 +1,4 @@
-package com.sapred.ordermanagerred.Exception;
+package com.sapred.ordermanagerred.exception;
 
 public class InvalidDataException extends RuntimeException{
     public InvalidDataException(String massage){
