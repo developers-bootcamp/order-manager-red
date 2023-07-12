@@ -16,6 +16,7 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -34,7 +35,7 @@ public class ProductService {
             throw new NoPermissionException("You can't add product");
         if (productRepository.existsByName(product.getName()))
             throw new ObjectAlreadyExists("The product already exists");
-        product.setAuditData(new AuditData(new Date(), new Date()));
+        product.setAuditData(AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
         Company company = companyService.getCompany(jwtToken.getCompanyIdFromToken(token));
         product.setCompanyId(company);
         return productRepository.insert(product);
@@ -65,9 +66,9 @@ public class ProductService {
             throw new NoPermissionException("You can't edit product");
         Optional<Product> productOptional = productRepository.findById(product.getId());
         Product productToUpdate = productOptional.orElseThrow(() -> new Exception("Company not found"));
-        if (!productToUpdate.getName().equals(product.getName()) &&productRepository.existsByName(product.getName()) )
-            throw  new ObjectAlreadyExists("You need unique name for product");
-        productToUpdate.getAuditData().setUpdateDate(new Date());
+        if (!productToUpdate.getName().equals(product.getName()) && productRepository.existsByName(product.getName()))
+            throw new ObjectAlreadyExists("You need unique name for product");
+        productToUpdate.getAuditData().setUpdateDate(LocalDate.now());
         productToUpdate = productRepository.save(product);
         return productToUpdate;
     }

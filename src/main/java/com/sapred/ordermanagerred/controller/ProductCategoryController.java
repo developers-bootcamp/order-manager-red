@@ -1,9 +1,8 @@
 package com.sapred.ordermanagerred.controller;
 
 import com.sapred.ordermanagerred.dto.ProductCategoryDto;
+import com.sapred.ordermanagerred.exception.DataExistException;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
-import com.sapred.ordermanagerred.Exception.AccessPermissionException;
-import com.sapred.ordermanagerred.Exception.DataExistException;
 import com.sapred.ordermanagerred.model.ProductCategory;
 import com.sapred.ordermanagerred.service.ProductCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import java.util.List;
 public class ProductCategoryController {
     @Autowired
     private ProductCategoryService productCategoryService;
+
     @DeleteMapping("/{id}")
     public ResponseEntity deleteProductCategory(@RequestHeader("token") String token, @PathVariable("id") String id) {
         try {
@@ -42,12 +42,13 @@ public class ProductCategoryController {
             return new ResponseEntity(exception, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @PostMapping()
     public ResponseEntity createProductCategory(@RequestHeader String token, @RequestBody ProductCategory productCategory) {
         try {
             productCategoryService.createProductCategory(productCategory, token);
             return new ResponseEntity(HttpStatus.OK);
-        } catch (AccessPermissionException ex) {
+        } catch (NoPermissionException ex) {
             return new ResponseEntity(ex, HttpStatus.FORBIDDEN);
         } catch (DataExistException ex) {
             return new ResponseEntity(ex, HttpStatus.CONFLICT);
@@ -55,5 +56,6 @@ public class ProductCategoryController {
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+}
 
 

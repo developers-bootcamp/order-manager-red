@@ -1,7 +1,7 @@
 package com.sapred.ordermanagerred.controller;
 
-import com.sapred.ordermanagerred.Exception.DataExistException;
-import com.sapred.ordermanagerred.Exception.InvalidDataException;
+import com.sapred.ordermanagerred.exception.DataExistException;
+import com.sapred.ordermanagerred.exception.InvalidDataException;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.model.User;
 import com.sapred.ordermanagerred.service.UserService;
