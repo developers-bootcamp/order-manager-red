@@ -3,6 +3,7 @@ package com.sapred.ordermanagerred.controller;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.model.Currency;
 import com.sapred.ordermanagerred.model.Order;
+import com.sapred.ordermanagerred.model.User;
 import com.sapred.ordermanagerred.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,7 @@ public class OrderController {
     public void fill() {
         orderService.fill();
     }
+
 
 
     @GetMapping("/fillProducts")
