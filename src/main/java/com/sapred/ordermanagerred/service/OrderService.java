@@ -1,7 +1,9 @@
 package com.sapred.ordermanagerred.service;
 
 
+import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.model.*;
+import com.sapred.ordermanagerred.model.Currency;
 import com.sapred.ordermanagerred.repository.CompanyRepository;
 import com.sapred.ordermanagerred.repository.OrderRepository;
 import com.sapred.ordermanagerred.repository.ProductCategoryRepository;
@@ -74,29 +76,39 @@ public class OrderService {
                     companyRepository.findById("1").get(), new AuditData(new Date(), new Date()));
             productCategoryRepository.save(pc);
             Product p = new Product(i + "", "aaa", "aaa", 40, 50,
-                    DiscountType.PERCENTAGE,  pc, 4,
+                    DiscountType.PERCENTAGE, pc, 4,
                     companyRepository.findById("1").get(), new AuditData(new Date(), new Date()));
             productRepository.save(p);
         }
     }
 
-    public List<Map.Entry<String, Map.Entry<Double, Double>>> calculateOrderAmount(List<Map.Entry<String, Integer>> listOfProducts) {
-        List<Map.Entry<String, Map.Entry<Double, Double>>> res = new ArrayList<Map.Entry<String, Map.Entry<Double, Double>>>();
-        double sum = 0, globalSum = 0, discount = 0;
-        Product p;
-        for (Map.Entry<String, Integer> product: listOfProducts) {
+    public List<ProductCartDTO> calculateOrderAmount(Order order) {
+        List<ProductCartDTO> listOfCart = new ArrayList<ProductCartDTO>();
+        double sum = 0, totalSum = 0, discount = 0, totalDiscount = 0;
+        int totalQuantity = 0;
+        Product product;
+        for (OrderItem orderItem : order.getOrderItemsList()) {
             sum = 0;
-            p = productRepository.findById(product.getKey()).get();
-            if(p.getDiscountType() == DiscountType.PERCENTAGE)
-                discount = p.getPrice() * product.getValue() * p.getDiscount() * 0.01;
-            else if(p.getDiscountType() == DiscountType.FIXED_AMOUNT)
-                discount = p.getDiscount() ;
-            sum = p.getPrice() * product.getValue() - discount;
-            res.add(new HashMap.SimpleEntry<>(p.getName(), new HashMap.SimpleEntry<>(sum, discount)));
-            globalSum += sum;
+            product = productRepository.findById(orderItem.getProductId().getId()).get();
+            if (product.getDiscountType() == DiscountType.PERCENTAGE)
+                discount = product.getPrice() * orderItem.getQuantity() * product.getDiscount() * 0.01;
+            else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT)
+                discount = product.getDiscount();
+            sum = product.getPrice() * orderItem.getQuantity() - discount;
+            listOfCart.add(new ProductCartDTO(product.getName(), sum, discount, orderItem.getQuantity()));
+            totalSum += sum;
+            totalDiscount += discount;
+            totalQuantity += orderItem.getQuantity();
         }
-        res.add(new HashMap.SimpleEntry<>("-1", new HashMap.SimpleEntry<>(globalSum, null)));
-        return res;
+        listOfCart.add(new ProductCartDTO("Total", totalSum, totalDiscount, totalQuantity));
+        return listOfCart;
     }
+
+    public List<Currency> getCurrencies() {
+        List<Currency> currencyList = new ArrayList<>();
+        return Arrays.stream(Currency.values()).toList();
+    }
+
+
 }
 
