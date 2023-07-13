@@ -10,6 +10,8 @@ import java.util.List;
 
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
+    boolean existsByAddressEmail(String email);
+    
     @Autowired
     User getByAddressEmail(String email);
 

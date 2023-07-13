@@ -1,12 +1,16 @@
 package com.sapred.ordermanagerred.service;
 
-import com.sapred.ordermanagerred.exception.NoPermissionException;
+import com.sapred.ordermanagerred.exception.DataExistException;
+import com.sapred.ordermanagerred.exception.InvalidDataException;
 import com.sapred.ordermanagerred.model.*;
+import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.repository.CompanyRepository;
 import com.sapred.ordermanagerred.repository.RoleRepository;
 import com.sapred.ordermanagerred.repository.UserRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
+import com.sapred.ordermanagerred.security.PasswordValidator;
 import lombok.SneakyThrows;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -17,6 +21,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.PrivateKey;
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.List;
 import java.util.*;
 
 @Service
@@ -24,22 +32,20 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private JwtToken jwtToken;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
     @Autowired
     private CompanyRepository companyRepository;
-
+    @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
+    private JwtToken jwtToken;
+    @Autowired
+    private PasswordValidator passwordValidator;
     @Autowired
     private MongoTemplate mongoTemplate;
 
     public void fill() {
-        AuditData d = new AuditData(new Date(), new Date());
-        Role role = new Role("3", RoleOptions.CUSTOMER, "cust", d);
+        AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
+        Role role = new Role("2", RoleOptions.EMPLOYEE, "cust", d);
         roleRepository.save(role);
         Company c = new Company("1", "osherad", 55, d);
         companyRepository.save(c);
@@ -63,6 +69,31 @@ public class UserService {
         return token;
     }
 
+    @SneakyThrows
+    public String signUp(String fullName, String companyName, int currency, String email, String password) {
+        if (!EmailValidator.getInstance().isValid(email) || !passwordValidator.isValid(password))
+            throw new InvalidDataException("the password or the email invalid");
+        if (userRepository.existsByAddressEmail(email))
+            throw new DataExistException("the email address already exists");
+        AuditData auditData = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
+        Address address = Address.builder().email(email).build();
+        User user = User.builder().fullName(fullName)
+                .password(password).address(address)
+                .roleId((roleRepository.findFirstByName(RoleOptions.ADMIN)))
+                .companyId(createCompany(companyName,currency, auditData))
+                .auditData(auditData).build();
+        userRepository.save(user);
+        return jwtToken.generateToken(user);
+
+    }
+
+    @SneakyThrows
+    private Company createCompany(String companyName,int currency, AuditData auditData) {
+        if (companyRepository.existsByName(companyName))
+            throw new DataExistException("the name of the company already exist");
+        Company company = Company.builder().name(companyName).currency(currency).auditData(auditData).build();
+        return companyRepository.save(company);
+    }
 
     @SneakyThrows
     public void deleteUser(String token, String userId) {
