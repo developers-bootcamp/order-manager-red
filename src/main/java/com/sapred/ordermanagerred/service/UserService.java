@@ -40,8 +40,6 @@ public class UserService {
     private JwtToken jwtToken;
     @Autowired
     private PasswordValidator passwordValidator;
-
-
     @Autowired
     private MongoTemplate mongoTemplate;
 
@@ -67,7 +65,6 @@ public class UserService {
     }
 
     @SneakyThrows
-
     public String signUp(String fullName, String companyName, String email, String password) {
         if (!EmailValidator.getInstance().isValid(email) || !passwordValidator.isValid(password))
             throw new InvalidDataException("the password or the email invalid");
@@ -75,12 +72,7 @@ public class UserService {
             throw new DataExistException("the email address already exists");
         AuditData auditData = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
         Address address = Address.builder().email(email).build();
-        User user = User.builder().fullName(fullName)
-                .password(password)
-                .address(address)
-                .roleId((roleRepository.findFirstByName(RoleOptions.ADMIN)))
-                .companyId(createCompany(companyName, auditData))
-                .auditData(auditData).build();
+        User user = User.builder().fullName(fullName).password(password).address(address).roleId((roleRepository.findFirstByName(RoleOptions.ADMIN))).companyId(createCompany(companyName, auditData)).auditData(auditData).build();
         userRepository.save(user);
         return jwtToken.generateToken(user);
 
