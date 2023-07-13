@@ -39,9 +39,11 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity signUP(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName, @RequestParam("email") String email, @RequestParam("password") String password) {
+    public ResponseEntity signUP(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName,
+                                 @RequestParam("currency") Integer currency, @RequestParam("email") String email,
+                                 @RequestParam("password") String password) {
         try {
-            String token = userService.signUp(fullName, companyName, email, password);
+            String token = userService.signUp(fullName, companyName, currency, email, password);
             return new ResponseEntity(token, HttpStatus.OK);
         } catch (InvalidDataException ex) {
             return new ResponseEntity(ex, HttpStatus.BAD_REQUEST);

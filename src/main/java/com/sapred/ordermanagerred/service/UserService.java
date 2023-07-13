@@ -65,24 +65,28 @@ public class UserService {
     }
 
     @SneakyThrows
-    public String signUp(String fullName, String companyName, String email, String password) {
+    public String signUp(String fullName, String companyName, int currency, String email, String password) {
         if (!EmailValidator.getInstance().isValid(email) || !passwordValidator.isValid(password))
             throw new InvalidDataException("the password or the email invalid");
         if (userRepository.existsByAddressEmail(email))
             throw new DataExistException("the email address already exists");
         AuditData auditData = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
         Address address = Address.builder().email(email).build();
-        User user = User.builder().fullName(fullName).password(password).address(address).roleId((roleRepository.findFirstByName(RoleOptions.ADMIN))).companyId(createCompany(companyName, auditData)).auditData(auditData).build();
+        User user = User.builder().fullName(fullName)
+                .password(password).address(address)
+                .roleId((roleRepository.findFirstByName(RoleOptions.ADMIN)))
+                .companyId(createCompany(companyName,currency, auditData))
+                .auditData(auditData).build();
         userRepository.save(user);
         return jwtToken.generateToken(user);
 
     }
 
     @SneakyThrows
-    private Company createCompany(String companyName, AuditData auditData) {
+    private Company createCompany(String companyName,int currency, AuditData auditData) {
         if (companyRepository.existsByName(companyName))
             throw new DataExistException("the name of the company already exist");
-        Company company = Company.builder().name(companyName).auditData(auditData).build();
+        Company company = Company.builder().name(companyName).currency(currency).auditData(auditData).build();
         return companyRepository.save(company);
     }
 
