@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import  com.sapred.ordermanagerred.Mapper.ProductCategoryMapperImpl.*;
+import com.sapred.ordermanagerred.Mapper.ProductCategoryMapperImpl.*;
 
 import java.util.List;
 
@@ -27,30 +27,31 @@ public class ProductCategoryController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<String> createProductCategory(@RequestBody ProductCategory productCategory){
+    public ResponseEntity<String> createProductCategory(@RequestBody ProductCategory productCategory) {
         return productCategoryService.createProductCategory(productCategory);
     }
+
     @GetMapping("/fill")
     public void fill() {
         productCategoryService.fill();
     }
-    @PutMapping()
-    public  ResponseEntity<String> editProductCategory(@RequestHeader("token") String token,@RequestBody ProductCategoryDto productCategoryDto) {
-        try {
-            ProductCategory productCategory=productCategoryMapper.productCategoryDtoToProductCategory(productCategoryDto);
-            productCategoryService.editProductCategory(token, productCategory);
 
+    @PutMapping()
+    public ResponseEntity<String> editProductCategory(@RequestHeader("token") String token, @RequestBody ProductCategoryDto productCategoryDto) {
+        try {
+            productCategoryService.editProductCategory(token, productCategoryDto);
         } catch (NoPermissionException ex) {
             return new ResponseEntity(ex, HttpStatus.FORBIDDEN);
-        }
-        catch (ObjectDoesNotExistException ex) {
+        } catch (ObjectDoesNotExistException ex) {
             return new ResponseEntity(ex, HttpStatus.NOT_FOUND);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
+            System.out.println("Exception ex Exception ex");
+            System.out.println(ex);
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity(HttpStatus.OK);
     }
+
     @GetMapping()
     public ResponseEntity<List<ProductCategoryDto>> getAllCategory(@RequestHeader("token") String token) {
         try {
@@ -62,7 +63,8 @@ public class ProductCategoryController {
             return new ResponseEntity(exception, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-     @DeleteMapping("/{id}")
+
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteProductCategory(@RequestHeader("token") String token, @PathVariable("id") String id) {
         try {
             productCategoryService.deleteProductCategory(token, id);

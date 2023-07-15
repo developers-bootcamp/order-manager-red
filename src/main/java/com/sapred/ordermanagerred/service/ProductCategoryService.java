@@ -68,11 +68,14 @@ public class ProductCategoryService {
         productCategoryRepository.save(productCategory);
     }
 
-    public void editProductCategory(String token, ProductCategory productCategory) {
-//       if (!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)) || jwtToken.getRoleIdFromToken(token) == RoleOptions.CUSTOMER)
-//            throw new NoPermissionException("You dont have permission to delete the product");
-        if (productCategoryRepository.existsById(productCategory.getId()) == true)
-            throw new ObjectDoesNotExistException("This object does not exist");
+    public void editProductCategory(String token, ProductCategoryDto productCategoryDto) {
+        ProductCategory productCategory = productCategoryRepository.findById(productCategoryDto.getId())
+                .orElseThrow(() -> new ObjectDoesNotExistException("This object does not exist"));
+        if (!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)) || jwtToken.getRoleIdFromToken(token) == RoleOptions.CUSTOMER) {
+            throw new NoPermissionException("You dont have permission to delete the product");
+        }
+        productCategory.setName(productCategoryDto.getName());
+        productCategory.setDesc(productCategoryDto.getDesc());
         productCategory.getAuditData().setUpdateDate(new Date());
         productCategoryRepository.save(productCategory);
     }
@@ -83,11 +86,12 @@ public class ProductCategoryService {
         ProductCategory productCategory = productCategoryRepository.findById(id).get();
 
         if (role == RoleOptions.CUSTOMER || !productCategory.getCompanyId().getId().equals(companyIdFromToken))
-                throw new NoPermissionException("You do not have the appropriate permission to delete product category");
+            throw new NoPermissionException("You do not have the appropriate permission to delete product category");
 
-            productCategoryRepository.deleteById(id);
+        productCategoryRepository.deleteById(id);
 
     }
+
     public List<ProductCategoryDto> getAllCategory(String token) {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
