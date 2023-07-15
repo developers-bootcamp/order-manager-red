@@ -4,6 +4,7 @@ import com.sapred.ordermanagerred.Mapper.ProductCategoryMapper;
 import com.sapred.ordermanagerred.Mapper.ProductCategoryMapperImpl;
 import com.sapred.ordermanagerred.exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.dto.ProductCategoryDto;
+import com.sapred.ordermanagerred.exception.DataExistException;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.model.ProductCategory;
 import com.sapred.ordermanagerred.service.ProductCategoryService;
@@ -45,8 +46,6 @@ public class ProductCategoryController {
         } catch (ObjectDoesNotExistException ex) {
             return new ResponseEntity(ex, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
-            System.out.println("Exception ex Exception ex");
-            System.out.println(ex);
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity(HttpStatus.OK);
