@@ -19,16 +19,15 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Service
 public class GraphService {
-    @Autowired
-    private OrderRepository orderRepository;
+//    @Autowired
+//    private OrderRepository orderRepository;
     @Autowired
     private MongoTemplate mongoTemplate;
 
     public void topEmployee() {
-        System.out.println("hello");
         LocalDate threeMonthsAgo = LocalDate.now().minusMonths(3);
             Aggregation aggregation = newAggregation(
-          match(Criteria.where("orderStatusId").is("1").and("auditData.createDate").gte(threeMonthsAgo)),
+          match(Criteria.where("orderStatusId").is("Done").and("auditData.createDate").gte(threeMonthsAgo)),
           group("employee").count().as("CountOfDeliveredOrders"),
           project("CountOfDeliveredOrders").and("employeeId").previousOperation(),
           sort(Sort.Direction.DESC, "CountOfDeliveredOrders"),
