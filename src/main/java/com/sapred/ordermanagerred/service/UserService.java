@@ -21,9 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.security.PrivateKey;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.*;
 
@@ -32,14 +30,19 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private CompanyRepository companyRepository;
+
     @Autowired
     private RoleRepository roleRepository;
+
     @Autowired
     private JwtToken jwtToken;
+
     @Autowired
     private PasswordValidator passwordValidator;
+
     @Autowired
     private MongoTemplate mongoTemplate;
 
@@ -80,15 +83,14 @@ public class UserService {
         User user = User.builder().fullName(fullName)
                 .password(password).address(address)
                 .roleId((roleRepository.findFirstByName(RoleOptions.ADMIN)))
-                .companyId(createCompany(companyName,currency, auditData))
+                .companyId(createCompany(companyName, currency, auditData))
                 .auditData(auditData).build();
         userRepository.save(user);
         return jwtToken.generateToken(user);
-
     }
 
     @SneakyThrows
-    private Company createCompany(String companyName,int currency, AuditData auditData) {
+    private Company createCompany(String companyName, int currency, AuditData auditData) {
         if (companyRepository.existsByName(companyName))
             throw new DataExistException("the name of the company already exist");
         Company company = Company.builder().name(companyName).currency(currency).auditData(auditData).build();
@@ -119,7 +121,7 @@ public class UserService {
                 .set("fullName", user.getFullName())
                 .set("password", user.getPassword())
                 .set("address", user.getAddress())
-                .set("auditData.updateDate", new Date());
+                .set("auditData.updateDate", LocalDate.now());
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
         return mongoTemplate.findAndModify(query, update, options, User.class);
     }

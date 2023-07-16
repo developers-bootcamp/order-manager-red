@@ -14,8 +14,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "User")
 @SuperBuilder(toBuilder = true)
+@Document(collection = "User")
 public class User {
     @Id
     private String id;

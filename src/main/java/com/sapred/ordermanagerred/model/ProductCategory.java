@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@SuperBuilder(toBuilder = true)
 @Collation("ProductCategory")
 public class ProductCategory {
     @Id
