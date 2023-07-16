@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 com\sapred\ordermanagerred\exception\InvalidDataException.class
 com\sapred\ordermanagerred\model\Address.class
 com\sapred\ordermanagerred\exception\ObjectDoesNotExistException.class
@@ -11,6 +12,21 @@ com\sapred\ordermanagerred\controller\ProductCategoryController.class
 com\sapred\ordermanagerred\model\Product.class
 com\sapred\ordermanagerred\exception\DataExistException.class
 com\sapred\ordermanagerred\security\PasswordValidator.class
+=======
+com\sapred\ordermanagerred\model\Company.class
+com\sapred\ordermanagerred\repository\UserRepository.class
+com\sapred\ordermanagerred\model\Address.class
+com\sapred\ordermanagerred\model\AuditData.class
+com\sapred\ordermanagerred\dto\ProductNameDTO.class
+com\sapred\ordermanagerred\model\RoleOptions.class
+com\sapred\ordermanagerred\security\JwtToken.class
+com\sapred\ordermanagerred\model\User$UserBuilderImpl.class
+com\sapred\ordermanagerred\service\CompanyService.class
+com\sapred\ordermanagerred\repository\OrderRepository.class
+com\sapred\ordermanagerred\model\Address$AddressBuilder.class
+com\sapred\ordermanagerred\model\Product.class
+com\sapred\ordermanagerred\exception\DataExistException.class
+>>>>>>> Stashed changes
 com\sapred\ordermanagerred\exception\ObjectAlreadyExists.class
 com\sapred\ordermanagerred\model\Address$AddressBuilderImpl.class
 com\sapred\ordermanagerred\service\OrderService.class
@@ -35,6 +51,7 @@ com\sapred\ordermanagerred\repository\CompanyRepository.class
 com\sapred\ordermanagerred\repository\ProductCategoryRepository.class
 com\sapred\ordermanagerred\model\Company$CompanyBuilder.class
 com\sapred\ordermanagerred\model\Order.class
+<<<<<<< Updated upstream
 com\sapred\ordermanagerred\model\User$UserBuilder.class
 com\sapred\ordermanagerred\model\AuditData$AuditDataBuilderImpl.class
 com\sapred\ordermanagerred\exception\AccessPermissionException.class
@@ -49,3 +66,19 @@ com\sapred\ordermanagerred\repository\ProductRepository.class
 com\sapred\ordermanagerred\model\User.class
 com\sapred\ordermanagerred\model\ProductCategory.class
 com\sapred\ordermanagerred\exception\NoPermissionException.class
+=======
+com\sapred\ordermanagerred\repository\RoleRepository.class
+com\sapred\ordermanagerred\model\User$UserBuilder.class
+com\sapred\ordermanagerred\model\AuditData$AuditDataBuilderImpl.class
+com\sapred\ordermanagerred\exception\AccessPermissionException.class
+com\sapred\ordermanagerred\model\AuditData$AuditDataBuilder.class
+com\sapred\ordermanagerred\model\DiscountType.class
+com\sapred\ordermanagerred\model\Role.class
+com\sapred\ordermanagerred\model\OrderItem.class
+com\sapred\ordermanagerred\dto\ProductCategoryDto.class
+com\sapred\ordermanagerred\dto\UserDTO.class
+com\sapred\ordermanagerred\model\Company$CompanyBuilderImpl.class
+com\sapred\ordermanagerred\repository\ProductRepository.class
+com\sapred\ordermanagerred\model\User.class
+com\sapred\ordermanagerred\model\ProductCategory.class
+>>>>>>> Stashed changes
