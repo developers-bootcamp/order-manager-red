@@ -21,9 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.security.PrivateKey;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.*;
 
@@ -32,32 +30,42 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private CompanyRepository companyRepository;
+
     @Autowired
     private RoleRepository roleRepository;
+
     @Autowired
     private JwtToken jwtToken;
+
     @Autowired
     private PasswordValidator passwordValidator;
+
     @Autowired
     private MongoTemplate mongoTemplate;
 
     public void fill() {
         AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
-        Role roles = new Role("2", RoleOptions.EMPLOYEE, "cust", d);
-        roleRepository.save(roles);
+        Role role = new Role("2", RoleOptions.EMPLOYEE, "cust", d);
+        roleRepository.save(role);
         Company c = new Company("1", "osherad", 55, d);
         companyRepository.save(c);
-        Address a = new Address("0580000000", "mezada 7", "ccc");
-        User user = new User("8", "ccc", "pass", a, roles, c, d);
+        Address a = new Address("0580000000", "mezada 7", "custp");
+        User user = User.builder().fullName("cust")
+                .password("custp")
+                .address(a)
+                .roleId(role).companyId(c).auditData(d)
+                .build();
         userRepository.save(user);
     }
 
     @SneakyThrows
     public String logIn(String email, String password) {
         User authenticatedUserEmail = userRepository.getByAddressEmail(email);
-        if (authenticatedUserEmail == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (authenticatedUserEmail == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         if (!authenticatedUserEmail.getPassword().equals(password))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         String token = jwtToken.generateToken(authenticatedUserEmail);
@@ -75,15 +83,14 @@ public class UserService {
         User user = User.builder().fullName(fullName)
                 .password(password).address(address)
                 .roleId((roleRepository.findFirstByName(RoleOptions.ADMIN)))
-                .companyId(createCompany(companyName,currency, auditData))
+                .companyId(createCompany(companyName, currency, auditData))
                 .auditData(auditData).build();
         userRepository.save(user);
         return jwtToken.generateToken(user);
-
     }
 
     @SneakyThrows
-    private Company createCompany(String companyName,int currency, AuditData auditData) {
+    private Company createCompany(String companyName, int currency, AuditData auditData) {
         if (companyRepository.existsByName(companyName))
             throw new DataExistException("the name of the company already exist");
         Company company = Company.builder().name(companyName).currency(currency).auditData(auditData).build();
@@ -95,7 +102,8 @@ public class UserService {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         User user = userRepository.findById(userId).get();
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN)))
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
+                (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN)))
             throw new NoPermissionException("You do not have the appropriate permission to delete user");
         userRepository.deleteById(userId);
     }
@@ -105,10 +113,15 @@ public class UserService {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         User userTOEdit = userRepository.findById(userId).get();
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && userTOEdit.getRoleId().getName().equals(RoleOptions.ADMIN)))
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
+                (role == RoleOptions.EMPLOYEE && userTOEdit.getRoleId().getName().equals(RoleOptions.ADMIN)))
             throw new NoPermissionException("You do not have the appropriate permission to edit user");
         Query query = new Query(Criteria.where("id").is(userId));
-        Update update = new Update().set("fullName", user.getFullName()).set("password", user.getPassword()).set("address", user.getAddress()).set("auditData.updateDate", new Date());
+        Update update = new Update()
+                .set("fullName", user.getFullName())
+                .set("password", user.getPassword())
+                .set("address", user.getAddress())
+                .set("auditData.updateDate", LocalDate.now());
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
         return mongoTemplate.findAndModify(query, update, options, User.class);
     }

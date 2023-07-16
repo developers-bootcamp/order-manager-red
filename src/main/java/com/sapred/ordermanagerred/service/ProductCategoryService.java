@@ -31,7 +31,7 @@ public class ProductCategoryService {
     public void createProductCategory(ProductCategory productCategory, String token) {
         if (!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)))
             throw new NoPermissionException("You do not have permission to create new category");
-        if (productCategoryRepository.existsByNameAndCompanyId_id(productCategory.getName(),productCategory.getCompanyId().getId()))
+        if (productCategoryRepository.existsByNameAndCompanyId_id(productCategory.getName(), productCategory.getCompanyId().getId()))
             throw new DataExistException("the name of the category already exist");
         productCategory.setAuditData(AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
         productCategoryRepository.save(productCategory);
@@ -59,4 +59,3 @@ public class ProductCategoryService {
         return productCategoryDtos;
     }
 }
-

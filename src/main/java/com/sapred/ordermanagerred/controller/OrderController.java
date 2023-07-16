@@ -1,5 +1,7 @@
 package com.sapred.ordermanagerred.controller;
 
+import com.sapred.ordermanagerred.dto.ProductCartDTO;
+import com.sapred.ordermanagerred.model.Currency;
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.model.User;
 import com.sapred.ordermanagerred.service.OrderService;
@@ -8,10 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Dictionary;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/Order")
+@RequestMapping("/order")
 public class OrderController {
     @Autowired
     private OrderService orderService;
@@ -31,6 +35,16 @@ public class OrderController {
     @GetMapping("/fill")
     public void fill() {
         orderService.fill();
+    }
+
+    @GetMapping("/fillProducts")
+    public void fillProducts() {
+        orderService.fillProducts();
+    }
+
+    @PostMapping("/calculateOrderAmount")
+    public ResponseEntity<List<ProductCartDTO>> calculateOrderAmount(@RequestHeader("token") String token, @RequestBody Order order) {
+        return new ResponseEntity<>(orderService.calculateOrderAmount(order), HttpStatus.OK);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.sapred.ordermanagerred.service;
 
 import com.sapred.ordermanagerred.dto.ProductNameDTO;
-import com.sapred.ordermanagerred.dto.productMapper;
+import com.sapred.ordermanagerred.Mapper.productMapper;
 import com.sapred.ordermanagerred.dto.ProductDTO;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.exception.ObjectAlreadyExists;
@@ -9,7 +9,6 @@ import com.sapred.ordermanagerred.model.AuditData;
 import com.sapred.ordermanagerred.model.Company;
 import com.sapred.ordermanagerred.model.Product;
 import com.sapred.ordermanagerred.model.RoleOptions;
-import com.sapred.ordermanagerred.repository.CompanyRepository;
 import com.sapred.ordermanagerred.repository.ProductRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
 import lombok.SneakyThrows;
