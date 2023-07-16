@@ -27,10 +27,20 @@ public class ProductCategoryController {
     private ProductCategoryMapper productCategoryMapper;
 
 
-    @PostMapping("/create")
-    public ResponseEntity<String> createProductCategory(@RequestBody ProductCategory productCategory) {
-        return productCategoryService.createProductCategory(productCategory);
+    @PostMapping()
+    public ResponseEntity createProductCategory(@RequestHeader String token, @RequestBody ProductCategory productCategory) {
+        try {
+            productCategoryService.createProductCategory(productCategory, token);
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (NoPermissionException ex) {
+            return new ResponseEntity(ex, HttpStatus.FORBIDDEN);
+        } catch (DataExistException ex) {
+            return new ResponseEntity(ex, HttpStatus.CONFLICT);
+        } catch (Exception ex) {
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     @GetMapping("/fill")
     public void fill() {
