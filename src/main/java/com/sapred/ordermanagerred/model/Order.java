@@ -3,17 +3,19 @@ package com.sapred.ordermanagerred.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.annotation.Collation;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@SuperBuilder(toBuilder = true)
 @Document(collection = "Order")
 public class Order {
     @Id
@@ -26,7 +28,7 @@ public class Order {
     @DBRef
     private Company companyId;
     private int creditCardNumber;
-    private Date ExpiryOn;
+    private LocalDate ExpiryOn;
     private int cvc;
     private boolean notificationFlag;
     private AuditData auditData;

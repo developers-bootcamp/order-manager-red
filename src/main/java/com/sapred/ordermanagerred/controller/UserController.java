@@ -41,7 +41,7 @@ public class UserController {
     @PostMapping()
     public ResponseEntity signUP(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName,
                                  @RequestParam("currency") Integer currency, @RequestParam("email") String email,
-                                 @RequestParam("password") String password) {
+                                 @RequestHeader("password") String password) {
         try {
             String token = userService.signUp(fullName, companyName, currency, email, password);
             return new ResponseEntity(token, HttpStatus.OK);
