@@ -1,5 +1,6 @@
 package com.sapred.ordermanagerred.controller;
 
+import com.sapred.ordermanagerred.dto.UserNameDTO;
 import com.sapred.ordermanagerred.exception.DataExistException;
 import com.sapred.ordermanagerred.exception.InvalidDataException;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -79,7 +79,7 @@ public class UserController {
     }
 
     @GetMapping("/getNamesOfCustomersByPrefix/{prefix}")
-    public List<Map.Entry<String, String>> getNamesOfCustomersByPrefix(@RequestHeader("token") String token, @PathVariable String prefix) {
+    public List<UserNameDTO> getNamesOfCustomersByPrefix(@RequestHeader("token") String token, @PathVariable String prefix) {
         return userService.getNamesOfCustomersByPrefix(token, prefix);
     }
 }

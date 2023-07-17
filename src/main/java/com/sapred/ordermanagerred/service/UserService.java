@@ -1,5 +1,6 @@
 package com.sapred.ordermanagerred.service;
 
+import com.sapred.ordermanagerred.dto.UserNameDTO;
 import com.sapred.ordermanagerred.exception.DataExistException;
 import com.sapred.ordermanagerred.exception.InvalidDataException;
 import com.sapred.ordermanagerred.model.*;
@@ -126,12 +127,12 @@ public class UserService {
         return mongoTemplate.findAndModify(query, update, options, User.class);
     }
 
-    public List<Map.Entry<String, String>> getNamesOfCustomersByPrefix(String token, String prefix) {
+    public List<UserNameDTO> getNamesOfCustomersByPrefix(String token, String prefix) {
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         List<User> us = userRepository.findByCompanyIdAndRoleIdAndPrefix(companyIdFromToken, "3", prefix);
-        List<Map.Entry<String, String>> filteredNames = new ArrayList<>();
+        List<UserNameDTO> filteredNames = new ArrayList<>();
         for (User user : us)
-            filteredNames.add(new HashMap.SimpleEntry<>(user.getId(), user.getFullName()));
+            filteredNames.add(new UserNameDTO(user.getId(), user.getFullName()));
         return filteredNames;
     }
 }
