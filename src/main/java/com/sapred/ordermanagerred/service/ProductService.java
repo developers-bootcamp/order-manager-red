@@ -1,7 +1,7 @@
 package com.sapred.ordermanagerred.service;
 
 import com.sapred.ordermanagerred.dto.ProductNameDTO;
-import com.sapred.ordermanagerred.Mapper.productMapper;
+import com.sapred.ordermanagerred.mapper.productMapper;
 import com.sapred.ordermanagerred.dto.ProductDTO;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.exception.ObjectAlreadyExists;
