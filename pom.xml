@@ -60,14 +60,11 @@
 			<artifactId>mapstruct</artifactId>
 			<version>1.5.3.Final</version>
 		</dependency>
-<<<<<<< Updated upstream
 		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
 			<version>1.7</version>
 		</dependency>
-=======
->>>>>>> Stashed changes
 	</dependencies>
 
 	<build>
@@ -110,8 +107,5 @@
 			</plugin>
 		</plugins>
 	</build>
-<<<<<<< Updated upstream
 </project>
-=======
-</project>
->>>>>>> Stashed changes
+

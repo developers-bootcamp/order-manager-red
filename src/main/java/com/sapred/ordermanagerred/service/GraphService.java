@@ -19,20 +19,20 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Service
 public class GraphService {
-//    @Autowired
+    //    @Autowired
 //    private OrderRepository orderRepository;
     @Autowired
     private MongoTemplate mongoTemplate;
 
     public void topEmployee() {
         LocalDate threeMonthsAgo = LocalDate.now().minusMonths(3);
-            Aggregation aggregation = newAggregation(
-          match(Criteria.where("orderStatusId").is("Done").and("auditData.createDate").gte(threeMonthsAgo)),
-          group("employee").count().as("CountOfDeliveredOrders"),
-          project("CountOfDeliveredOrders").and("employeeId").previousOperation(),
-          sort(Sort.Direction.DESC, "CountOfDeliveredOrders"),
-          limit(5)
-          );
+        Aggregation aggregation = newAggregation(
+                match(Criteria.where("orderStatusId").is("Done").and("auditData.createDate").gte(threeMonthsAgo)),
+                group("employee").count().as("CountOfDeliveredOrders"),
+                project("CountOfDeliveredOrders").and("employeeId").previousOperation(),
+                sort(Sort.Direction.DESC, "CountOfDeliveredOrders"),
+                limit(5)
+        );
         AggregationResults<TopEmployeeDTO> result = mongoTemplate.aggregate(
                 aggregation, "Order", TopEmployeeDTO.class);
 //        List<TopEmployeeDTO> x = result.getMappedResults();

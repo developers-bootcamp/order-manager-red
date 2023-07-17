@@ -35,24 +35,24 @@ public class OrderService {
 
         Sort.Order sortOrder = Sort.Order.asc("auditData.updateDate");
         Sort sort = Sort.by(sortOrder);
-        StatusOptions orderStatus = StatusOptions.valueOf(statusId);
+//        StatusOptions orderStatus = StatusOptions.valueOf(statusId);
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize/* pageSize parameter omitted */, sort);
 
-        Page<Order> pageOrders = orderRepository.findByCompanyIdAndOrderStatusAndEmployeeId(companyId, orderStatus, userId, pageable);
+        Page<Order> pageOrders = orderRepository.findByCompanyId_IdAndOrderStatusAndEmployeeId(companyId, statusId, userId, pageable);
         return pageOrders.getContent();
     }
 
     // note! it is a function just to fill data
     public void fill() {
-<<<<<<< Updated upstream
-        AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
-=======
-        AuditData d1 = new AuditData(new Date(), new Date());
-        AuditData d2 = new AuditData(new Date(2023,6,3), new Date());
-        AuditData d3 = new AuditData(new Date(2023,5,1), new Date());
 
->>>>>>> Stashed changes
+        AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
+
+        AuditData d1 = new AuditData(LocalDate.now(), LocalDate.now());
+        AuditData d2 = new AuditData(LocalDate.of(2023,6,3), LocalDate.now());
+        AuditData d3 = new AuditData(LocalDate.of(2023,5,1),LocalDate.now());
+
+
         List<Order> orders = new ArrayList<Order>();
         Company company1=new Company("11", "PotoNeveYaakov", 88, d3);
         Company company2=new Company("12", "PotoGeula", 88, d2);
@@ -73,25 +73,11 @@ public class OrderService {
 
         for (int i = 200; i < 500; i++) {
             if (i % 3 == 0)
-<<<<<<< Updated upstream
-                orders.add(new Order(Integer.toString(i), "employee", "customer", i * 2, new Company("11", "333", 88, d), new AuditData(LocalDate.now(), new Date(i * 1000).toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate()), "1"));
+                orders.add(new Order(Integer.toString(i),user2,user3, i * 2,null,StatusOptions.DONE, company1, 143,new Date(),2,true,d1));
             else if (i % 3 == 1)
-                orders.add(new Order(Integer.toString(i), "custumer", "customer", i * 2, new Company("22", "333", 88, d), new AuditData(LocalDate.now(),new Date(i * 1000).toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate()), "2"));
+                orders.add(new Order(Integer.toString(i),user6,user4, i * 2,null,StatusOptions.DONE, company1, 263,new Date(),1,true,d2));
             else
-                orders.add(new Order(Integer.toString(i), "111", "customer", i * 2, new Company("11", "333", 88, d), new AuditData(LocalDate.now(),new Date(i * i).toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate()), "3"));
-=======
-                orders.add(new Order(Integer.toString(i),"user2","user3", i * 2,null,StatusOptions.DONE, "101", 143,new Date(),2,true,d1));
-            else if (i % 3 == 1)
-                orders.add(new Order(Integer.toString(i),"1006","1004", i * 2,null,StatusOptions.DONE, "101", 263,new Date(),1,true,d2));
-            else
-                orders.add(new Order(Integer.toString(i),"1007","1005", i * 2,null,StatusOptions.DONE, "101", 324,new Date(),3,true,d1));
->>>>>>> Stashed changes
+                orders.add(new Order(Integer.toString(i),user7,user5, i * 2,null,StatusOptions.DONE, company1, 324,new Date(),3,true,d1));
         }
         orderRepository.saveAll(orders);
 

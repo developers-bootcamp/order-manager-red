@@ -9,5 +9,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrderRepository extends MongoRepository<Order, String> {
-    Page<Order> findByCompanyIdAndOrderStatusAndEmployeeId(String companyId, StatusOptions orderStatusId, String employee, Pageable pageable);
+    Page<Order> findByCompanyId_IdAndOrderStatusAndEmployeeId(String companyId, String orderStatusId, String employee, Pageable pageable);
+
+
+
+
+
+
 }

@@ -16,29 +16,26 @@ public class Order {
     @Id
     private String id;
     @DBRef
-    private String employeeId;
+    private User employeeId;
     @DBRef
-    private String customerId;
+    private User customerId;
     private int totalAmount;
     private List<OrderItem> orderItemsList;
     private StatusOptions orderStatus;
     @DBRef
-    private String companyId;
+    private Company companyId;
     private int creditCardNumber;
     private Date ExpireOn;
     private int cvc;
     private boolean notificationFlag;
     private AuditData auditData;
-
-
-
 //    public Order(String s, String employee, String customer, int i,Company companyId, AuditData d,String orderStatusId) {
-//       id=s;
-//       this.employee=employee;
-//       this.customer=customer;
-//       this.totalAmount=i;
-//       this.auditData=d;
-//       this.companyId=companyId;
-//       this.orderStatusId=orderStatusId;
-//   }
+//        id=s;
+//        this.employee=employee;
+//        this.customer=customer;
+//        this.totalAmount=i;
+//        this.auditData=d;
+//        this.companyId=companyId;
+//        this.orderStatusId=orderStatusId;
+//    }
 }
