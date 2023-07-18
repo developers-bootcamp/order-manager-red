@@ -1,76 +1,82 @@
 package com.sapred.ordermanagerred.service;
 
+import com.sapred.ordermanagerred.dto.ProductNameDTO;
+import com.sapred.ordermanagerred.Mapper.productMapper;
+import com.sapred.ordermanagerred.dto.ProductDTO;
+import com.sapred.ordermanagerred.exception.NoPermissionException;
+import com.sapred.ordermanagerred.exception.ObjectAlreadyExists;
 import com.sapred.ordermanagerred.model.AuditData;
+import com.sapred.ordermanagerred.model.Company;
 import com.sapred.ordermanagerred.model.Product;
+import com.sapred.ordermanagerred.model.RoleOptions;
 import com.sapred.ordermanagerred.repository.ProductRepository;
+import com.sapred.ordermanagerred.security.JwtToken;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private JwtToken jwtToken;
 
-    public HttpStatus addProduct(Product product){
-        if (productRepository.existsByName(product.getName())==true)
-            return HttpStatus.CONFLICT;
-        product.setAuditData(new AuditData(new Date(),null));
-        Product newProduct= productRepository.insert(product);
-        if(newProduct==null)
-            return HttpStatus.INTERNAL_SERVER_ERROR;
-        return  HttpStatus.OK;
+    @Autowired
+    CompanyService companyService;
+
+    @SneakyThrows
+    public Product addProduct(String token, Product product) {
+        if (jwtToken.getRoleIdFromToken(token) != RoleOptions.ADMIN)
+            throw new NoPermissionException("You can't add product");
+        if (productRepository.existsByName(product.getName()))
+            throw new ObjectAlreadyExists("The product already exists");
+        product.setAuditData(AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
+        Company company = companyService.getCompany(jwtToken.getCompanyIdFromToken(token));
+        product.setCompanyId(company);
+        return productRepository.insert(product);
     }
 
-    public HttpStatus getAllNamesProducts(){
-         List<Product> products = productRepository.findAll().stream().toList();
-        if(products==null)
-            return HttpStatus.INTERNAL_SERVER_ERROR;
-        List<Map<String, Object>> productList = products.stream()
-                .map(item -> {
-                    Map<String, Object> productMap = new HashMap<>();
-                    productMap.put("id", item.getId());
-                    productMap.put("name", item.getName());
-                    return productMap;
-                })
-                .collect(Collectors.toList());
-        return HttpStatus.INTERNAL_SERVER_ERROR;
+    @SneakyThrows
+    public List<ProductNameDTO> getAllNamesProducts(String token, String prefix) {
+        if (jwtToken.getRoleIdFromToken(token) == RoleOptions.CUSTOMER)
+            throw new NoPermissionException("You can't get name's products");
+        List<Product> products = productRepository.findByCompanyIdAndNameAndPrefix(token, prefix).stream().toList();
+        List<ProductNameDTO> productList = productMapper.INSTANCE.productToProductNameDto(products);
+        return productList;
     }
 
-    public HttpStatus getAllProducts(){
-        List<Product> products = productRepository.findAll().stream().toList();
-        if(products==null)
-            return HttpStatus.INTERNAL_SERVER_ERROR;
-
-        List<Map<String, Object>> productList = products.stream()
-                .map(item -> {
-                    Map<String, Object> productMap = new HashMap<>();
-                    productMap.put("id", item.getId());
-                    productMap.put("name", item.getName());
-                    productMap.put("desc", item.getDesc());
-                    productMap.put("productCategoryId", item.getProductCategoryId());
-                    productMap.put("inventory", item.getInventory());
-                    productMap.put("price", item.getPrice());
-
-                    return productMap;
-                })
-                .collect(Collectors.toList());
-
-        return HttpStatus.OK;
+    @SneakyThrows
+    public List<ProductDTO> getAllProducts(String token) {
+        if (jwtToken.getRoleIdFromToken(token) == RoleOptions.CUSTOMER)
+            throw new NoPermissionException("You can't get products");
+        String companyId = jwtToken.getCompanyIdFromToken(token);
+        List<Product> products = productRepository.findAllByCompanyId(companyId).stream().toList();
+        List<ProductDTO> productDTOs = productMapper.INSTANCE.productToDto(products);
+        return productDTOs;
     }
 
-    public  HttpStatus editProduct(Product product){
-        product.getAuditData().setUpdateDate(new Date());
-        productRepository.save(product);
-        return HttpStatus.OK;
+    @SneakyThrows
+    public Product editProduct(String token, Product product) {
+        if (jwtToken.getRoleIdFromToken(token) != RoleOptions.ADMIN)
+            throw new NoPermissionException("You can't edit product");
+        Optional<Product> productOptional = productRepository.findById(product.getId());
+        Product productToUpdate = productOptional.orElseThrow(() -> new Exception("Company not found"));
+        if (!productToUpdate.getName().equals(product.getName()) && productRepository.existsByName(product.getName()))
+            throw new ObjectAlreadyExists("You need unique name for product");
+        productToUpdate.getAuditData().setUpdateDate(LocalDate.now());
+        productToUpdate = productRepository.save(product);
+        return productToUpdate;
     }
-    public  HttpStatus deleteProduct(String id){
-        if (productRepository.existsById(id))
-            return HttpStatus.NOT_FOUND;
+
+    @SneakyThrows
+    public void deleteProduct(String token, String id) {
+        if (jwtToken.getRoleIdFromToken(token) != RoleOptions.ADMIN)
+            throw new NoPermissionException("You can't delete products");
+        if (productRepository.existsById(id) == false) throw new Exception("Not found");
         productRepository.deleteById(id);
-        return  HttpStatus.OK;
     }
 }

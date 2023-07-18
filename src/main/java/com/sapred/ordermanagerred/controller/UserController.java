@@ -1,5 +1,8 @@
 package com.sapred.ordermanagerred.controller;
 
+import com.sapred.ordermanagerred.dto.UserNameDTO;
+import com.sapred.ordermanagerred.exception.DataExistException;
+import com.sapred.ordermanagerred.exception.InvalidDataException;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.model.User;
 import com.sapred.ordermanagerred.service.UserService;
@@ -10,10 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/User")
+@RequestMapping("/user")
 @CrossOrigin("http://localhost:3000")
 public class UserController {
 
@@ -36,6 +38,22 @@ public class UserController {
         userService.fill();
     }
 
+    @PostMapping()
+    public ResponseEntity signUP(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName,
+                                 @RequestParam("currency") Integer currency, @RequestParam("email") String email,
+                                 @RequestParam("password") String password) {
+        try {
+            String token = userService.signUp(fullName, companyName, currency, email, password);
+            return new ResponseEntity(token, HttpStatus.OK);
+        } catch (InvalidDataException ex) {
+            return new ResponseEntity(ex, HttpStatus.BAD_REQUEST);
+        } catch (DataExistException ex) {
+            return new ResponseEntity(ex, HttpStatus.CONFLICT);
+        } catch (Exception ex) {
+            return new ResponseEntity(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @DeleteMapping("/{userId}")
     public ResponseEntity<Boolean> deleteUser(@RequestHeader("token") String token, @PathVariable("userId") String userId) {
         try {
@@ -43,7 +61,7 @@ public class UserController {
             return new ResponseEntity<>(true, HttpStatus.OK);
         } catch (NoPermissionException e) {
             return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -61,7 +79,7 @@ public class UserController {
     }
 
     @GetMapping("/getNamesOfCustomersByPrefix/{prefix}")
-    public List<Map.Entry<String, String>> getNamesOfCustomersByPrefix(@RequestHeader("token") String token, @PathVariable String prefix) {
+    public List<UserNameDTO> getNamesOfCustomersByPrefix(@RequestHeader("token") String token, @PathVariable String prefix) {
         return userService.getNamesOfCustomersByPrefix(token, prefix);
     }
 }

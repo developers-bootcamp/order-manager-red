@@ -1,5 +1,5 @@
 package com.sapred.ordermanagerred.model;
 
 public enum DiscountType {
-    PERCENTAGE, FIXED, AMOUNT
+    PERCENTAGE, FIXED_AMOUNT
 }

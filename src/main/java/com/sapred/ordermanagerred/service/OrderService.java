@@ -14,10 +14,12 @@ import org.springframework.stereotype.Service;
 import com.sapred.ordermanagerred.security.JwtToken;
 import org.springframework.web.server.ResponseStatusException;
 
+
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 
 @Service
 public class OrderService {
@@ -25,6 +27,16 @@ public class OrderService {
     private OrderRepository orderRepository;
     @Autowired
     private JwtToken jwtToken;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ProductCategoryRepository productCategoryRepository;
+
+    @Autowired
+    private CompanyRepository companyRepository;
+
     @Value("${pageSize}")
     private int pageSize;
 
