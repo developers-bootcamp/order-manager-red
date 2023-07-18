@@ -1,6 +1,9 @@
 package com.sapred.ordermanagerred.controller;
 
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
+import com.sapred.ordermanagerred.exception.MismatchData;
+import com.sapred.ordermanagerred.exception.NoPermissionException;
+import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.Currency;
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.model.ProductCategory;
@@ -35,8 +38,12 @@ public class OrderController {
     @PostMapping("/")
     public ResponseEntity createOrder(@RequestHeader("token") String token, @RequestBody Order order) {
         try {
-            String id = orderService.createOrder(token,order);
+            String id = orderService.createOrder(token, order);
             return ResponseEntity.ok().body(id);
+        } catch (StatusException exception) {
+            return new ResponseEntity(exception, HttpStatus.CONFLICT);
+        }catch (MismatchData exception) {
+            return new ResponseEntity(exception, HttpStatus.CONFLICT);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
