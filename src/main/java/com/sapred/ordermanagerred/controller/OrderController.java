@@ -28,9 +28,9 @@ public class OrderController {
     }
 
     @PostMapping("/")
-    public ResponseEntity createOrder(@RequestBody Order order) {
+    public ResponseEntity createOrder(@RequestHeader("token") String token, @RequestBody Order order) {
         try {
-            String id = orderService.createOrder(order);
+            String id = orderService.createOrder(token,order);
             return ResponseEntity.ok().body(id);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

@@ -9,8 +9,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import com.sapred.ordermanagerred.security.JwtToken;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,7 +56,10 @@ public class OrderService {
 //        orderRepository.saveAll(orders);
 //
 //    }
-    public String createOrder(Order order) {
+    public String createOrder(String token,Order order) {
+        String companyId = jwtToken.getCompanyIdFromToken(token);
+        if(order.getCompanyId().getId()!=companyId)
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"the name of the category already exists");
         return orderRepository.save(order).getId();
     }
 }
