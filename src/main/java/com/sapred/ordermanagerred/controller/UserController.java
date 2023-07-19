@@ -40,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping("/signUp")
-    public ResponseEntity signUP(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName,
+    public ResponseEntity signUp(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName,
                                  @RequestParam("currency") Integer currency, @RequestParam("email") String email,
                                  @RequestParam("password") String password) {
         try {
