@@ -1,8 +1,11 @@
 package com.sapred.ordermanagerred.service;
 
+import com.sapred.ordermanagerred.dto.UserDTO;
+import com.sapred.ordermanagerred.mapper.UserMapper;
 import com.sapred.ordermanagerred.dto.UserNameDTO;
 import com.sapred.ordermanagerred.exception.DataExistException;
 import com.sapred.ordermanagerred.exception.InvalidDataException;
+import com.sapred.ordermanagerred.mapper.UserMapper;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.repository.CompanyRepository;
@@ -13,6 +16,10 @@ import com.sapred.ordermanagerred.security.PasswordValidator;
 import lombok.SneakyThrows;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -107,6 +114,34 @@ public class UserService {
                 (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN)))
             throw new NoPermissionException("You do not have the appropriate permission to delete user");
         userRepository.deleteById(userId);
+    }
+
+
+    @SneakyThrows
+    public User addUser(String token, User user) {
+        RoleOptions role = jwtToken.getRoleIdFromToken(token);
+        System.out.println(role);
+        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
+                (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN)))
+            throw new UnsupportedOperationException();
+        if (userRepository.existsByAddress_Email(user.getAddress().getEmail()) == true)
+            throw new IllegalArgumentException();
+        user.setAuditData(new AuditData(LocalDate.now(), LocalDate.now()));
+        return userRepository.insert(user);
+    }
+
+
+    @Value("${pageSize}")
+    private int pageSize;
+
+    public List<UserDTO> getUsers(String token, int numPage) {
+        RoleOptions role = jwtToken.getRoleIdFromToken(token);
+        System.out.println(role);
+        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
+        Pageable pageable = PageRequest.of(numPage, pageSize);
+        Page<User> userPage = userRepository.findByCompanyId(companyIdFromToken,pageable);
+        return UserMapper.INSTANCE.userToDTO(userPage.getContent());
     }
 
     @SneakyThrows

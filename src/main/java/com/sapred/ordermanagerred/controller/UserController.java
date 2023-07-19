@@ -1,5 +1,6 @@
 package com.sapred.ordermanagerred.controller;
 
+import com.sapred.ordermanagerred.dto.UserDTO;
 import com.sapred.ordermanagerred.dto.UserNameDTO;
 import com.sapred.ordermanagerred.exception.DataExistException;
 import com.sapred.ordermanagerred.exception.InvalidDataException;
@@ -38,7 +39,7 @@ public class UserController {
         userService.fill();
     }
 
-    @PostMapping()
+    @PostMapping("/signUp")
     public ResponseEntity signUP(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName,
                                  @RequestParam("currency") Integer currency, @RequestParam("email") String email,
                                  @RequestParam("password") String password) {
@@ -66,6 +67,20 @@ public class UserController {
         }
     }
 
+    @PostMapping
+    public ResponseEntity addUser(@RequestHeader("token") String token, @RequestBody User user) {
+        try {
+            User newUser = userService.addUser(token, user);
+            return ResponseEntity.ok().body(newUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("1");
+        } catch (UnsupportedOperationException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("2");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("4");
+        }
+    }
+
     @PutMapping("/{userId}")
     public ResponseEntity<Boolean> editUser(@RequestHeader("token") String token, @PathVariable("userId") String userId, @RequestBody User user) {
         try {
@@ -77,6 +92,17 @@ public class UserController {
             return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("{pageNumber}")
+    public ResponseEntity getUsers(@RequestHeader("token") String token,@PathVariable("pageNumber") int pageNumber) {
+        try {
+            List<UserDTO> user = userService.getUsers(token, pageNumber);
+            return ResponseEntity.ok().body(user);
+        } catch (Exception e) {
+            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @GetMapping("/getNamesOfCustomersByPrefix/{prefix}")
     public List<UserNameDTO> getNamesOfCustomersByPrefix(@RequestHeader("token") String token, @PathVariable String prefix) {
