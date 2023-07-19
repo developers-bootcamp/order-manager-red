@@ -2,21 +2,15 @@ package com.sapred.ordermanagerred.controller;
 
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.exception.MismatchData;
-import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.exception.StatusException;
-import com.sapred.ordermanagerred.model.Currency;
 import com.sapred.ordermanagerred.model.Order;
-import com.sapred.ordermanagerred.model.ProductCategory;
-import com.sapred.ordermanagerred.model.User;
 import com.sapred.ordermanagerred.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Dictionary;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/order")
@@ -42,7 +36,7 @@ public class OrderController {
             return ResponseEntity.ok().body(id);
         } catch (StatusException exception) {
             return new ResponseEntity(exception, HttpStatus.CONFLICT);
-        }catch (MismatchData exception) {
+        } catch (MismatchData exception) {
             return new ResponseEntity(exception, HttpStatus.CONFLICT);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

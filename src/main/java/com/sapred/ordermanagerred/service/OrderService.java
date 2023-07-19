@@ -82,9 +82,9 @@ public class OrderService {
         for (int i = 1; i < 10; i++) {
             AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
             List<Order> orders = new ArrayList<Order>();
-            ProductCategory pc = new ProductCategory(i + "", "name" + i, "desc" + i, companyRepository.findById("1").get(), AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
+            ProductCategory pc = new ProductCategory(String.valueOf(i), "name" + i, "desc" + i, companyRepository.findById("1").get(), AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
             productCategoryRepository.save(pc);
-            Product p = new Product(i + "", "aaa", "aaa", 40, 50, DiscountType.PERCENTAGE, pc, 4, companyRepository.findById("1").get(), AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
+            Product p = new Product(String.valueOf(i), "aaa", "aaa", 40, 50, DiscountType.PERCENTAGE, pc, 4, companyRepository.findById("1").get(), AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
             productRepository.save(p);
         }
     }
