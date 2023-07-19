@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.CriteriaDefinition;
+import org.springframework.stereotype.Service;
 
 import javax.swing.text.Document;
 import java.time.LocalDate;
@@ -18,14 +19,19 @@ import java.util.List;
 import java.util.Map;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+@Service
+
 public class AggregationService {
     @Autowired
     MongoTemplate mongoTemplate;
-    public Map<String, Map<String, Integer>> getBestSellingProductsByMonth(String companyId) {
-        Aggregation aggregation = Aggregation.newAggregation(
-                match(Criteria.where("companyId").is(companyId)
-                        .and("orderStatusId").is("DELIVERED")
-                        .and("auditData.createdAt").gte(LocalDate.now().minusMonths(3))),
+
+/*    public Map<String, Map<String, Integer>> getBestSellingProductsByMonth(String companyId) {*/
+        public AggregationResults<Document> getBestSellingProductsByMonth() {
+
+            Aggregation aggregation = Aggregation.newAggregation(
+                /*match(Criteria.where("companyId").is(companyId)*/
+                match(Criteria.where("orderStatusId").is("1")
+                        .and("auditData.createDate").gte(LocalDate.now().minusMonths(3))),
                 unwind("orderItemsList"),
                 group(Fields.from(
                         Fields.field("month", DateOperators.Month.month("$auditData.createDate").toString()),
@@ -38,7 +44,7 @@ public class AggregationService {
                 sort(Sort.Direction.ASC, "month")
         );
 
-        AggregationResults<Document> results =  mongoTemplate.aggregate(
+        AggregationResults<Document> results = mongoTemplate.aggregate(
                 aggregation, "Order", Document.class);
 
         Map<String, Map<String, Integer>> bestSellingProductsMap = new HashMap<>();
@@ -55,6 +61,6 @@ public class AggregationService {
             bestSellingProductsMap.put(month, productCountMap);
         }*/
 
-        return bestSellingProductsMap;
+        return results;
     }
 }
