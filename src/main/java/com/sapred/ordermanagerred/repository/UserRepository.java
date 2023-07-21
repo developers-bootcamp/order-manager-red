@@ -15,10 +15,9 @@ public interface UserRepository extends MongoRepository<User, String> {
     boolean existsByAddressEmail(String email);
 
     boolean existsByAddress_Email(String email);
-    @Autowired
+
     User getByAddressEmail(String email);
 
-    @Autowired
     @Query("{'companyId.id': ?0, 'roleId.id': ?1, 'fullName': { $regex: '^?2' }}}")
     List<User> findByCompanyIdAndRoleIdAndPrefix(String companyId, String roleId, String prefix);
     Page<User> findByCompanyId(String companyId, Pageable pageable);
