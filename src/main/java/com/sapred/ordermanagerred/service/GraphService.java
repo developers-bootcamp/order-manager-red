@@ -43,8 +43,8 @@ public class GraphService {
                         new Criteria().where("orderStatus").is("DONE").and("auditData.createDate").gte(LocalDate.now().minusMonths(3))
                 ),
                 group("employeeId").count().as("CountOfDeliveredOrders"),
-               lookup("User", "_id.employeeId", "_id", "employee"),
-//                unwind("employee"),
+                lookup("User", "_id.employeeId", "employeeId", "employee"),
+                unwind("employee"),
                 sort(Sort.by(Sort.Direction.DESC, "CountOfDeliveredOrders")),
                 limit(5)
         );
