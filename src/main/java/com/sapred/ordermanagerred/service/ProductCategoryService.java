@@ -58,5 +58,6 @@ public class ProductCategoryService {
         List<ProductCategoryDto> productCategoryDtos = productCategoryMapper.productCategoryDtoToProductCategory(productCategories);
         return productCategoryDtos;
     }
+
 }
 

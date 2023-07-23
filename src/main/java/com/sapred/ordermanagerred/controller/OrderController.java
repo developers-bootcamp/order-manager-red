@@ -18,15 +18,15 @@ public class OrderController {
     private OrderService orderService;
 
     //the params should be pathparams?...
-    @GetMapping("/getOrders/{userId}/{status}/{pageNumber}")
-    public ResponseEntity getOrders(@RequestHeader("token") String token, @PathVariable("userId") String userId, @PathVariable("status") String statusId, @PathVariable("pageNumber") int pageNumber) {
-        try {
-            List<Order> orders = orderService.getOrders(token, statusId, pageNumber, userId);
-            return ResponseEntity.ok().body(orders);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
-    }
+//    @GetMapping("/getOrders/{userId}/{status}/{pageNumber}")
+//    public ResponseEntity getOrders(@RequestHeader("token") String token, @PathVariable("userId") String userId, @PathVariable("status") String statusId, @PathVariable("pageNumber") int pageNumber) {
+//        try {
+//            List<Order> orders = orderService.getOrders(token, statusId, pageNumber, userId);
+//            return ResponseEntity.ok().body(orders);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+//        }
+//    }
 
     // it is a function just to fill data
     @GetMapping("/fill")
