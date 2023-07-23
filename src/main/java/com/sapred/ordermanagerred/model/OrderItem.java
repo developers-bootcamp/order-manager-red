@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 @NoArgsConstructor
 public class OrderItem {
     @DBRef
-    private Product productId;//?product
+    private Product productId;
     private double amount;
     private int quantity;
 }

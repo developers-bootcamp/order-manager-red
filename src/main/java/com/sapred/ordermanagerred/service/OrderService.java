@@ -1,11 +1,12 @@
 package com.sapred.ordermanagerred.service;
 
 
+import com.sapred.ordermanagerred.dto.ProductCartDTO;
+import com.sapred.ordermanagerred.Exception.MismatchData;
+import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.*;
-import com.sapred.ordermanagerred.repository.CompanyRepository;
-import com.sapred.ordermanagerred.repository.OrderRepository;
-import com.sapred.ordermanagerred.repository.RoleRepository;
-import com.sapred.ordermanagerred.repository.UserRepository;
+import com.sapred.ordermanagerred.repository.*;
+import com.sapred.ordermanagerred.security.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -13,15 +14,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import com.sapred.ordermanagerred.security.JwtToken;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Currency;
 import java.util.Date;
 import java.util.List;
-
 
 @Service
 public class OrderService {
@@ -33,25 +30,29 @@ public class OrderService {
     private UserRepository userRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ProductCategoryRepository productCategoryRepository;
 
     @Autowired
     private JwtToken jwtToken;
-//    @Value("${pageSize}")
-//    private int pageSize;
+    @Value("${pageSize}")
+    private int pageSize;
 
-//    public List<Order> getOrders(String token, String statusId, int pageNumber, String userId) {
-//
-//        String companyId = jwtToken.getCompanyIdFromToken(token);
-//
-//        Sort.Order sortOrder = Sort.Order.asc("auditData.updateDate");
-//        Sort sort = Sort.by(sortOrder);
-////        StatusOptions orderStatus = StatusOptions.valueOf(statusId);
-//
-//        Pageable pageable = PageRequest.of(pageNumber, pageSize/* pageSize parameter omitted */, sort);
-//
-//        Page<Order> pageOrders = orderRepository.findByCompanyId_IdAndOrderStatusAndEmployeeId(companyId, statusId, userId, pageable);
-//        return pageOrders.getContent();
-//    }
+    public List<Order> getOrders(String token, String statusId, int pageNumber, String userId) {
+
+        String companyId = jwtToken.getCompanyIdFromToken(token);
+
+        Sort.Order sortOrder = Sort.Order.asc("auditData.updateDate");
+        Sort sort = Sort.by(sortOrder);
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize/* pageSize parameter omitted */, sort);
+
+        Page<Order> pageOrders = orderRepository.findByCompanyId_IdAndOrderStatusAndEmployeeId(companyId, statusId, userId, pageable);
+        return pageOrders.getContent();
+    }
 
     // note! it is a function just to fill data
     public void fill() {
@@ -93,17 +94,52 @@ public class OrderService {
         users.add(user7);
         for (int i = 200; i < 500; i++) {
             if (i % 3 == 0)
-                orders.add(new Order(Integer.toString(i), user2, user3, i * 2, null, StatusOptions.DONE, company1, 143, new Date(), 2, true, d1));
+                orders.add(new Order(Integer.toString(i), user2, user3, i * 2, null, Order.StatusOptions.DONE, company1, 143,new Date() , 2, true, d1));
             else if (i % 3 == 1)
-                orders.add(new Order(Integer.toString(i), user6, user4, i * 2, null, StatusOptions.CREATED, company1, 263, new Date(), 1, true, d2));
+                orders.add(new Order(Integer.toString(i), user6, user4, i * 2, null, Order.StatusOptions.NEW, company1, 263, new Date(), 1, true, d2));
             else
-                orders.add(new Order(Integer.toString(i), user7, user5, i * 2, null, StatusOptions.DONE, company1, 324, new Date(), 3, true, d1));
+                orders.add(new Order(Integer.toString(i), user7, user5, i * 2, null, Order.StatusOptions.DONE, company1, 324, new Date(), 3, true, d1));
         }
         companyRepository.saveAll(companies);
         roleRepository.saveAll(roles);
         userRepository.saveAll(users);
         orderRepository.saveAll(orders);
+    }
 
+    public String createOrder(String token, Order order) {
+        String companyId = jwtToken.getCompanyIdFromToken(token);
+        if (order.getCompanyId().getId() != companyId)
+            throw new MismatchData("the company id is not match to the order's company id");
+        if (order.getOrderStatus() != Order.StatusOptions.NEW || order.getOrderStatus() != Order.StatusOptions.APPROVED)
+            throw new StatusException("can't create order where status is not NEW or APPROVED ");
+        return orderRepository.save(order).getId();
+    }
+
+    public void fillProducts() {
+        for (int i = 1; i < 10; i++) {
+            AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
+            List<Order> orders = new ArrayList<Order>();
+            ProductCategory pc = new ProductCategory(String.valueOf(i), "name" + i, "desc" + i, companyRepository.findById("1").get(), AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
+            productCategoryRepository.save(pc);
+            Product p = new Product(String.valueOf(i), "aaa", "aaa", 40, 50, DiscountType.PERCENTAGE, pc, 4, companyRepository.findById("1").get(), AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
+            productRepository.save(p);
+        }
+    }
+
+    public List<ProductCartDTO> calculateOrderAmount(Order order) {
+        List<ProductCartDTO> listOfCart = new ArrayList<>();
+        ProductCartDTO productCartDTO;
+        double sum = 0, discount = 0;
+        OrderItem orderItem = order.getOrderItemsList().get(order.getOrderItemsList().size() - 1);
+        Product product = productRepository.findById(orderItem.getProductId().getId()).get();
+        if (product.getDiscountType() == DiscountType.PERCENTAGE)
+            discount = product.getPrice() * orderItem.getQuantity() * product.getDiscount() * 0.01;
+        else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT) discount = product.getDiscount();
+        sum = product.getPrice() * orderItem.getQuantity() - discount;
+        productCartDTO = ProductCartDTO.builder().name(product.getName()).amount(sum).discount(discount).quantity(orderItem.getQuantity()).build();
+        listOfCart.add(productCartDTO);
+        listOfCart.add(ProductCartDTO.builder().name("Total").amount(order.getTotalAmount() + sum).build());
+        return listOfCart;
     }
 }
 
