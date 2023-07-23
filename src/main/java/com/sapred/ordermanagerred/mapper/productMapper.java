@@ -1,5 +1,7 @@
-package com.sapred.ordermanagerred.dto;
+package com.sapred.ordermanagerred.mapper;
 
+import com.sapred.ordermanagerred.dto.ProductDTO;
+import com.sapred.ordermanagerred.dto.ProductNameDTO;
 import com.sapred.ordermanagerred.model.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -26,9 +28,7 @@ public interface productMapper {
     @Mapping(source = "id", target = "id")
     ProductNameDTO productToProductNameDto(Product p);
 
-    //Product dtoToProductName(ProductNameDTO p);
 
     List<ProductNameDTO> productToProductNameDto(List<Product> list);
-    // List<Product> dtoToProductName(List<ProductNameDTO> list);
 
 }

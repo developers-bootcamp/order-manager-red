@@ -13,6 +13,7 @@ import java.util.List;
 public interface ProductCategoryRepository extends MongoRepository<ProductCategory, String> {
 
     boolean existsByNameAndCompanyId_id(String name, String companyId);
+
     List<ProductCategory> getAllByCompanyId(String id);
     ProductCategory findByIdAndCompanyId_Id(String id, String companyId);
 

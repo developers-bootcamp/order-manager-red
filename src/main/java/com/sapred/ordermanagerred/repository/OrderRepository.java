@@ -11,9 +11,4 @@ import org.springframework.stereotype.Repository;
 public interface OrderRepository extends MongoRepository<Order, String> {
     Page<Order> findByCompanyId_IdAndOrderStatusAndEmployeeId(String companyId, String orderStatusId, String employee, Pageable pageable);
 
-
-
-
-
-
 }
