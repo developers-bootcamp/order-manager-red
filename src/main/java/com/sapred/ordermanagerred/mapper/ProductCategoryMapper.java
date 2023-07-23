@@ -1,4 +1,4 @@
-package com.sapred.ordermanagerred.Mapper;
+package com.sapred.ordermanagerred.mapper;
 
 import com.sapred.ordermanagerred.dto.ProductCategoryDto;
 import com.sapred.ordermanagerred.model.ProductCategory;

@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 @SuperBuilder(toBuilder = true)
 public class OrderItem {
     @DBRef
-    private Product productId;//?product
+    private Product productId;
     private double amount;
     private int quantity;
 }

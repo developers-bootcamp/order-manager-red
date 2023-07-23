@@ -14,9 +14,9 @@ public class CompanyService {
     private CompanyRepository companyRepository;
 
     @SneakyThrows
-    public Company getCompany(String id){
+    public Company getCompany(String id) {
         Optional<Company> companyOptional = companyRepository.findById(id);
         Company company = companyOptional.orElseThrow(() -> new Exception("Company not found"));
-        return  company;
+        return company;
     }
 }
