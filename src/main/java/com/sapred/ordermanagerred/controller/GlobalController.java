@@ -17,7 +17,7 @@ public class GlobalController {
     private GlobalService globalService;
 
     @GetMapping("/getCurrencies")
-    public ResponseEntity<List<Currency>> getCurrencies(@RequestHeader("token") String token) {
+    public ResponseEntity<List<Currency>> getCurrencies() {
         return new ResponseEntity<>(globalService.getCurrencies(), HttpStatus.OK);
     }
 }
