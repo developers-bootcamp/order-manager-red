@@ -80,7 +80,6 @@ public class UserService {
         User authenticatedUserEmail = userRepository.getByAddressEmail(email);
         if (authenticatedUserEmail == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        //if (!authenticatedUserEmail.getPassword().equals(password))
         if(!passwordEncoder.matches(password,authenticatedUserEmail.getPassword()))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         String token = jwtToken.generateToken(authenticatedUserEmail);
