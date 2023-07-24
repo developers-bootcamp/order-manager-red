@@ -170,4 +170,5 @@ public class UserService {
             filteredNames.add(new UserNameDTO(user.getId(), user.getFullName()));
         return filteredNames;
     }
+
 }

@@ -18,7 +18,6 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    //the params should be pathparams?...
     @GetMapping("/{userId}/{status}/{pageNumber}")
     public ResponseEntity getOrders(@RequestHeader("token") String token, @PathVariable("userId") String userId, @PathVariable("status") String statusId, @PathVariable("pageNumber") int pageNumber) {
         try {
@@ -28,7 +27,15 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
-
+    @GetMapping("/{pageNumber}")
+    public ResponseEntity getOrdersWithFilter(@RequestHeader("token") String token,  @RequestBody Order order, @PathVariable("pageNumber") int pageNumber) {
+        try {
+            List<Order> orders = orderארט Service.getOrdersWithFilter(token, order, pageNumber);
+            return ResponseEntity.ok().body(orders);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
     @PostMapping("/")
     public ResponseEntity createOrder(@RequestHeader("token") String token, @RequestBody Order order) {
         try {
@@ -53,8 +60,8 @@ public class OrderController {
         return new ResponseEntity<>(orderService.calculateOrderAmount(order), HttpStatus.OK);
     }
 
-//    @GetMapping("/fill")
-//    public void fill() {
-//        orderService.fill();
-//    }
+    @GetMapping("/fill")
+    public void fill() {
+        orderService.fill();
+    }
 }
