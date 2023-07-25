@@ -1,5 +1,6 @@
 package com.sapred.ordermanagerred.controller;
 
+import com.sapred.ordermanagerred.Exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.dto.ProductCategoryDto;
 import com.sapred.ordermanagerred.exception.DataExistException;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
@@ -55,6 +56,19 @@ public class ProductCategoryController {
         } catch (Exception ex) {
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    @PutMapping()
+    public ResponseEntity<String> editProductCategory(@RequestHeader("token") String token, @RequestBody ProductCategoryDto productCategoryDto) {
+        try {
+            productCategoryService.editProductCategory(token, productCategoryDto);
+        } catch (NoPermissionException ex) {
+            return new ResponseEntity(ex, HttpStatus.FORBIDDEN);
+        } catch (ObjectDoesNotExistException ex) {
+            return new ResponseEntity(ex, HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity(HttpStatus.OK);
     }
 }
 
