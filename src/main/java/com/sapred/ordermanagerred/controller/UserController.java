@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.webjars.NotFoundException;
 
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping("/signUp")
-    public ResponseEntity signUP(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName,
+    public ResponseEntity signUp(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName,
                                  @RequestParam("currency") Currency currency, @RequestParam("email") String email,
                                  @RequestParam("password") String password) {
         try {
@@ -83,12 +84,16 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<Boolean> editUser(@RequestHeader("token") String token, @PathVariable("userId") String userId, @RequestBody User user) {
+    public ResponseEntity<Boolean> updateUser(@RequestHeader("token") String token, @PathVariable("userId") String userId, @RequestBody User user) {
         try {
-            User u = userService.editUser(token, userId, user);
+            User u = userService.updateUser(token, userId, user);
             return new ResponseEntity<>(true, HttpStatus.OK);
         } catch (NoPermissionException e) {
             return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+        } catch (DataExistException e) {
+            return new ResponseEntity<>(false, HttpStatus.CONFLICT);
         } catch (Exception e) {
             return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }

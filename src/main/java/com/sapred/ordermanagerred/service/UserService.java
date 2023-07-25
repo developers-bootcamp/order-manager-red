@@ -30,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.webjars.NotFoundException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -80,7 +81,7 @@ public class UserService {
         User authenticatedUserEmail = userRepository.getByAddressEmail(email);
         if (authenticatedUserEmail == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        if(!passwordEncoder.matches(password,authenticatedUserEmail.getPassword()))
+        if(!passwordEncoder.matches(password, authenticatedUserEmail.getPassword()))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         String token = jwtToken.generateToken(authenticatedUserEmail);
         return token;
@@ -152,18 +153,22 @@ public class UserService {
     }
 
     @SneakyThrows
-    public User editUser(String token, String userId, User user) {
+    public User updateUser(String token, String userId, User userToEdit) {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
-        User userTOEdit = userRepository.findById(userId).get();
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
-                (role == RoleOptions.EMPLOYEE && userTOEdit.getRoleId().getName().equals(RoleOptions.ADMIN)))
+        User findUser = userRepository.findById(userId).orElse(null);
+        if(findUser == null)
+            throw new NotFoundException("User not found");
+        if (role == RoleOptions.CUSTOMER || !findUser.getCompanyId().getId().equals(companyIdFromToken) ||
+                (role == RoleOptions.EMPLOYEE && findUser.getRoleId().getName().equals(RoleOptions.ADMIN)))
             throw new NoPermissionException("You do not have the appropriate permission to edit user");
+        if (userRepository.existsByAddressEmail(userToEdit.getAddress().getEmail()))
+            throw new DataExistException("The email address already exists");
         Query query = new Query(Criteria.where("id").is(userId));
         Update update = new Update()
-                .set("fullName", user.getFullName())
-                .set("password", user.getPassword())
-                .set("address", user.getAddress())
+                .set("fullName", userToEdit.getFullName())
+                .set("password", userToEdit.getPassword())
+                .set("address", userToEdit.getAddress())
                 .set("auditData.updateDate", LocalDate.now());
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
         return mongoTemplate.findAndModify(query, update, options, User.class);
