@@ -5,6 +5,7 @@ import com.sapred.ordermanagerred.dto.UserNameDTO;
 import com.sapred.ordermanagerred.exception.DataExistException;
 import com.sapred.ordermanagerred.exception.InvalidDataException;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
+import com.sapred.ordermanagerred.model.Currency;
 import com.sapred.ordermanagerred.model.User;
 import com.sapred.ordermanagerred.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class UserController {
 
     @PostMapping("/signUp")
     public ResponseEntity signUP(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName,
-                                 @RequestParam("currency") Integer currency, @RequestParam("email") String email,
+                                 @RequestParam("currency") Currency currency, @RequestParam("email") String email,
                                  @RequestParam("password") String password) {
         try {
             String token = userService.signUp(fullName, companyName, currency, email, password);
