@@ -28,7 +28,19 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
-
+    @PutMapping("/{orderId}")
+    public ResponseEntity updateOrder(@RequestHeader("token") String token, @RequestBody Order order) {
+        try {
+            String id = orderService.updateOrder(token, order);
+            return ResponseEntity.ok().body(id);
+        } catch (StatusException exception) {
+            return new ResponseEntity(exception, HttpStatus.CONFLICT);
+        } catch (MismatchData exception) {
+            return new ResponseEntity(exception, HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
     @PostMapping("/")
     public ResponseEntity createOrder(@RequestHeader("token") String token, @RequestBody Order order) {
         try {
