@@ -5,6 +5,7 @@ import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.OrderRepository;
 import com.sapred.ordermanagerred.repository.ProductRepository;
 import com.sapred.ordermanagerred.resolver.OrderResolver;
+import com.sapred.ordermanagerred.resolver.ProductResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.Optional;
 
-@ExtendWith({MockitoExtension.class, OrderResolver.class})
+@ExtendWith({MockitoExtension.class, OrderResolver.class, ProductResolver.class})
 public class OrderServiceTest {
 
     @InjectMocks
@@ -38,20 +39,13 @@ public class OrderServiceTest {
     }
 
     @Test
-    public void testCalculateOrderAmount_whenSuccessfully_thenReturnsACorrectResult() {
+    public void testCalculateOrderAmount_whenSuccessfully_thenReturnsACorrectResult(Order order, Product product) {
         int quantity = 2;
-        double price = 10;
-        double discountPercentage = 20;
+        double price = product.getPrice();
+        double discount = product.getDiscount();
         double totalAmount = 50;
 
-        Order order = new Order();
-        OrderItem orderItem = new OrderItem();
-        orderItem.setQuantity(quantity);
-        Product product = new Product();
-        product.setPrice(price);
-        product.setDiscountType(DiscountType.PERCENTAGE);
-        product.setDiscount(discountPercentage);
-        orderItem.setProductId(product);
+        OrderItem orderItem = OrderItem.builder().quantity(quantity).productId(product).build();
         order.setOrderItemsList(List.of(orderItem));
         order.setTotalAmount(totalAmount);
 
@@ -59,12 +53,13 @@ public class OrderServiceTest {
 
         List<ProductCartDTO> result = orderService.calculateOrderAmount(order);
 
+        System.out.println(result);
         assertEquals(result.get(0).getName(), product.getName());
-        assertEquals(result.get(0).getAmount(), price * quantity - (price * quantity * discountPercentage * 0.01));
-        assertEquals(result.get(0).getDiscount(), price * quantity * discountPercentage * 0.01);
+        assertEquals(result.get(0).getAmount(), price * quantity - (price * quantity * discount * 0.01));
+        assertEquals(result.get(0).getDiscount(), price * quantity * discount * 0.01);
         assertEquals(result.get(0).getQuantity(), quantity);
         assertEquals(result.get(1).getName(), "Total");
-        assertEquals(result.get(1).getAmount(), totalAmount + (price * quantity - (price * quantity * discountPercentage * 0.01)));
+        assertEquals(result.get(1).getAmount(), totalAmount + (price * quantity - (price * quantity * discount * 0.01)));
 
         System.out.println("✅ testCalculateOrderAmount");
     }

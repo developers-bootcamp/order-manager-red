@@ -43,7 +43,7 @@ public class UserController {
 
     @PostMapping("/signUp")
     public ResponseEntity signUp(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName,
-                                 @RequestParam("currency") Integer currency, @RequestParam("email") String email,
+                                 @RequestParam("currency") Currency currency, @RequestParam("email") String email,
                                  @RequestParam("password") String password) {
         try {
             String token = userService.signUp(fullName, companyName, currency, email, password);
