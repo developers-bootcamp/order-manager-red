@@ -5,6 +5,7 @@ import com.sapred.ordermanagerred.dto.UserNameDTO;
 import com.sapred.ordermanagerred.exception.DataExistException;
 import com.sapred.ordermanagerred.exception.InvalidDataException;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
+import com.sapred.ordermanagerred.model.Currency;
 import com.sapred.ordermanagerred.model.User;
 import com.sapred.ordermanagerred.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
