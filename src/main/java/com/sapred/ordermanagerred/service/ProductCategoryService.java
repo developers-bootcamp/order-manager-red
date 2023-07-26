@@ -1,35 +1,69 @@
 package com.sapred.ordermanagerred.service;
 
+import com.sapred.ordermanagerred.Exception.ObjectDoesNotExistException;
+import com.sapred.ordermanagerred.mapper.ProductCategoryMapper;
+import com.sapred.ordermanagerred.dto.ProductCategoryDto;
+import com.sapred.ordermanagerred.exception.DataExistException;
+import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.model.AuditData;
 import com.sapred.ordermanagerred.model.ProductCategory;
+import com.sapred.ordermanagerred.model.RoleOptions;
 import com.sapred.ordermanagerred.repository.ProductCategoryRepository;
+import com.sapred.ordermanagerred.security.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class ProductCategoryService {
     @Autowired
     private ProductCategoryRepository productCategoryRepository;
+    @Autowired
+    private JwtToken jwtToken;
+    @Autowired
+    private ProductCategoryMapper productCategoryMapper;
 
-    //יצירת מופע של productCategory
-    public ResponseEntity<String> createProductCategory(ProductCategory productCategory){
-        try {
-            if(productCategoryRepository.existsByName(productCategory.getName()))
-                throw new ResponseStatusException(HttpStatus.CONFLICT,"the name of the category already exists");
-            AuditData auditData=new AuditData();
-            auditData.setCreateDate(new Date());
-            auditData.setUpdateDate(new Date());
-            productCategory.setAuditData(auditData);
-            productCategoryRepository.save(productCategory);
-            return ResponseEntity.ok("success: true");
+    public void createProductCategory(ProductCategory productCategory, String token) {
+        if (!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)))
+            throw new NoPermissionException("You do not have permission to create new category");
+        if (productCategoryRepository.existsByNameAndCompanyId_id(productCategory.getName(), productCategory.getCompanyId().getId()))
+            throw new DataExistException("the name of the category already exist");
+        productCategory.setAuditData(AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
+        productCategoryRepository.save(productCategory);
+    }
+
+    public void deleteProductCategory(String token, String id) {
+        RoleOptions role = jwtToken.getRoleIdFromToken(token);
+        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
+        ProductCategory productCategory = productCategoryRepository.findById(id).get();
+
+        if (role == RoleOptions.CUSTOMER || !productCategory.getCompanyId().getId().equals(companyIdFromToken))
+            throw new NoPermissionException("You do not have the appropriate permission to delete product category");
+
+        productCategoryRepository.deleteById(id);
+
+    }
+
+    public List<ProductCategoryDto> getAllCategory(String token) {
+        RoleOptions role = jwtToken.getRoleIdFromToken(token);
+        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
+        if (role == RoleOptions.CUSTOMER)
+            throw new NoPermissionException("You do not have the appropriate permission to get all product category");
+        List<ProductCategory> productCategories = productCategoryRepository.getAllByCompanyId(companyIdFromToken);
+        List<ProductCategoryDto> productCategoryDtos = productCategoryMapper.productCategoryDtoToProductCategory(productCategories);
+        return productCategoryDtos;
+    }
+    public void editProductCategory(String token, ProductCategoryDto productCategoryDto) {
+        ProductCategory productCategory = productCategoryRepository.findById(productCategoryDto.getId())
+                .orElseThrow(() -> new ObjectDoesNotExistException("This object does not exist"));
+        if (!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)) || jwtToken.getRoleIdFromToken(token) == RoleOptions.CUSTOMER) {
+            throw new NoPermissionException("You dont have permission to edit the productCategory");
         }
-        catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error create productCategory"+ e.getMessage());
-        }
+        productCategory.setName(productCategoryDto.getName());
+        productCategory.setDesc(productCategoryDto.getDesc());
+        productCategory.getAuditData().setUpdateDate((LocalDate.now()));
+        productCategoryRepository.save(productCategory);
     }
 }

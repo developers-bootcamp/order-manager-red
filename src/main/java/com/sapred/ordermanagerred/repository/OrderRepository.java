@@ -5,17 +5,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
-import java.time.LocalDate;
-
-import java.time.Month;
-import java.util.List;
 
 @Repository
 public interface OrderRepository extends MongoRepository<Order, String> {
+    Page<Order> findByCompanyId_IdAndOrderStatusAndEmployeeId(String companyId, String orderStatusId, String employee, Pageable pageable);
 
-//    List<Order> findByAuditDataCreateDateMonth(Month currentMonth);
-List<Order> findByAuditDataCreateDate(LocalDate date);
-
-
-    Page<Order> findByCompanyId_IdAndOrderStatusIdAndEmployee(String companyId, String orderStatusId, String employee, Pageable pageable);
 }
