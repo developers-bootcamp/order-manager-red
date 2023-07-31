@@ -1,25 +1,29 @@
 package com.sapred.ordermanagerred.service;
 
 
+import com.mongodb.ConnectionString;
+import com.mongodb.client.*;
+import com.mongodb.client.model.Filters;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.exception.MismatchData;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.*;
 import com.sapred.ordermanagerred.security.JwtToken;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class OrderService {
@@ -40,6 +44,8 @@ public class OrderService {
     private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    MongoTemplate mongoTemplate;
     @Value("${pageSize}")
     private int pageSize;
 
@@ -55,7 +61,7 @@ public class OrderService {
         Page<Order> pageOrders = orderRepository.findByCompanyId_IdAndOrderStatusAndEmployeeId(companyId, statusId, userId, pageable);
         return pageOrders.getContent();
     }
-    public List<Order> getOrdersWithFilter(String token, Order order, int pageNumber) {
+    public List<Order> getOrdersWithFilter(String token, int totalAmount, int pageNumber) {
 
 //        String companyId = jwtToken.getCompanyIdFromToken(token);
         String companyId = "12";
@@ -64,12 +70,19 @@ public class OrderService {
         Sort sort = Sort.by(sortOrder);
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize/* pageSize parameter omitted */, sort);
+        Map<String,String> filtersParams=new HashMap<>();
+        filtersParams.put("orderStatus", "DONE");
+        Bson filter = Filters.eq("orderStatus", "DONE");
 
-        Page<Order> pageOrders = orderRepository.findByParams(
-                //companyId, order.getOrderStatus(), order.getEmployeeId().getId(),
-                //order.getTotalAmount(),order.getOrderItemsList(),order.getCreditCardNumber(),order.getExpireOn(),order.getCvc(),order.isNotificationFlag(),pageable);
-                Optional.of(order.getTotalAmount()),null,null,null,null,null,pageable);
-      return pageOrders.getContent();
+        MongoCollection<Document> orderCollection = mongoTemplate.getCollection("Order");
+        FindIterable<Document> documents=orderCollection.find(filter);
+//               .forEach(doc -> System.out.println(doc.toJson()));;
+        MongoCursor<Document> cursor = documents.iterator();
+        while (cursor.hasNext()) {
+            System.out.println(cursor.next());
+        }
+        return new ArrayList<>();
+
     }
     // note! it is a function just to fill data
 //    public void fill() {
