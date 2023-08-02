@@ -157,8 +157,8 @@ public class UserService {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         User findUser = userRepository.findById(userId).orElse(null);
-        if(findUser == null)
-            throw new NotFoundException("User not found");
+//        if(findUser == null)
+//            throw new NotFoundException("User not found");
         if (role == RoleOptions.CUSTOMER || !findUser.getCompanyId().getId().equals(companyIdFromToken) ||
                 (role == RoleOptions.EMPLOYEE && findUser.getRoleId().getName().equals(RoleOptions.ADMIN)))
             throw new NoPermissionException("You do not have the appropriate permission to edit user");
