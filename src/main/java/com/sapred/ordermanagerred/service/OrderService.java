@@ -70,9 +70,9 @@ public class OrderService {
         AuditData d2 = new AuditData(LocalDate.of(2023, 6, 3), LocalDate.now());
         AuditData d3 = new AuditData(LocalDate.of(2023, 5, 1), LocalDate.now());
 
-        Company company1 = new Company("11", "Poto", 88, d3);
-        Company company2 = new Company("12", "PotoGeula", 88, d2);
-        Company company3 = new Company("13", "Grafgik", 88, d2);
+        Company company1 = new Company("11", "Poto", Currency.EURO, d3);
+        Company company2 = new Company("12", "PotoGeula", Currency.SHEKEL, d2);
+        Company company3 = new Company("13", "Grafgik", Currency.DOLLAR, d2);
         companies.add(company1);
         companies.add(company2);
         companies.add(company3);
