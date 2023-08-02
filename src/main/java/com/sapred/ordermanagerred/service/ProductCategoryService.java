@@ -1,5 +1,6 @@
 package com.sapred.ordermanagerred.service;
 
+import com.sapred.ordermanagerred.Exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.mapper.ProductCategoryMapper;
 import com.sapred.ordermanagerred.dto.ProductCategoryDto;
 import com.sapred.ordermanagerred.exception.DataExistException;
@@ -54,5 +55,15 @@ public class ProductCategoryService {
         List<ProductCategoryDto> productCategoryDtos = productCategoryMapper.productCategoryDtoToProductCategory(productCategories);
         return productCategoryDtos;
     }
-
+    public void editProductCategory(String token, ProductCategoryDto productCategoryDto) {
+        ProductCategory productCategory = productCategoryRepository.findById(productCategoryDto.getId())
+                .orElseThrow(() -> new ObjectDoesNotExistException("This object does not exist"));
+        if (!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)) || jwtToken.getRoleIdFromToken(token) == RoleOptions.CUSTOMER) {
+            throw new NoPermissionException("You dont have permission to edit the productCategory");
+        }
+        productCategory.setName(productCategoryDto.getName());
+        productCategory.setDesc(productCategoryDto.getDesc());
+        productCategory.getAuditData().setUpdateDate((LocalDate.now()));
+        productCategoryRepository.save(productCategory);
+    }
 }
