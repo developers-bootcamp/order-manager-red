@@ -10,7 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/order")
@@ -27,10 +29,14 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
-    @PostMapping ("/{pageNumber}/{ta}")
-    public ResponseEntity getOrdersWithFilter(@RequestHeader("token") String token, @PathVariable("ta") int ta, @PathVariable("pageNumber") int pageNumber) {
+    @PostMapping ("/{pageNumber}")
+    public ResponseEntity getOrdersWithFilter(@RequestHeader("token") String token , @PathVariable("pageNumber") int pageNumber) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("orderStatus", "DONE");
+        filterMap.put("notificationFlag" ,true);
+//        filterMap.put("employeeId" ,"1002");
         try {
-            List<Order> orders = orderService.getOrdersWithFilter(token, ta, pageNumber);
+            List<Order> orders = orderService.getOrdersByFilters(filterMap,token,pageNumber);
             return ResponseEntity.ok().body(orders);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
