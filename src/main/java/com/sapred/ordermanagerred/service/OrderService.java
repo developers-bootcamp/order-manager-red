@@ -96,14 +96,26 @@ public class OrderService {
         users.add(user5);
         users.add(user6);
         users.add(user7);
-        for (int i = 200; i < 500; i++) {
+
+        orders.add(new Order("A", user2, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
+        orders.add(new Order("B", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
+        orders.add(new Order("C", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
+        orders.add(new Order("D", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
+        orders.add(new Order("E", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
+        orders.add(new Order("F", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
+        orders.add(new Order("G", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
+        orders.add(new Order("H", user7, user3, 100, null, Order.StatusOptions.CANCELLED, company1, 143,new Date() , 2, true, d1));
+        orders.add(new Order("I", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
+
+
+     /*   for (int i = 200; i < 500; i++) {
             if (i % 3 == 0)
-                orders.add(new Order(Integer.toString(i), user2, user3, i * 2, null, Order.StatusOptions.DONE, company1, 143,new Date() , 2, true, d1));
+                orders.add(new Order(Integer.toString(i), user2, user3, i * 2, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
             else if (i % 3 == 1)
                 orders.add(new Order(Integer.toString(i), user6, user4, i * 2, null, Order.StatusOptions.NEW, company1, 263, new Date(), 1, true, d2));
             else
-                orders.add(new Order(Integer.toString(i), user7, user5, i * 2, null, Order.StatusOptions.DONE, company1, 324, new Date(), 3, true, d1));
-        }
+                orders.add(new Order(Integer.toString(i), user7, user5, i * 2, null, Order.StatusOptions.CANCELLED, company1, 324, new Date(), 3, true, d1));
+        }*/
         companyRepository.saveAll(companies);
         roleRepository.saveAll(roles);
         userRepository.saveAll(users);
