@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TopEmployeeDTO {
-    @DBRef
-    private User user;
+    private User employee;
     private Integer countOfDeliveredOrders;
 }
