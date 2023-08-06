@@ -10,6 +10,10 @@ import com.corundumstudio.socketio.annotation.SpringAnnotationScanner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Controller;
+
+
+
 
     @Configuration
     public class SocketConfigClass {
@@ -17,7 +21,7 @@ import org.springframework.context.annotation.Configuration;
         @Value("${host}")
         private String host;
 
-        @Value("${port}")
+        @Value("${socket.port}")
         private int port;
 
         @Bean
@@ -25,8 +29,9 @@ import org.springframework.context.annotation.Configuration;
             com.corundumstudio.socketio.Configuration socketIOConfig = new com.corundumstudio.socketio.Configuration();
             socketIOConfig.setHostname(host);
             socketIOConfig.setPort(port);
-
+//            socketIOConfig.set
             SocketConfig socketConfig = new SocketConfig();
+
             socketConfig.setReuseAddress(true);
             socketIOConfig.setSocketConfig(socketConfig);
 
@@ -38,7 +43,14 @@ import org.springframework.context.annotation.Configuration;
                 }
             });
 
-            return new SocketIOServer(socketIOConfig);
+//            socketIOConfig.setPackagePrefix("/socket.io");
+
+            SocketIOServer socketIOServer = new SocketIOServer(socketIOConfig);
+
+//            socketIOServer.path("/socket.io");
+//            socketIOServer.start();
+            socketIOServer.start();
+            return socketIOServer;
         }
 
         @Bean

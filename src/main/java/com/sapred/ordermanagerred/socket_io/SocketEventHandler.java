@@ -17,6 +17,7 @@ public class SocketEventHandler {
     @Autowired
     public SocketEventHandler(SocketIOServer socketIOServer) {
         this.socketIOServer = socketIOServer;
+
     }
 
     @OnConnect
