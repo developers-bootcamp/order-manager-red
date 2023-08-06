@@ -19,17 +19,12 @@ import java.util.List;
 public class Order {
 
     public enum StatusOptions {
-        //its statuses from the technical design
+
         NEW,
         APPROVED,
-        CANCELLED,
-        CHARGING,
-        PACKING,
-        DELIVERED,
-        //\\
-        //its from the origin main!- what should it be?
+
         DONE,
-        PROCESSING,
+
         CREATED
         //\\
     }
