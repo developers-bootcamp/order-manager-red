@@ -5,6 +5,7 @@ import com.sapred.ordermanagerred.exception.MismatchData;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.service.OrderService;
+import com.sapred.ordermanagerred.socket_io.SocketEventHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +19,14 @@ import java.util.List;
 public class OrderController {
     @Autowired
     private OrderService orderService;
+    private final SocketEventHandler socketEventHandler;
 
-    //the params should be pathparams?...
+    @Autowired
+    public OrderController( SocketEventHandler socketEventHandler) {
+        this.orderService = orderService;
+        this.socketEventHandler = socketEventHandler;
+    }
+
     @GetMapping("/{userId}/{status}/{pageNumber}")
     public ResponseEntity getOrders(@RequestHeader("token") String token, @PathVariable("userId") String userId, @PathVariable("status") String statusId, @PathVariable("pageNumber") int pageNumber) {
         try {
@@ -34,6 +41,8 @@ public class OrderController {
     public ResponseEntity createOrder(@RequestHeader("token") String token, @RequestBody Order order) {
         try {
             String id = orderService.createOrder(token, order);
+            // Emit a new-order event to connected clients
+            socketEventHandler.onNewOrder(null, order);
             return ResponseEntity.ok().body(id);
         } catch (StatusException exception) {
             return new ResponseEntity(exception, HttpStatus.CONFLICT);
