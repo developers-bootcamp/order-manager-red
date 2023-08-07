@@ -15,7 +15,7 @@
 
     <!-- File Appender -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}orders_managment.log</file>
+        <file>orders_managment.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/myapp-%d{yyyy-MM-dd}.log</fileNamePattern>
             <totalSizeCap>1GB</totalSizeCap> <!-- Set the total size cap to retain log files -->
