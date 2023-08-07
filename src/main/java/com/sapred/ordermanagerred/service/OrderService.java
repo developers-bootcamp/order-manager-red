@@ -1,6 +1,9 @@
 package com.sapred.ordermanagerred.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.DBRef;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -67,22 +70,7 @@ public class OrderService {
         return pageOrders.getContent();
     }
 
-    public List<Document> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
-
-//        String companyId = jwtToken.getCompanyIdFromToken(token);
-//        String companyId = "12";
-
-//        Sort.Order sortOrder = Sort.Order.asc("auditData.updateDate");
-//        Sort sort = Sort.by(sortOrder);
-
-//        Pageable pageable = PageRequest.of(pageNumber, pageSize/* pageSize parameter omitted */, sort);
-//        Map<String,String> filtersParams=new HashMap<>();
-//        filtersParams.put("orderStatus", "DONE");
-//        Bson filter = Filters.eq("orderStatus", "DONE");
-
-
-//        FindIterable<Document> documents=orderCollection.find(filter);
-////               .forEach(doc -> System.out.println(doc.toJson()));;
+    public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
 
         MongoCollection<Document> orderCollection = mongoTemplate.getCollection("Order");
         List<Bson> filters = new ArrayList<>();
@@ -101,14 +89,13 @@ public class OrderService {
 
         // Use the final filter to query the collection
         FindIterable<Document> documents = orderCollection.find(finalFilter);
-        List<Document> documentList = StreamSupport.stream(documents.spliterator(), false)
-                .collect(Collectors.toList());
+
         //print just for check now...
         MongoCursor<Document> cursor = documents.iterator();
         while (cursor.hasNext()) {
             System.out.println(cursor.next());
         }
-        return documentList;
+        return convertFindIterableToOrders(documents);
 
     }
 //    public List<Order> getOrdersByFilters(Map<String, String> filterMap) {
@@ -222,6 +209,46 @@ public class OrderService {
         userRepository.saveAll(users);
         orderRepository.saveAll(orders);
     }
+
+    public List<Order> convertFindIterableToOrders(FindIterable<Document> documents)  {
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        List<Order> orders = StreamSupport.stream(documents.spliterator(), false)
+                .map(document -> {
+                    Order order = new Order();
+                    order.setId(document.getString("Id"));
+                    String orderStatusString = document.getString("orderStatus");
+                    Order.StatusOptions orderStatus = Order.StatusOptions.valueOf(orderStatusString);
+                    order.setOrderStatus(orderStatus);
+                    DBRef employeeDbRef = (DBRef) document.get("employeeId");
+                    if (employeeDbRef != null) {
+                        User employee = mongoTemplate.findById(employeeDbRef.getId(), User.class);
+                        order.setEmployeeId(employee);
+                    }
+//                    order.setCustomerId(document.get("customerId", User.class));
+//
+
+                    order.setTotalAmount(document.getInteger("totalAmount"));
+
+                    // Set the fields for OrderItem, Company, and AuditData
+//                    order.setOrderItemsList(document.get("orderItemsList", List.class));
+//                    order.setCompanyId(document.get("companyId", Company.class));
+                    order.setCreditCardNumber(document.getInteger("creditCardNumber"));
+                    order.setExpireOn(document.getDate("ExpireOn"));
+                    order.setCvc(document.getInteger("cvc"));
+                    order.setNotificationFlag(document.getBoolean("notificationFlag"));
+//                    order.setAuditData(document.get("auditData", AuditData.class));
+
+                    return order;
+                })
+                .collect(Collectors.toList());
+
+        return orders;
+    }
+
+
 }
 
 

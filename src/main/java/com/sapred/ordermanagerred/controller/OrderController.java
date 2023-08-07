@@ -38,7 +38,7 @@ public class OrderController {
         filterMap.put("notificationFlag" ,true);
 //        filterMap.put("employeeId" ,"1002");
         try {
-            List<Document> orders = orderService.getOrdersByFilters(filterMap,token,pageNumber);
+            List<Order> orders = orderService.getOrdersByFilters(filterMap,token,pageNumber);
             return ResponseEntity.ok().body(orders);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
