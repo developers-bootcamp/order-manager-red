@@ -1,10 +1,12 @@
 package com.sapred.ordermanagerred.controller;
 
+import com.mongodb.client.FindIterable;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.exception.MismatchData;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.service.OrderService;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +38,7 @@ public class OrderController {
         filterMap.put("notificationFlag" ,true);
 //        filterMap.put("employeeId" ,"1002");
         try {
-            List<Order> orders = orderService.getOrdersByFilters(filterMap,token,pageNumber);
+            List<Document> orders = orderService.getOrdersByFilters(filterMap,token,pageNumber);
             return ResponseEntity.ok().body(orders);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

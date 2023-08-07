@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class OrderService {
@@ -65,7 +67,7 @@ public class OrderService {
         return pageOrders.getContent();
     }
 
-    public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
+    public List<Document> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
 
 //        String companyId = jwtToken.getCompanyIdFromToken(token);
 //        String companyId = "12";
@@ -99,13 +101,14 @@ public class OrderService {
 
         // Use the final filter to query the collection
         FindIterable<Document> documents = orderCollection.find(finalFilter);
-
+        List<Document> documentList = StreamSupport.stream(documents.spliterator(), false)
+                .collect(Collectors.toList());
         //print just for check now...
         MongoCursor<Document> cursor = documents.iterator();
         while (cursor.hasNext()) {
             System.out.println(cursor.next());
         }
-        return new ArrayList<>();
+        return documentList;
 
     }
 //    public List<Order> getOrdersByFilters(Map<String, String> filterMap) {
