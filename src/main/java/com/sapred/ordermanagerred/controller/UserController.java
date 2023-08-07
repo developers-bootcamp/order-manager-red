@@ -10,6 +10,7 @@ import com.sapred.ordermanagerred.model.User;
 import com.sapred.ordermanagerred.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
+    @Value("${spring.profiles.active:}")
+    private String activeProfiles;
     @GetMapping("/logIn/{email}/{password}")
     public ResponseEntity<String> logIn(@PathVariable("email") String email, @PathVariable("password") String password) {
         try {
@@ -125,6 +127,10 @@ public class UserController {
     public ResponseEntity getUsers(@RequestHeader("token") String token,@PathVariable("pageNumber") int pageNumber) {
         try {
             log.info("Getting users, page number: {}", pageNumber);
+
+            for (String profileName : activeProfiles.split(",")) {
+                System.out.println("Currently active profile - " + profileName);
+            }
             List<UserDTO> user = userService.getUsers(token, pageNumber);
             return ResponseEntity.ok().body(user);
         } catch (Exception e) {

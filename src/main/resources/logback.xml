@@ -1,5 +1,5 @@
 <configuration>
-    <springProperty name="rootLogLevel" source="logging.level.root" defaultValue="INFO"/>
+    <!--    <springProperty name="rootLogLevel" source="logging.level.root" defaultValue="INFO"/>-->
 
     <!-- Define log file location -->
     <!--    <property name="LOG_PATH" value="C:\Users\1\Desktop"/>-->
@@ -27,12 +27,16 @@
     </appender>
 
     <!-- Root Logger -->
-    <!--    here is my attempts to adjust the level to the profile , it became the default:trace -->
-        <!--    <root level="${spring.profiles.active == 'prod' ?    'ERROR' : 'INFO'}">-->
-        <!--    <root level="${logging.level.root.${spring.profiles.active}}">-->
-    <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-    </root>
-
+    <springProfile name="dev">
+        <root level="ERROR">-->
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+    <springProfile name="production">
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
 </configuration>
