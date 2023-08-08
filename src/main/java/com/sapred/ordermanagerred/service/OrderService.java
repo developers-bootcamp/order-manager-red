@@ -1,7 +1,6 @@
 package com.sapred.ordermanagerred.service;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.DBRef;
 import com.mongodb.client.FindIterable;
@@ -73,43 +72,29 @@ public class OrderService {
     public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
 
         MongoCollection<Document> orderCollection = mongoTemplate.getCollection("Order");
-        List<Bson> filters = new ArrayList<>();
 
+        List<Bson> filters = new ArrayList<>();
         // Iterate through the filter map and construct filters for each entry
         for (Map.Entry<String, Object> entry : filterMap.entrySet()) {
             String filterName = entry.getKey();
             Object filterValue = entry.getValue();
 
-            // Add the filter to the list of filters
-            filters.add(Filters.eq(filterName, filterValue));
+              filters.add(Filters.eq(filterName, filterValue));
         }
-
-        // Combine all the filters with the AND operator
         Bson finalFilter = Filters.and(filters);
 
         // Use the final filter to query the collection
-        FindIterable<Document> documents = orderCollection.find(finalFilter);
+        FindIterable<Document> ordersDucuments = orderCollection.find(finalFilter);
 
         //print just for check now...
-        MongoCursor<Document> cursor = documents.iterator();
+        MongoCursor<Document> cursor = ordersDucuments.iterator();
         while (cursor.hasNext()) {
             System.out.println(cursor.next());
         }
-        return convertFindIterableToOrders(documents);
+        return convertFindIterableToOrders(ordersDucuments);
 
     }
-//    public List<Order> getOrdersByFilters(Map<String, String> filterMap) {
-//        Criteria criteria = new Criteria();
-//        Query query = new Query();
-//
-//        for (Map.Entry<String, String> entry : filterMap.entrySet()) {
-//            String filterName = entry.getKey();
-//            String filterValue = entry.getValue();
-//            criteria.and(filterName).is(filterValue);
-//        }
-//        query.addCriteria(criteria);
-//        return orderRepository.find(query);
-//    }
+
     // note! it is a function just to fill data
 //    public void fill() {
 //        AuditData d = new AuditData(new Date(), new Date());
@@ -210,7 +195,7 @@ public class OrderService {
         orderRepository.saveAll(orders);
     }
 
-    public List<Order> convertFindIterableToOrders(FindIterable<Document> documents)  {
+    public List<Order> convertFindIterableToOrders(FindIterable<Document> documents) {
 
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -218,7 +203,7 @@ public class OrderService {
         List<Order> orders = StreamSupport.stream(documents.spliterator(), false)
                 .map(document -> {
                     Order order = new Order();
-                    order.setId(document.getString("Id"));
+                    order.setId(document.get("_id").toString());
                     String orderStatusString = document.getString("orderStatus");
                     Order.StatusOptions orderStatus = Order.StatusOptions.valueOf(orderStatusString);
                     order.setOrderStatus(orderStatus);
