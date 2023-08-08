@@ -2,6 +2,7 @@ package com.sapred.ordermanagerred.service;
 
 import com.mongodb.BasicDBObject;
 import com.sapred.ordermanagerred.dto.MonthProductCountDto;
+import com.sapred.ordermanagerred.security.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
@@ -16,15 +17,18 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Service
 
-public class AggregationService {
+public class GraphService {
     @Autowired
-    MongoTemplate mongoTemplate;
+    private MongoTemplate mongoTemplate;
+    @Autowired
+    private JwtToken jwtToken;
 
-    public List<MonthProductCountDto> getTopProduct() {
-        LocalDate dateForLastThreeMonth = LocalDate.now().minusMonths(3);
+    public List<MonthProductCountDto> getTopProduct(String token, int rangeOfMonths) {
+        String companyId= jwtToken.getCompanyIdFromToken(token);
+        LocalDate dateForLastThreeMonth = LocalDate.now().minusMonths(rangeOfMonths);
         Aggregation aggregation = Aggregation.newAggregation(
 
-                match(Criteria.where("companyId.$id").is("11")
+                match(Criteria.where("companyId.$id").is(companyId)
                         .and("orderStatus").is("DONE")
                         .and("auditData.createDate").gte(dateForLastThreeMonth)),
                 unwind("orderItemsList"),
