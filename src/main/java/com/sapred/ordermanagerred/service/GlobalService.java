@@ -11,7 +11,6 @@ import java.util.List;
 public class GlobalService {
 
     public List<Currency> getCurrencies() {
-        List<Currency> currencyList = new ArrayList<>();
         return Arrays.stream(Currency.values()).toList();
     }
 }

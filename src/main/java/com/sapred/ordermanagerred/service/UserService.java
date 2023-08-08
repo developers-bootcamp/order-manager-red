@@ -8,6 +8,7 @@ import com.sapred.ordermanagerred.exception.InvalidDataException;
 import com.sapred.ordermanagerred.mapper.UserMapper;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
+import com.sapred.ordermanagerred.model.Currency;
 import com.sapred.ordermanagerred.repository.CompanyRepository;
 import com.sapred.ordermanagerred.repository.RoleRepository;
 import com.sapred.ordermanagerred.repository.UserRepository;
@@ -26,8 +27,10 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.webjars.NotFoundException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -35,7 +38,9 @@ import java.util.*;
 
 @Service
 public class UserService {
-
+    public UserService(){
+        this.passwordEncoder=new BCryptPasswordEncoder();
+    }
     @Autowired
     private UserRepository userRepository;
 
@@ -54,11 +59,13 @@ public class UserService {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    private BCryptPasswordEncoder passwordEncoder;
+
     public void fill() {
         AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
         Role role = new Role("2", RoleOptions.EMPLOYEE, "cust", d);
         roleRepository.save(role);
-        Company c = new Company("1", "osherad", 55, d);
+        Company c = new Company("1", "osherad", Currency.SHEKEL, d);
         companyRepository.save(c);
         Address a = new Address("0580000000", "mezada 7", "custp");
         User user = User.builder().fullName("cust")
@@ -74,14 +81,14 @@ public class UserService {
         User authenticatedUserEmail = userRepository.getByAddressEmail(email);
         if (authenticatedUserEmail == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        if (!authenticatedUserEmail.getPassword().equals(password))
+        if(!passwordEncoder.matches(password, authenticatedUserEmail.getPassword()))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         String token = jwtToken.generateToken(authenticatedUserEmail);
         return token;
     }
 
     @SneakyThrows
-    public String signUp(String fullName, String companyName, int currency, String email, String password) {
+    public String signUp(String fullName, String companyName, Currency currency, String email, String password) {
         if (!EmailValidator.getInstance().isValid(email) || !passwordValidator.isValid(password))
             throw new InvalidDataException("the password or the email invalid");
         if (userRepository.existsByAddressEmail(email))
@@ -89,7 +96,8 @@ public class UserService {
         AuditData auditData = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
         Address address = Address.builder().email(email).build();
         User user = User.builder().fullName(fullName)
-                .password(password).address(address)
+                .password(passwordEncoder.encode(password))
+                .address(address)
                 .roleId((roleRepository.findFirstByName(RoleOptions.ADMIN)))
                 .companyId(createCompany(companyName, currency, auditData))
                 .auditData(auditData).build();
@@ -98,7 +106,7 @@ public class UserService {
     }
 
     @SneakyThrows
-    private Company createCompany(String companyName, int currency, AuditData auditData) {
+    private Company createCompany(String companyName,Currency currency, AuditData auditData) {
         if (companyRepository.existsByName(companyName))
             throw new DataExistException("the name of the company already exist");
         Company company = Company.builder().name(companyName).currency(currency).auditData(auditData).build();
@@ -145,18 +153,22 @@ public class UserService {
     }
 
     @SneakyThrows
-    public User editUser(String token, String userId, User user) {
+    public User updateUser(String token, String userId, User userToEdit) {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
-        User userTOEdit = userRepository.findById(userId).get();
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
-                (role == RoleOptions.EMPLOYEE && userTOEdit.getRoleId().getName().equals(RoleOptions.ADMIN)))
+        User findUser = userRepository.findById(userId).orElse(null);
+        if(findUser == null)
+            throw new NotFoundException("User not found");
+        if (role == RoleOptions.CUSTOMER || !findUser.getCompanyId().getId().equals(companyIdFromToken) ||
+                (role == RoleOptions.EMPLOYEE && findUser.getRoleId().getName().equals(RoleOptions.ADMIN)))
             throw new NoPermissionException("You do not have the appropriate permission to edit user");
+        if (userRepository.existsByAddressEmail(userToEdit.getAddress().getEmail()))
+            throw new DataExistException("The email address already exists");
         Query query = new Query(Criteria.where("id").is(userId));
         Update update = new Update()
-                .set("fullName", user.getFullName())
-                .set("password", user.getPassword())
-                .set("address", user.getAddress())
+                .set("fullName", userToEdit.getFullName())
+                .set("password", userToEdit.getPassword())
+                .set("address", userToEdit.getAddress())
                 .set("auditData.updateDate", LocalDate.now());
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
         return mongoTemplate.findAndModify(query, update, options, User.class);
