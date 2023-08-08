@@ -1,17 +1,15 @@
 package com.sapred.ordermanagerred.controller;
+
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.exception.MismatchData;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.service.OrderService;
-import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,9 +28,10 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
-    @PostMapping ("/{pageNumber}")
-    public ResponseEntity getOrdersWithFilter(@RequestHeader("token") String token , @PathVariable("pageNumber") int pageNumber,@RequestBody Map<String, Object> filterMap) {
-//here is an example how the map filter should look like. note the dbref way   !
+
+    @GetMapping("/{pageNumber}")
+    public ResponseEntity getOrdersWithFilter(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap) {
+//here is an example how the map filter should look like. note the dbref way  ! ! !
 //        {
 //          "employeeId": {
 //            "$ref": "User",
@@ -43,12 +42,13 @@ public class OrderController {
 
 
         try {
-            List<Order> orders = orderService.getOrdersByFilters(filterMap,token,pageNumber);
+            List<Order> orders = orderService.getOrdersByFilters(filterMap, token, pageNumber);
             return ResponseEntity.ok().body(orders);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
+
     @PostMapping("/")
     public ResponseEntity createOrder(@RequestHeader("token") String token, @RequestBody Order order) {
         try {

@@ -1,7 +1,6 @@
 package com.sapred.ordermanagerred.service;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.DBRef;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -79,12 +78,12 @@ public class OrderService {
             String filterName = entry.getKey();
             Object filterValue = entry.getValue();
 
-              filters.add(Filters.eq(filterName, filterValue));
+            filters.add(Filters.eq(filterName, filterValue));
         }
         Bson finalFilter = Filters.and(filters);
-
-        // Use the final filter to query the collection
-        FindIterable<Document> ordersDucuments = orderCollection.find(finalFilter);
+        int skip = (pageNumber - 1) * pageSize;
+        Document sortOrder = new Document("updateDate", -1);
+        FindIterable<Document> ordersDucuments = orderCollection.find(finalFilter).skip(skip).limit(pageSize).sort(sortOrder);
 
         //print just for check now...
         MongoCursor<Document> cursor = ordersDucuments.iterator();
@@ -196,9 +195,6 @@ public class OrderService {
     }
 
     public List<Order> convertFindIterableToOrders(FindIterable<Document> documents) {
-
-
-        ObjectMapper objectMapper = new ObjectMapper();
 
         List<Order> orders = StreamSupport.stream(documents.spliterator(), false)
                 .map(document -> {
