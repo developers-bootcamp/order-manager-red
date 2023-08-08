@@ -24,7 +24,7 @@ public class GraphService {
     private JwtToken jwtToken;
 
     public List<MonthProductCountDto> getTopProduct(String token, int rangeOfMonths) {
-        String companyId= jwtToken.getCompanyIdFromToken(token);
+        String companyId = jwtToken.getCompanyIdFromToken(token);
         LocalDate dateForLastThreeMonth = LocalDate.now().minusMonths(rangeOfMonths);
         Aggregation aggregation = Aggregation.newAggregation(
 
