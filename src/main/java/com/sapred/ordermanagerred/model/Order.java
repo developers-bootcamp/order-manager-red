@@ -35,7 +35,7 @@ public class Order {
     private User employeeId;
     @DBRef
     private User customerId;
-    private int totalAmount;
+    private double totalAmount;
     private List<OrderItem> orderItemsList;
     private StatusOptions orderStatus;
     @DBRef
