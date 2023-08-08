@@ -136,7 +136,7 @@ public class UserService {
         if (userRepository.existsByAddress_Email(user.getAddress().getEmail()) == true)
             throw new IllegalArgumentException();
         user.setAuditData(new AuditData(LocalDate.now(), LocalDate.now()));
-        return userRepository.insert(user);
+        return userRepository.save(user);
     }
 
 

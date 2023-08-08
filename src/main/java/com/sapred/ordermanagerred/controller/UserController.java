@@ -75,11 +75,11 @@ public class UserController {
             User newUser = userService.addUser(token, user);
             return ResponseEntity.ok().body(newUser);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("1");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("409");
         } catch (UnsupportedOperationException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("2");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("4");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("500");
         }
     }
 
@@ -90,9 +90,11 @@ public class UserController {
             return new ResponseEntity<>(true, HttpStatus.OK);
         } catch (NoPermissionException e) {
             return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
-        } catch (NotFoundException e) {
+        }
+        catch (NotFoundException e) {
             return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
-        } catch (DataExistException e) {
+        }
+catch (DataExistException e) {
             return new ResponseEntity<>(false, HttpStatus.CONFLICT);
         } catch (Exception e) {
             return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
