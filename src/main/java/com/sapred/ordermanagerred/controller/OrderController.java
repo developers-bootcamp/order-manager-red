@@ -54,8 +54,4 @@ public class OrderController {
         return new ResponseEntity<>(orderService.calculateOrderAmount(order), HttpStatus.OK);
     }
 
-    @GetMapping("/fill")
-    public void fill() {
-        orderService.fill();
-    }
 }
