@@ -10,6 +10,13 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 public class ProductCountDto {
-    private String productName;
-    private int count;
+    private String productId;
+    private int totalQuantity;
+    @Override
+    public String toString() {
+        return "ProductCountDto{" +
+                "productId='" + productId + '\'' +
+                ", totalQuantity=" + totalQuantity +
+                '}';
+    }
 }
