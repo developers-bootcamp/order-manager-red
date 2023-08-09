@@ -2,6 +2,7 @@ package com.sapred.ordermanagerred.controller;
 
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.exception.MismatchData;
+import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.service.OrderService;
@@ -9,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.sapred.ordermanagerred.exception.ObjectDoesNotExistException;
 import java.util.List;
 
 @RestController
@@ -51,11 +52,14 @@ public class OrderController {
 
     @PostMapping("/calculateOrderAmount")
     public ResponseEntity<List<ProductCartDTO>> calculateOrderAmount(@RequestHeader("token") String token, @RequestBody Order order) {
-        return new ResponseEntity<>(orderService.calculateOrderAmount(order), HttpStatus.OK);
+        try {
+            List<ProductCartDTO> listProductsCurt = orderService.calculateOrderAmount(token, order);
+            return new ResponseEntity<>(listProductsCurt, HttpStatus.OK);
+        } catch (NoPermissionException e) {
+            return new ResponseEntity(e, HttpStatus.UNAUTHORIZED);
+        } catch (ObjectDoesNotExistException e) {
+            return new ResponseEntity(e, HttpStatus.NOT_FOUND);
+        }
     }
 
-//    @GetMapping("/fill")
-//    public void fill() {
-//        orderService.fill();
-//    }
 }

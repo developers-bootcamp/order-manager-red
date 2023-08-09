@@ -45,6 +45,7 @@ public class Order {
     private StatusOptions orderStatus;
     @DBRef
     private Company companyId;
+    private Currency currency;
     private int creditCardNumber;
     private Date ExpireOn;
     private int cvc;
