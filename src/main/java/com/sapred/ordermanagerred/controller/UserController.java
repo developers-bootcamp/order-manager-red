@@ -41,6 +41,12 @@ public class UserController {
         userService.fill();
     }
 
+    @GetMapping("/fillRoles")
+    public void fillRoles() {
+        userService.fillRoles();
+    }
+
+
     @PostMapping("/signUp")
     public ResponseEntity signUp(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName,
                                  @RequestParam("currency") Currency currency, @RequestParam("email") String email,
@@ -100,7 +106,7 @@ public class UserController {
     }
 
     @GetMapping("{pageNumber}")
-    public ResponseEntity getUsers(@RequestHeader("token") String token,@PathVariable("pageNumber") int pageNumber) {
+    public ResponseEntity getUsers(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber) {
         try {
             List<UserDTO> user = userService.getUsers(token, pageNumber);
             return ResponseEntity.ok().body(user);

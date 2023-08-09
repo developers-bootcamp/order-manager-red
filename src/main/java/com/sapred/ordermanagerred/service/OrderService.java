@@ -1,7 +1,6 @@
 package com.sapred.ordermanagerred.service;
 
 
-import com.mongodb.DBRef;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -28,8 +27,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 public class OrderService {
@@ -83,7 +80,7 @@ public class OrderService {
         Bson finalFilter = Filters.and(filters);
         int skip = (pageNumber - 1) * pageSize;
         Document sortOrder = new Document("updateDate", -1);
-        FindIterable<Document> ordersDucuments = orderCollection.find(finalFilter).skip(skip).limit(pageSize).sort(sortOrder);
+        FindIterable<Document> ordersDucuments = orderCollection.find();//.finalFilterskip(skip).limit(pageSize).sort(sortOrder);
 
         //print just for check now...
         MongoCursor<Document> cursor = ordersDucuments.iterator();
@@ -155,9 +152,9 @@ public class OrderService {
         AuditData d1 = new AuditData(LocalDate.now(), LocalDate.now());
         AuditData d2 = new AuditData(LocalDate.of(2023, 6, 3), LocalDate.now());
         AuditData d3 = new AuditData(LocalDate.of(2023, 5, 1), LocalDate.now());
-        Company company1 = new Company("11", "Poto", 88, d3);
-        Company company2 = new Company("12", "PotoGeula", 88, d2);
-        Company company3 = new Company("13", "Grafgik", 88, d2);
+        Company company1 = new Company("11", "Poto", Currency.DOLLAR, d3);
+        Company company2 = new Company("12", "PotoGeula", Currency.DOLLAR, d2);
+        Company company3 = new Company("13", "Grafgik", Currency.DOLLAR, d2);
         companies.add(company1);
         companies.add(company2);
         companies.add(company3);
@@ -196,36 +193,29 @@ public class OrderService {
 
     public List<Order> convertFindIterableToOrders(FindIterable<Document> documents) {
 
-        List<Order> orders = StreamSupport.stream(documents.spliterator(), false)
-                .map(document -> {
-                    Order order = new Order();
-                    order.setId(document.get("_id").toString());
-                    String orderStatusString = document.getString("orderStatus");
-                    Order.StatusOptions orderStatus = Order.StatusOptions.valueOf(orderStatusString);
-                    order.setOrderStatus(orderStatus);
-                    DBRef employeeDbRef = (DBRef) document.get("employeeId");
-                    if (employeeDbRef != null) {
-                        User employee = mongoTemplate.findById(employeeDbRef.getId(), User.class);
-                        order.setEmployeeId(employee);
-                    }
-//                    order.setCustomerId(document.get("customerId", User.class));
-//
+        List<Order> orders = new ArrayList<>();
+        for (Document document : documents) {
 
-                    order.setTotalAmount(document.getInteger("totalAmount"));
+            Order order = new Order();
+            order.setId(document.get("_id").toString());
+            order.setOrderStatus(Order.StatusOptions.valueOf(document.getString("orderStatus")));
+            if (document.containsKey("employeeId")) {
+                order.setEmployeeId(mongoTemplate.findById(document.get("employeeId").toString(), User.class));
+            }
 
-                    // Set the fields for OrderItem, Company, and AuditData
-//                    order.setOrderItemsList(document.get("orderItemsList", List.class));
-//                    order.setCompanyId(document.get("companyId", Company.class));
-                    order.setCreditCardNumber(document.getInteger("creditCardNumber"));
-                    order.setExpireOn(document.getDate("ExpireOn"));
-                    order.setCvc(document.getInteger("cvc"));
-                    order.setNotificationFlag(document.getBoolean("notificationFlag"));
+            //    order.setOrderItemsList(document.get("orderItemsList", List.class));
+            //   order.setCompanyId(document.get("companyId", Company.class));
 //                    order.setAuditData(document.get("auditData", AuditData.class));
 
-                    return order;
-                })
-                .collect(Collectors.toList());
-
+            order.setTotalAmount(document.getDouble("totalAmount"));
+            order.setCreditCardNumber(document.getInteger("creditCardNumber"));
+            order.setExpireOn(document.getDate("ExpireOn"));
+            order.setCvc(document.getInteger("cvc"));
+            order.setNotificationFlag(document.getBoolean("notificationFlag"));
+            orders.add(order);
+        }
         return orders;
     }
+
+}
 
