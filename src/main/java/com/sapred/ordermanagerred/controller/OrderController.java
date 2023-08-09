@@ -34,7 +34,7 @@ public class OrderController {
     public ResponseEntity getOrdersWithFilter(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap) {
 //here is an example how the map filter should look like. note the dbref way  ! ! !
 //        {
-//          "employeeId": {
+//          "companyId": {
 //            "$ref": "User",
 //                    "$id": "1002"
 //          },

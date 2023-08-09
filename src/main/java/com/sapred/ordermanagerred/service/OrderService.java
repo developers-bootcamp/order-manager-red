@@ -6,6 +6,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
+import com.sapred.ordermanagerred.exception.MapFilterMissedField;
 import com.sapred.ordermanagerred.exception.MismatchData;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.*;
@@ -66,7 +67,9 @@ public class OrderService {
     }
 
     public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
-
+        if (!filterMap.containsKey("companyId")){
+            throw new MapFilterMissedField("the companyId key is require!");
+        }
         MongoCollection<Document> orderCollection = mongoTemplate.getCollection("Order");
 
         List<Bson> filters = new ArrayList<>();
