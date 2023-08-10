@@ -18,7 +18,6 @@ import java.util.List;
 @SuperBuilder(toBuilder = true)
 @Document(collection = "Order")
 public class Order {
-
     public enum StatusOptions {
         //its statuses from the technical design
         NEW,
