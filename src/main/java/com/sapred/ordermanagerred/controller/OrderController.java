@@ -62,4 +62,8 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/fill")
+    public void fill() {
+        orderService.fill();
+    }
 }

@@ -1,5 +1,4 @@
 package com.sapred.ordermanagerred.model;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,10 +6,8 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.Date;
 import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,19 +16,13 @@ import java.util.List;
 public class Order {
 
     public enum StatusOptions {
-        //its statuses from the technical design
         NEW,
         APPROVED,
         CANCELLED,
         CHARGING,
         PACKING,
         DELIVERED,
-        //\\
-        //its from the origin main!- what should it be?
-        DONE,
-        PROCESSING,
-        CREATED
-        //\\
+
     }
 
     @Id
