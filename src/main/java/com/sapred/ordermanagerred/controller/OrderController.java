@@ -6,6 +6,7 @@ import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.service.OrderService;
 import com.sapred.ordermanagerred.socket_io.SocketEventHandler;
+import com.sapred.ordermanagerred.socketio.OrderSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +20,12 @@ import java.util.List;
 public class OrderController {
     @Autowired
     private OrderService orderService;
-    private final SocketEventHandler socketEventHandler;
+    private final OrderSocketServer orderSocketServer;
 
     @Autowired
-    public OrderController( SocketEventHandler socketEventHandler) {
+    public OrderController( SocketEventHandler socketEventHandler, OrderSocketServer orderSocketServer) {
         this.orderService = orderService;
-        this.socketEventHandler = socketEventHandler;
+        this.orderSocketServer = orderSocketServer;
     }
 
     @GetMapping("/{userId}/{status}/{pageNumber}")
@@ -42,14 +43,16 @@ public class OrderController {
         try {
             String id = orderService.createOrder(token, order);
             // Emit a new-order event to connected clients
-            socketEventHandler.onNewOrder(null, order);
+            String companyId = order.getCompanyId().getId(); // Assuming you have a method to retrieve the companyId from the order
+            String message = "A new order has been created: " + id;
+            orderSocketServer.sendToCompany(companyId, message);
             return ResponseEntity.ok().body(id);
         } catch (StatusException exception) {
             return new ResponseEntity(exception, HttpStatus.CONFLICT);
         } catch (MismatchData exception) {
             return new ResponseEntity(exception, HttpStatus.CONFLICT);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 

@@ -12,31 +12,31 @@ import org.springframework.stereotype.Component;
 @Component
 public class SocketEventHandler {
 
-    private final SocketIOServer socketIOServer;
-
-    @Autowired
-    public SocketEventHandler(SocketIOServer socketIOServer) {
-        this.socketIOServer = socketIOServer;
-
-    }
-
-    @OnConnect
-    public void onConnect(SocketIOClient client) {
-        System.out.println("Client connected: " + client.getSessionId());
-    }
-
-    @OnDisconnect
-    public void onDisconnect(SocketIOClient client) {
-        System.out.println("Client disconnected: " + client.getSessionId());
-    }
-
-    // Handle custom event for new order
-    @OnEvent("new-order")
-    public void onNewOrder(SocketIOClient client, Order order) {
-        System.out.println("New order received: " + order.getId());
-
-        // Broadcast the new order event to all connected clients
-        socketIOServer.getBroadcastOperations().sendEvent("new-order", order);
-    }
+//    private final SocketIOServer socketIOServer;
+//
+//    @Autowired
+//    public SocketEventHandler(SocketIOServer socketIOServer) {
+//        this.socketIOServer = socketIOServer;
+//
+//    }
+//
+//    @OnConnect
+//    public void onConnect(SocketIOClient client) {
+//        System.out.println("Client connected: " + client.getSessionId());
+//    }
+//
+//    @OnDisconnect
+//    public void onDisconnect(SocketIOClient client) {
+//        System.out.println("Client disconnected: " + client.getSessionId());
+//    }
+//
+//    // Handle custom event for new order
+//    @OnEvent("new-order")
+//    public void onNewOrder(SocketIOClient client, Order order) {
+//        System.out.println("New order received: " + order.getId());
+//
+//        // Broadcast the new order event to all connected clients
+//        socketIOServer.getBroadcastOperations().sendEvent("new-order", order);
+//    }
 }
 
