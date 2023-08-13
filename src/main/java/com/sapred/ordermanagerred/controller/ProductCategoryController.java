@@ -6,6 +6,7 @@ import com.sapred.ordermanagerred.exception.DataExistException;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.model.ProductCategory;
 import com.sapred.ordermanagerred.service.ProductCategoryService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,60 +17,51 @@ import java.util.List;
 @RestController
 @RequestMapping("/productCategory")
 @CrossOrigin("http://localhost:3000")
+@Slf4j
 public class ProductCategoryController {
     @Autowired
     private ProductCategoryService productCategoryService;
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteProductCategory(@RequestHeader("token") String token, @PathVariable("id") String id) {
-        try {
-            productCategoryService.deleteProductCategory(token, id);
-            return new ResponseEntity(HttpStatus.OK);
-        } catch (NoPermissionException exception) {
-            return new ResponseEntity(exception, HttpStatus.FORBIDDEN);
-        } catch (Exception exception) {
-            return new ResponseEntity(exception, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        log.debug("Entering deleteProductCategory method");
+        log.debug("@PathVariable id: {}", id);
+
+        productCategoryService.deleteProductCategory(token, id);
+
+        log.debug("Exiting deleteProductCategory method");
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<ProductCategoryDto>> getAllCategory(@RequestHeader("token") String token) {
-        try {
-            List<ProductCategoryDto> productCategoryDtos = productCategoryService.getAllCategory(token);
-            return new ResponseEntity<>(productCategoryDtos, HttpStatus.OK);
-        } catch (NoPermissionException exception) {
-            return new ResponseEntity(exception, HttpStatus.FORBIDDEN);
-        } catch (Exception exception) {
-            return new ResponseEntity(exception, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        log.debug("Entering getAllCategory method");
+
+        List<ProductCategoryDto> productCategoryDtos = productCategoryService.getAllCategory(token);
+
+        log.debug("Exiting getAllCategory method");
+        return ResponseEntity.ok(productCategoryDtos);
     }
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity createProductCategory(@RequestHeader String token, @RequestBody ProductCategory productCategory) {
-        try {
-            productCategoryService.createProductCategory(productCategory, token);
-            return new ResponseEntity(HttpStatus.OK);
-        } catch (NoPermissionException ex) {
-            return new ResponseEntity(ex, HttpStatus.FORBIDDEN);
-        } catch (DataExistException ex) {
-            return new ResponseEntity(ex, HttpStatus.CONFLICT);
-        } catch (Exception ex) {
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        log.debug("Entering createProductCategory method");
+        log.debug("@RequestBody productCategory: {}", productCategory);
+
+        productCategoryService.createProductCategory(productCategory, token);
+
+        log.debug("Exiting createProductCategory method");
+        return ResponseEntity.ok(HttpStatus.OK);
     }
-    @PutMapping()
+
+    @PutMapping
     public ResponseEntity<String> editProductCategory(@RequestHeader("token") String token, @RequestBody ProductCategoryDto productCategoryDto) {
-        try {
-            productCategoryService.editProductCategory(token, productCategoryDto);
-        } catch (NoPermissionException ex) {
-            return new ResponseEntity(ex, HttpStatus.FORBIDDEN);
-        } catch (ObjectDoesNotExistException ex) {
-            return new ResponseEntity(ex, HttpStatus.NOT_FOUND);
-        } catch (Exception ex) {
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        log.debug("Entering editProductCategory method");
+        log.debug("@RequestBody productCategoryDto: {}", productCategoryDto);
+
+        productCategoryService.editProductCategory(token, productCategoryDto);
+
+        log.debug("Exiting editProductCategory method");
         return new ResponseEntity(HttpStatus.OK);
     }
 }
-
-

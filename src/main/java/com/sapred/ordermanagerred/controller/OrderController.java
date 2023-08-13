@@ -33,15 +33,14 @@ public class OrderController {
     }
 
     @PostMapping("/")
-    public ResponseEntity createOrder() {
+    public ResponseEntity createOrder(@RequestHeader("token") String token,@RequestBody Order order) {
         log.debug("Entering createOrder method");
-//        log.debug("@RequestBody order: {}", order);
+       log.debug("@RequestBody order: {}", order);
 
-//        String id = orderService.createOrder(token, order);
+        String id = orderService.createOrder(token, order);
 
         log.debug("Exiting createOrder method");
-//        return ResponseEntity.ok().body(id);
- return ResponseEntity.ok().body(2);
+       return ResponseEntity.ok().body(id);
 
     }
 

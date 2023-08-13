@@ -2,7 +2,6 @@ package com.sapred.ordermanagerred.service;
 
 
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
-import com.sapred.ordermanagerred.exception.MismatchData;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.CompanyRepository;
@@ -56,8 +55,7 @@ public class OrderService {
 
     public String createOrder(String token, Order order) {
         String companyId = jwtToken.getCompanyIdFromToken(token);
-//        if (order.getCompanyId().getId() != companyId)
-//            throw new MismatchData("the company id is not match to the order's company id");
+
         if (order.getOrderStatus() != Order.StatusOptions.NEW || order.getOrderStatus() != Order.StatusOptions.APPROVED)
             throw new StatusException("can't create order where status is not NEW or APPROVED ");
         return orderRepository.save(order).getId();
