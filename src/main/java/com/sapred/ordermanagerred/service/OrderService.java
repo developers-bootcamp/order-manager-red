@@ -1,14 +1,11 @@
 package com.sapred.ordermanagerred.service;
 
 
+import com.sapred.ordermanagerred.Exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
-import com.sapred.ordermanagerred.exception.MismatchData;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.*;
-import com.sapred.ordermanagerred.repository.CompanyRepository;
-import com.sapred.ordermanagerred.repository.OrderRepository;
-import com.sapred.ordermanagerred.repository.ProductCategoryRepository;
-import com.sapred.ordermanagerred.repository.ProductRepository;
+import com.sapred.ordermanagerred.repository.*;
 import com.sapred.ordermanagerred.security.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +34,8 @@ public class OrderService {
 
     @Autowired
     private CompanyRepository companyRepository;
-
+    @Autowired
+    private UserRepository userRepository;
     @Value("${pageSize}")
     private int pageSize;
 
@@ -56,8 +54,15 @@ public class OrderService {
 
     public String createOrder(String token, Order order) {
         String companyId = jwtToken.getCompanyIdFromToken(token);
-        if (order.getCompanyId().getId() != companyId)
-            throw new MismatchData("the company id is not match to the order's company id");
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new ObjectDoesNotExistException("Company not found"));
+        order.setCompanyId(company);
+        String employeeId = jwtToken.getUserIdFromToken(token);
+        User employee = userRepository.findById(employeeId)
+                .orElseThrow(() -> new ObjectDoesNotExistException("Employee not found"));
+        order.setEmployeeId(employee);
+        AuditData auditData = new AuditData(LocalDate.now(), null);
+        order.setAuditData(auditData);
         if (order.getOrderStatus() != Order.StatusOptions.NEW || order.getOrderStatus() != Order.StatusOptions.APPROVED)
             throw new StatusException("can't create order where status is not NEW or APPROVED ");
         return orderRepository.save(order).getId();
