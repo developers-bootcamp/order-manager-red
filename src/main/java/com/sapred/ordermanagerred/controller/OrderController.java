@@ -5,6 +5,7 @@ import com.sapred.ordermanagerred.exception.MismatchData;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.service.OrderService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,47 +16,50 @@ import java.util.List;
 @RestController
 @RequestMapping("/order")
 @CrossOrigin("http://localhost:3000")
+@Slf4j
 public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    //the params should be pathparams?...
     @GetMapping("/{userId}/{status}/{pageNumber}")
     public ResponseEntity getOrders(@RequestHeader("token") String token, @PathVariable("userId") String userId, @PathVariable("status") String statusId, @PathVariable("pageNumber") int pageNumber) {
-        try {
-            List<Order> orders = orderService.getOrders(token, statusId, pageNumber, userId);
-            return ResponseEntity.ok().body(orders);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
+        log.debug("Entering getOrders method");
+        log.debug("@PathVariable userId: {}, statusId: {}, pageNumber: {}", userId, statusId, pageNumber);
+
+        List<Order> orders = orderService.getOrders(token, statusId, pageNumber, userId);
+
+        log.debug("Exiting getOrders method");
+        return ResponseEntity.ok().body(orders);
     }
 
     @PostMapping("/")
-    public ResponseEntity createOrder(@RequestHeader("token") String token, @RequestBody Order order) {
-        try {
-            String id = orderService.createOrder(token, order);
-            return ResponseEntity.ok().body(id);
-        } catch (StatusException exception) {
-            return new ResponseEntity(exception, HttpStatus.CONFLICT);
-        } catch (MismatchData exception) {
-            return new ResponseEntity(exception, HttpStatus.CONFLICT);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
+    public ResponseEntity createOrder() {
+        log.debug("Entering createOrder method");
+//        log.debug("@RequestBody order: {}", order);
+
+//        String id = orderService.createOrder(token, order);
+
+        log.debug("Exiting createOrder method");
+//        return ResponseEntity.ok().body(id);
+ return ResponseEntity.ok().body(2);
+
     }
 
     @GetMapping("/fillProducts")
     public void fillProducts() {
+        log.debug("Entering fillProducts method");
         orderService.fillProducts();
+        log.debug("Exiting fillProducts method");
     }
 
     @PostMapping("/calculateOrderAmount")
     public ResponseEntity<List<ProductCartDTO>> calculateOrderAmount(@RequestHeader("token") String token, @RequestBody Order order) {
-        return new ResponseEntity<>(orderService.calculateOrderAmount(order), HttpStatus.OK);
-    }
+        log.debug("Entering calculateOrderAmount method");
+        log.debug("@RequestBody order: {}", order);
 
-//    @GetMapping("/fill")
-//    public void fill() {
-//        orderService.fill();
-//    }
+        List<ProductCartDTO> result = orderService.calculateOrderAmount(order);
+
+        log.debug("Exiting calculateOrderAmount method");
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 }

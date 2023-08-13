@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.webjars.NotFoundException;
 
 import java.util.List;
@@ -30,113 +29,80 @@ public class UserController {
 
     @GetMapping("/logIn/{email}/{password}")
     public ResponseEntity<String> logIn(@PathVariable("email") String email, @PathVariable("password") String password) {
-        try {
-            log.info("Logging in user with email: {}", email);
-            return new ResponseEntity<String>(userService.logIn(email, password), HttpStatus.OK);
-        } catch (ResponseStatusException e) {
-            log.error("Error while logging in: {}", e.getMessage());
-            return new ResponseEntity<String>(e.getMessage(), e.getStatusCode());
-        } catch (RuntimeException e) {
-            log.error("Error while logging in: {}", e.getMessage());
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        log.debug("Entering logIn method with email: {}", email);
+
+        String response = userService.logIn(email, password);
+
+        log.debug("Exiting logIn method");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/fill")
     public void fill() {
-        log.info("Filling user data");
+        log.debug("Entering fill method");
         userService.fill();
+        log.debug("Exiting fill method");
     }
 
     @PostMapping("/signUp")
     public ResponseEntity signUp(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName,
                                  @RequestParam("currency") Currency currency, @RequestParam("email") String email,
                                  @RequestParam("password") String password) {
-        try {
-            log.info("Signing up user with email: {}", email);
-            String token = userService.signUp(fullName, companyName, currency, email, password);
-            return new ResponseEntity(token, HttpStatus.OK);
-        } catch (InvalidDataException ex) {
-            log.error("Invalid data during sign-up: {}", ex.getMessage());
-            return new ResponseEntity(ex, HttpStatus.BAD_REQUEST);
-        } catch (DataExistException ex) {
-            log.error("Data already exists during sign-up: {}", ex.getMessage());
-            return new ResponseEntity(ex, HttpStatus.CONFLICT);
-        } catch (Exception ex) {
-            log.error("Error during sign-up: {}", ex.getMessage());
-            return new ResponseEntity(ex, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        log.debug("Entering signUp method with email: {}", email);
+
+        String token = userService.signUp(fullName, companyName, currency, email, password);
+
+        log.debug("Exiting signUp method");
+        return new ResponseEntity(token, HttpStatus.OK);
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Boolean> deleteUser(@RequestHeader("token") String token, @PathVariable("userId") String userId) {
-        try {
-            log.info("Deleting user with ID: {}", userId);
-            userService.deleteUser(token, userId);
-            return new ResponseEntity<>(true, HttpStatus.OK);
-        } catch (NoPermissionException e) {
-            log.error("Unauthorized user deletion: {}", e.getMessage());
-            return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
-        } catch (Exception e) {
-            log.error("Error while deleting user: {}", e.getMessage());
-            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        log.debug("Entering deleteUser method with userId: {}", userId);
+
+        userService.deleteUser(token, userId);
+
+        log.debug("Exiting deleteUser method");
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity addUser(@RequestHeader("token") String token, @RequestBody User user) {
-        try {
-            log.info("Adding a new user");
-            User newUser = userService.addUser(token, user);
-            return ResponseEntity.ok().body(newUser);
-        } catch (IllegalArgumentException e) {
-            log.error("User addition failed: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("1");
-        } catch (UnsupportedOperationException e) {
-            log.error("User addition forbidden: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("2");
-        } catch (Exception e) {
-            log.error("Error while adding user: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("4");
-        }
+        log.debug("Entering addUser method");
+
+        User newUser = userService.addUser(token, user);
+
+        log.debug("Exiting addUser method");
+        return ResponseEntity.ok().body(newUser);
     }
 
     @PutMapping("/{userId}")
     public ResponseEntity<Boolean> updateUser(@RequestHeader("token") String token, @PathVariable("userId") String userId, @RequestBody User user) {
-        try {
-            log.info("Updating user with ID: {}", userId);
-            User u = userService.updateUser(token, userId, user);
-            return new ResponseEntity<>(true, HttpStatus.OK);
-        } catch (NoPermissionException e) {
-            log.error("Unauthorized user update: {}", e.getMessage());
-            return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
-        } catch (NotFoundException e) {
-            log.error("User with ID not found during update: {}", e.getMessage());
-            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
-        } catch (DataExistException e) {
-            log.error("Data conflict during user update: {}", e.getMessage());
-            return new ResponseEntity<>(false, HttpStatus.CONFLICT);
-        } catch (Exception e) {
-            log.error("Error while updating user: {}", e.getMessage());
-            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        log.debug("Entering updateUser method with userId: {}", userId);
+
+        userService.updateUser(token, userId, user);
+
+        log.debug("Exiting updateUser method");
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
     @GetMapping("{pageNumber}")
-    public ResponseEntity getUsers(@RequestHeader("token") String token,@PathVariable("pageNumber") int pageNumber) {
-        try {
-            log.info("Getting users, page number: {}", pageNumber);
-            List<UserDTO> user = userService.getUsers(token, pageNumber);
-            return ResponseEntity.ok().body(user);
-        } catch (Exception e) {
-            log.error("Error while getting users: {}", e.getMessage());
-            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity getUsers(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber) {
+        log.debug("Entering getUsers method with pageNumber: {}", pageNumber);
+
+        List<UserDTO> user = userService.getUsers(token, pageNumber);
+
+        log.debug("Exiting getUsers method");
+        return ResponseEntity.ok().body(user);
     }
 
     @GetMapping("/getNamesOfCustomersByPrefix/{prefix}")
     public List<UserNameDTO> getNamesOfCustomersByPrefix(@RequestHeader("token") String token, @PathVariable String prefix) {
-        log.info("Getting names of customers by prefix: {}", prefix);
-        return userService.getNamesOfCustomersByPrefix(token, prefix);
+        log.debug("Entering getNamesOfCustomersByPrefix method with prefix: {}", prefix);
+
+        List<UserNameDTO> result = userService.getNamesOfCustomersByPrefix(token, prefix);
+
+        log.debug("Exiting getNamesOfCustomersByPrefix method");
+        return result;
     }
 }
