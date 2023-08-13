@@ -93,7 +93,12 @@ public class OrderService {
         log.info("Filling products");
 
         for (int i = 1; i < 10; i++) {
-            // ... (omitted for brevity)
+            AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
+            List<Order> orders = new ArrayList<Order>();
+            ProductCategory pc = new ProductCategory(String.valueOf(i), "name" + i, "desc" + i, companyRepository.findById("1").get(), AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
+            productCategoryRepository.save(pc);
+            Product p = new Product(String.valueOf(i), "aaa", "aaa", 40, 50, DiscountType.PERCENTAGE, pc, 4, companyRepository.findById("1").get(), AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
+            productRepository.save(p);
         }
 
         log.info("Products filled");
@@ -101,9 +106,19 @@ public class OrderService {
 
     public List<ProductCartDTO> calculateOrderAmount(Order order) {
         log.info("Calculating order amount");
+            List<ProductCartDTO> listOfCart = new ArrayList<>();
+            ProductCartDTO productCartDTO;
+            double sum = 0, discount = 0;
+            OrderItem orderItem = order.getOrderItemsList().get(order.getOrderItemsList().size() - 1);
+            Product product = productRepository.findById(orderItem.getProductId().getId()).get();
+            if (product.getDiscountType() == DiscountType.PERCENTAGE)
+                discount = product.getPrice() * orderItem.getQuantity() * product.getDiscount() * 0.01;
+            else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT) discount = product.getDiscount();
+            sum = product.getPrice() * orderItem.getQuantity() - discount;
+            productCartDTO = ProductCartDTO.builder().name(product.getName()).amount(sum).discount(discount).quantity(orderItem.getQuantity()).build();
+            listOfCart.add(productCartDTO);
+            listOfCart.add(ProductCartDTO.builder().name("Total").amount(order.getTotalAmount() + sum).build());
 
-        List<ProductCartDTO> listOfCart = new ArrayList<>();
-        // ... (omitted for brevity)
 
         log.info("Order amount calculated");
 
