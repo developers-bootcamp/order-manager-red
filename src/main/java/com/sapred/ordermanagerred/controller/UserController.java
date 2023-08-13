@@ -2,19 +2,14 @@ package com.sapred.ordermanagerred.controller;
 
 import com.sapred.ordermanagerred.dto.UserDTO;
 import com.sapred.ordermanagerred.dto.UserNameDTO;
-import com.sapred.ordermanagerred.exception.DataExistException;
-import com.sapred.ordermanagerred.exception.InvalidDataException;
-import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.model.Currency;
 import com.sapred.ordermanagerred.model.User;
 import com.sapred.ordermanagerred.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.webjars.NotFoundException;
 
 import java.util.List;
 
@@ -33,7 +28,6 @@ public class UserController {
 
         String response = userService.logIn(email, password);
 
-        log.debug("Exiting logIn method");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -41,7 +35,6 @@ public class UserController {
     public void fill() {
         log.debug("Entering fill method");
         userService.fill();
-        log.debug("Exiting fill method");
     }
 
     @PostMapping("/signUp")
@@ -52,7 +45,6 @@ public class UserController {
 
         String token = userService.signUp(fullName, companyName, currency, email, password);
 
-        log.debug("Exiting signUp method");
         return new ResponseEntity(token, HttpStatus.OK);
     }
 
@@ -62,7 +54,6 @@ public class UserController {
 
         userService.deleteUser(token, userId);
 
-        log.debug("Exiting deleteUser method");
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
@@ -72,7 +63,6 @@ public class UserController {
 
         User newUser = userService.addUser(token, user);
 
-        log.debug("Exiting addUser method");
         return ResponseEntity.ok().body(newUser);
     }
 
@@ -82,7 +72,6 @@ public class UserController {
 
         userService.updateUser(token, userId, user);
 
-        log.debug("Exiting updateUser method");
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
@@ -92,7 +81,6 @@ public class UserController {
 
         List<UserDTO> user = userService.getUsers(token, pageNumber);
 
-        log.debug("Exiting getUsers method");
         return ResponseEntity.ok().body(user);
     }
 
@@ -102,7 +90,6 @@ public class UserController {
 
         List<UserNameDTO> result = userService.getNamesOfCustomersByPrefix(token, prefix);
 
-        log.debug("Exiting getNamesOfCustomersByPrefix method");
         return result;
     }
 }
