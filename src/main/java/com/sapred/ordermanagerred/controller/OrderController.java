@@ -1,7 +1,7 @@
 package com.sapred.ordermanagerred.controller;
 
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
-import com.sapred.ordermanagerred.exception.MismatchData;
+import com.sapred.ordermanagerred.Exception.MismatchData;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.service.OrderService;
@@ -54,8 +54,8 @@ public class OrderController {
         return new ResponseEntity<>(orderService.calculateOrderAmount(order), HttpStatus.OK);
     }
 
-//    @GetMapping("/fill")
-//    public void fill() {
-//        orderService.fill();
-//    }
+    @GetMapping("/fill")
+    public void fill() {
+        orderService.fill();
+    }
 }
