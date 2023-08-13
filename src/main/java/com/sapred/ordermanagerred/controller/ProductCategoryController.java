@@ -1,9 +1,9 @@
 package com.sapred.ordermanagerred.controller;
 
-import com.sapred.ordermanagerred.Exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.dto.ProductCategoryDto;
 import com.sapred.ordermanagerred.exception.DataExistException;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
+import com.sapred.ordermanagerred.exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.model.ProductCategory;
 import com.sapred.ordermanagerred.service.ProductCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class ProductCategoryController {
     }
 
     @PostMapping()
-    public ResponseEntity createProductCategory(@RequestHeader String token, @RequestBody ProductCategory productCategory) {
+    public ResponseEntity createProductCategory(@RequestHeader("token") String token, @RequestBody ProductCategory productCategory) {
         try {
             productCategoryService.createProductCategory(productCategory, token);
             return new ResponseEntity(HttpStatus.OK);

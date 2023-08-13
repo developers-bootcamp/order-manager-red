@@ -1,8 +1,10 @@
 package com.sapred.ordermanagerred.service;
 
 
-import com.sapred.ordermanagerred.Exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
+import com.sapred.ordermanagerred.exception.MismatchData;
+import com.sapred.ordermanagerred.exception.NoPermissionException;
+import com.sapred.ordermanagerred.exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.*;
@@ -12,6 +14,7 @@ import com.sapred.ordermanagerred.repository.OrderRepository;
 import com.sapred.ordermanagerred.repository.ProductCategoryRepository;
 import com.sapred.ordermanagerred.repository.ProductRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -29,10 +32,16 @@ import java.util.List;
 public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
+
     @Autowired
-    private JwtToken jwtToken;
+    private CompanyRepository companyRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
     @Autowired
     private RoleRepository roleRepository;
+
     @Autowired
     private ProductRepository productRepository;
 
@@ -40,9 +49,10 @@ public class OrderService {
     private ProductCategoryRepository productCategoryRepository;
 
     @Autowired
-    private CompanyRepository companyRepository;
+    private CurrencyConverterService currencyConverterService;
+
     @Autowired
-    private UserRepository userRepository;
+    private JwtToken jwtToken;
     @Value("${pageSize}")
     private int pageSize;
 
@@ -98,15 +108,15 @@ public class OrderService {
         users.add(user6);
         users.add(user7);
 
-        orders.add(new Order("A", user2, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("B", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("C", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("D", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("E", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("F", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("G", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("H", user7, user3, 100, null, Order.StatusOptions.CANCELLED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("I", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
+        orders.add(new Order("A", user2, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.DOLLAR, 143,new Date() , 2, true, d1));
+        orders.add(new Order("B", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.DOLLAR, 143,new Date() , 2, true, d1));
+        orders.add(new Order("C", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.SHEKEL, 143,new Date() , 2, true, d1));
+        orders.add(new Order("D", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.DOLLAR, 143,new Date() , 2, true, d1));
+        orders.add(new Order("E", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.DOLLAR, 143,new Date() , 2, true, d1));
+        orders.add(new Order("F", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.EURO, 143,new Date() , 2, true, d1));
+        orders.add(new Order("G", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.LIRA, 143,new Date() , 2, true, d1));
+        orders.add(new Order("H", user7, user3, 100, null, Order.StatusOptions.CANCELLED, company1, Currency.DOLLAR, 143,new Date() , 2, true, d1));
+        orders.add(new Order("I", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.FRANC, 143,new Date() , 2, true, d1));
 
 
      /*   for (int i = 200; i < 500; i++) {
@@ -150,17 +160,32 @@ public class OrderService {
         }
     }
 
-    public List<ProductCartDTO> calculateOrderAmount(Order order) {
+    @SneakyThrows
+    public List<ProductCartDTO> calculateOrderAmount(String token, Order order) {
+
+        RoleOptions roleFromToken = jwtToken.getRoleIdFromToken(token);
+        if (roleFromToken == RoleOptions.CUSTOMER)
+            throw new NoPermissionException("You do not have the appropriate permission to calculate order");
+
+        Company company = companyRepository.findById(order.getCompanyId().getId()).get();
+        if(company == null)
+            throw new ObjectDoesNotExistException("the company not exist in data");
+
+        String fromCurrency = company.getCurrency().getCode();
+        String toCurrency = order.getCurrency().getCode();
+        double rate = currencyConverterService.convertCurrency(fromCurrency, toCurrency);
+
         List<ProductCartDTO> listOfCart = new ArrayList<>();
-        ProductCartDTO productCartDTO;
         double sum = 0, discount = 0;
         OrderItem orderItem = order.getOrderItemsList().get(order.getOrderItemsList().size() - 1);
         Product product = productRepository.findById(orderItem.getProductId().getId()).get();
+        double price = product.getPrice() * rate;
         if (product.getDiscountType() == DiscountType.PERCENTAGE)
-            discount = product.getPrice() * orderItem.getQuantity() * product.getDiscount() * 0.01;
-        else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT) discount = product.getDiscount();
-        sum = product.getPrice() * orderItem.getQuantity() - discount;
-        productCartDTO = ProductCartDTO.builder().name(product.getName()).amount(sum).discount(discount).quantity(orderItem.getQuantity()).build();
+            discount = price * orderItem.getQuantity() * product.getDiscount() * 0.01;
+        else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT)
+            discount = product.getDiscount() * rate;
+        sum = price * orderItem.getQuantity() - discount;
+        ProductCartDTO productCartDTO = ProductCartDTO.builder().name(product.getName()).amount(sum).discount(discount).quantity(orderItem.getQuantity()).build();
         listOfCart.add(productCartDTO);
         listOfCart.add(ProductCartDTO.builder().name("Total").amount(order.getTotalAmount() + sum).build());
         return listOfCart;

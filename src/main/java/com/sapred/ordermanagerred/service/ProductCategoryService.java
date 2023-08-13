@@ -1,6 +1,6 @@
 package com.sapred.ordermanagerred.service;
 
-import com.sapred.ordermanagerred.Exception.ObjectDoesNotExistException;
+import com.sapred.ordermanagerred.exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.mapper.ProductCategoryMapper;
 import com.sapred.ordermanagerred.dto.ProductCategoryDto;
 import com.sapred.ordermanagerred.exception.DataExistException;

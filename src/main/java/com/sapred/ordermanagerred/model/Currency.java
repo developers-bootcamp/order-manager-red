@@ -1,9 +1,13 @@
 package com.sapred.ordermanagerred.model;
 
-public enum Currency {
-    EURO("EUR"), SHEKEL("ILS"), FRANC("CHF"), RUBLE("RUB"), DOLLAR("USD");
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-    private String code;
+public enum Currency {
+    EURO("EUR"), SHEKEL("ILS"), FRANC("CHF"), LIRA("GBP"), DOLLAR("USD");
+
+    private @Getter @Setter String code;
 
     private Currency(String code) {
         this.code = code;
