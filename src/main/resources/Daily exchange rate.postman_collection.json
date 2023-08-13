@@ -1,0 +1,730 @@
+{
+	"info": {
+		"_postman_id": "ef610dea-4c27-435b-939a-d5699facd811",
+		"name": "Daily exchange rate",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24392707"
+	},
+	"item": [
+		{
+			"name": "exchangeRate",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/ExchangeRate",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"ExchangeRate"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "from_ILS_to_USD",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=ILS&orderCurrency=USD",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "ILS"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "USD"
+								}
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "0.272"
+				},
+				{
+					"name": "from_ILS_to_EUR",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=ILS&orderCurrency=EUR",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "ILS"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "EUR"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "0.248"
+				},
+				{
+					"name": "from_ILS_to_CHF",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=ILS&orderCurrency=CHF",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "ILS"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "CHF"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "0.239"
+				},
+				{
+					"name": "from_ILS_to_GBP",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=ILS&orderCurrency=GBP",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "ILS"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "GBP"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "0.214"
+				},
+				{
+					"name": "from_EUR_to_ILS",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=EUR&orderCurrency=ILS",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "EUR"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "ILS"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "4.035"
+				},
+				{
+					"name": "from_EUR_to_CHF",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=EUR&orderCurrency=CHF",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "EUR"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "CHF"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "0.963"
+				},
+				{
+					"name": "from_EUR_to_GBP",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=EUR&orderCurrency=GBP",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "EUR"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "GBP"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "0.862"
+				},
+				{
+					"name": "from_EUR_to_USD",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=EUR&orderCurrency=USD",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "EUR"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "USD"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "1.098"
+				},
+				{
+					"name": "from_CHF_to_EUR",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=CHF&orderCurrency=EUR",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "CHF"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "EUR"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "1.039"
+				},
+				{
+					"name": "from_CHF_to_ILS",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=CHF&orderCurrency=ILS",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "CHF"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "ILS"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "4.192"
+				},
+				{
+					"name": "from_CHF_to_GBP",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=CHF&orderCurrency=GBP",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "CHF"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "GBP"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "0.895"
+				},
+				{
+					"name": "from_CHF_to_USD",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=CHF&orderCurrency=USD",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "CHF"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "USD"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "1.14"
+				},
+				{
+					"name": "from_GBP_to_EUR",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=GBP&orderCurrency=EUR",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "GBP"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "EUR"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "1.16"
+				},
+				{
+					"name": "from_GBP_to_ILS",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=GBP&orderCurrency=ILS",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "GBP"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "ILS"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "4.683"
+				},
+				{
+					"name": "from_GBP_to_CHF",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=GBP&orderCurrency=CHF",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "GBP"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "CHF"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "1.117"
+				},
+				{
+					"name": "from_GBP_to_USD",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=GBP&orderCurrency=USD",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "GBP"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "USD"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "1.274"
+				},
+				{
+					"name": "from_USD_to_EUR",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=USD&orderCurrency=EUR",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "USD"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "EUR"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "0.911"
+				},
+				{
+					"name": "from_USD_to_ILS",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=USD&orderCurrency=ILS",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "USD"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "ILS"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "3.676"
+				},
+				{
+					"name": "from_USD_to_CHF",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=USD&orderCurrency=CHF",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "USD"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "CHF"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "0.877"
+				},
+				{
+					"name": "from_USD_to_GBP",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/exchangeRate?companyCurrency=USD&orderCurrency=GBP",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"exchangeRate"
+							],
+							"query": [
+								{
+									"key": "companyCurrency",
+									"value": "USD"
+								},
+								{
+									"key": "orderCurrency",
+									"value": "GBP"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "0.785"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "https://dbd132af-315b-45ea-a839-453d97370cf6.mock.pstmn.io"
+		}
+	]
+}

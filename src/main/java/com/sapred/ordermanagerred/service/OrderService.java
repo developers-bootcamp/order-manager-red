@@ -13,7 +13,6 @@ import com.sapred.ordermanagerred.repository.ProductCategoryRepository;
 import com.sapred.ordermanagerred.repository.ProductRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
 import lombok.SneakyThrows;
-import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -34,10 +33,13 @@ public class OrderService {
 
     @Autowired
     private CompanyRepository companyRepository;
+
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private RoleRepository roleRepository;
+
     @Autowired
     private ProductRepository productRepository;
 
@@ -49,6 +51,7 @@ public class OrderService {
 
     @Autowired
     private JwtToken jwtToken;
+
     @Value("${pageSize}")
     private int pageSize;
 
@@ -104,15 +107,15 @@ public class OrderService {
         users.add(user6);
         users.add(user7);
 
-        orders.add(new Order("A", user2, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("B", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("C", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("D", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("E", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("F", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("G", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("H", user7, user3, 100, null, Order.StatusOptions.CANCELLED, company1, 143,new Date() , 2, true, d1));
-        orders.add(new Order("I", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, 143,new Date() , 2, true, d1));
+        orders.add(new Order("A", user2, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.DOLLAR, 143,new Date() , 2, true, d1));
+        orders.add(new Order("B", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.DOLLAR, 143,new Date() , 2, true, d1));
+        orders.add(new Order("C", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.SHEKEL, 143,new Date() , 2, true, d1));
+        orders.add(new Order("D", user6, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.DOLLAR, 143,new Date() , 2, true, d1));
+        orders.add(new Order("E", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.DOLLAR, 143,new Date() , 2, true, d1));
+        orders.add(new Order("F", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.EURO, 143,new Date() , 2, true, d1));
+        orders.add(new Order("G", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.LIRA, 143,new Date() , 2, true, d1));
+        orders.add(new Order("H", user7, user3, 100, null, Order.StatusOptions.CANCELLED, company1, Currency.DOLLAR, 143,new Date() , 2, true, d1));
+        orders.add(new Order("I", user7, user3, 100, null, Order.StatusOptions.APPROVED, company1, Currency.FRANC, 143,new Date() , 2, true, d1));
 
 
      /*   for (int i = 200; i < 500; i++) {
