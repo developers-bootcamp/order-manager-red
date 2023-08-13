@@ -35,7 +35,7 @@ public class OrderController {
 //here is an example how the map filter should look like. note the dbref way  ! ! !
 //        {
 //          "companyId": {
-//            "$ref": "User",
+//            "$ref": "Company",
 //                    "$id": "1002"
 //          },
 //          "notificationFlag":true
