@@ -1,5 +1,7 @@
 package com.sapred.ordermanagerred.service;
 
+import com.sapred.ordermanagerred.RabbitMQProducer;
+import com.sapred.ordermanagerred.SenderApplication;
 import com.sapred.ordermanagerred.dto.ProductNameDTO;
 import com.sapred.ordermanagerred.mapper.productMapper;
 import com.sapred.ordermanagerred.dto.ProductDTO;
@@ -12,7 +14,9 @@ import com.sapred.ordermanagerred.model.RoleOptions;
 import com.sapred.ordermanagerred.repository.ProductRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
 import lombok.SneakyThrows;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -20,6 +24,8 @@ import java.util.*;
 
 @Service
 public class ProductService {
+    @Autowired
+    private RabbitMQProducer rabbitMQProducer;
     @Autowired
     private ProductRepository productRepository;
     @Autowired
@@ -51,6 +57,7 @@ public class ProductService {
 
     @SneakyThrows
     public List<ProductDTO> getAllProducts(String token) {
+        rabbitMQProducer.sendMessage("ttttt");
         if (jwtToken.getRoleIdFromToken(token) == RoleOptions.CUSTOMER)
             throw new NoPermissionException("You can't get products");
         String companyId = jwtToken.getCompanyIdFromToken(token);

@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
 @RequestMapping("/order")
+@RestController
 @CrossOrigin("http://localhost:3000")
 public class OrderController {
     @Autowired

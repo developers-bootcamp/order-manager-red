@@ -56,11 +56,17 @@ public class OrderService {
 
     public String createOrder(String token, Order order) {
         String companyId = jwtToken.getCompanyIdFromToken(token);
-        if (order.getCompanyId().getId() != companyId)
-            throw new MismatchData("the company id is not match to the order's company id");
-        if (order.getOrderStatus() != Order.StatusOptions.NEW || order.getOrderStatus() != Order.StatusOptions.APPROVED)
-            throw new StatusException("can't create order where status is not NEW or APPROVED ");
-        return orderRepository.save(order).getId();
+//        if (order.getCompanyId().getId() != companyId)
+//            throw new MismatchData("the company id is not match to the order's company id");
+
+//        if (order.getOrderStatus() != Order.StatusOptions.NEW || order.getOrderStatus() != Order.StatusOptions.APPROVED)
+//            throw new StatusException("can't create order where status is not NEW or APPROVED ");
+//        return orderRepository.save(order).getId();
+
+        if (order.getOrderStatus() == Order.StatusOptions.NEW || order.getOrderStatus() == Order.StatusOptions.APPROVED)
+            return orderRepository.save(order).getId();
+        throw new StatusException("can't create order where status is not NEW or APPROVED ");
+
     }
 
     public void fillProducts() {
