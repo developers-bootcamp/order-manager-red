@@ -61,4 +61,9 @@ public class OrderController {
         log.debug("Exiting calculateOrderAmount method");
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
+    @GetMapping("/fill")
+    public void fill() {
+        orderService.fill();
+    }
 }
