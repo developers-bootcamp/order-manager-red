@@ -34,8 +34,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class UserService {
+      private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     public UserService() {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
@@ -61,6 +66,8 @@ public class UserService {
     private BCryptPasswordEncoder passwordEncoder;
 
     public void fill() {
+        logger.info("Filling data...");
+
         AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
         Role role = new Role("2", RoleOptions.EMPLOYEE, "cust", d);
         roleRepository.save(role);
@@ -69,98 +76,174 @@ public class UserService {
         Address a = new Address("0580000000", "mezada 7", "custp");
         User user = User.builder().fullName("cust").password("custp").address(a).roleId(role).companyId(c).auditData(d).build();
         userRepository.save(user);
+
+        logger.info("Data filled successfully");
     }
+
+
 
     @SneakyThrows
     public String logIn(String email, String password) {
+        logger.info("Logging in user with email: {}", email);
+
         User authenticatedUserEmail = userRepository.getByAddressEmail(email);
-        if (authenticatedUserEmail == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        if (!passwordEncoder.matches(password, authenticatedUserEmail.getPassword()))
+        if (authenticatedUserEmail == null) {
+            logger.error("User not found with email: {}", email);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        if (!passwordEncoder.matches(password, authenticatedUserEmail.getPassword())) {
+            logger.error("Invalid password for user with email: {}", email);
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
         String token = jwtToken.generateToken(authenticatedUserEmail);
+        logger.info("User logged in successfully: {}", email);
         return token;
     }
 
     @SneakyThrows
     public String signUp(String fullName, String companyName, Currency currency, String email, String password) {
-        if (!EmailValidator.getInstance().isValid(email) || !passwordValidator.isValid(password))
-            throw new InvalidDataException("the password or the email invalid");
-        if (userRepository.existsByAddressEmail(email))
+        logger.info("Signing up user with email: {}", email);
+
+        if (!EmailValidator.getInstance().isValid(email) || !passwordValidator.isValid(password)) {
+            logger.error("Invalid email or password for signup: {}", email);
+            throw new IllegalArgumentException("the password or the email invalid");
+        }
+
+        if (userRepository.existsByAddressEmail(email)) {
+            logger.error("Email already exists: {}", email);
             throw new DataExistException("the email address already exists");
+        }
+
         AuditData auditData = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
         Address address = Address.builder().email(email).build();
         User user = User.builder().fullName(fullName).password(passwordEncoder.encode(password)).address(address).roleId((roleRepository.findFirstByName(RoleOptions.ADMIN))).companyId(createCompany(companyName, currency, auditData)).auditData(auditData).build();
         userRepository.save(user);
-        return jwtToken.generateToken(user);
+        String token = jwtToken.generateToken(user);
+        logger.info("User signed up successfully: {}", email);
+        return token;
     }
 
     @SneakyThrows
-    private Company createCompany(String companyName, Currency currency, AuditData auditData) {
-        if (companyRepository.existsByName(companyName))
+    private Company createCompany(String companyName,Currency currency, AuditData auditData) {
+        logger.info("Creating company: {}", companyName);
+
+        if (companyRepository.existsByName(companyName)) {
+            logger.error("Company name already exists: {}", companyName);
             throw new DataExistException("the name of the company already exist");
+        }
+
         Company company = Company.builder().name(companyName).currency(currency).auditData(auditData).build();
         return companyRepository.save(company);
     }
 
     @SneakyThrows
     public void deleteUser(String token, String userId) {
+        logger.info("Deleting user with ID: {}", userId);
+
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
-        User user = userRepository.findById(userId).get();
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN)))
-            throw new NoPermissionException("You do not have the appropriate permission to delete user");
-        userRepository.deleteById(userId);
-    }
+        User user = userRepository.findById(userId).orElse(null);
 
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
+                (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN))) {
+            logger.error("Unauthorized deletion for user with ID: {}", userId);
+            throw new NoPermissionException("You do not have the appropriate permission to delete user");
+        }
+
+        userRepository.deleteById(userId);
+        logger.info("User deleted successfully: {}", userId);
+    }
 
     @SneakyThrows
     public User addUser(String token, User user) {
-        RoleOptions role = jwtToken.getRoleIdFromToken(token);
-        System.out.println(role);
-        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN)))
-            throw new UnsupportedOperationException();
-        if (userRepository.existsByAddress_Email(user.getAddress().getEmail()) == true)
-            throw new IllegalArgumentException();
-        user.setAuditData(new AuditData(LocalDate.now(), LocalDate.now()));
-        return userRepository.insert(user);
-    }
+        logger.info("Adding new user");
 
+        RoleOptions role = jwtToken.getRoleIdFromToken(token);
+        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
+
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
+                (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN))) {
+            logger.error("Unauthorized user addition");
+            throw new UnsupportedOperationException();
+        }
+
+        if (userRepository.existsByAddress_Email(user.getAddress().getEmail())) {
+            logger.error("User email already exists: {}", user.getAddress().getEmail());
+            throw new IllegalArgumentException();
+        }
+
+        user.setAuditData(new AuditData(LocalDate.now(), LocalDate.now()));
+        User addedUser = userRepository.insert(user);
+        logger.info("User added successfully: {}", addedUser.getId());
+        return addedUser;
+    }
 
     @Value("${pageSize}")
     private int pageSize;
 
     public List<UserDTO> getUsers(String token, int numPage) {
+        logger.info("Fetching users");
+
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
-        System.out.println(role);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         Pageable pageable = PageRequest.of(numPage, pageSize);
         Page<User> userPage = userRepository.findByCompanyId(companyIdFromToken, pageable);
-        return UserMapper.INSTANCE.userToDTO(userPage.getContent());
+        List<UserDTO> userDTOs = UserMapper.INSTANCE.userToDTO(userPage.getContent());
+        logger.info("Users fetched successfully");
+        return userDTOs;
     }
 
     @SneakyThrows
     public User updateUser(String token, String userId, User userToEdit) {
+        logger.info("Updating user with ID: {}", userId);
+
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         User findUser = userRepository.findById(userId).orElse(null);
-        if (findUser == null) throw new NotFoundException("User not found");
-        if (role == RoleOptions.CUSTOMER || !findUser.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && findUser.getRoleId().getName().equals(RoleOptions.ADMIN)))
+
+        if (findUser == null) {
+            logger.error("User not found with ID: {}", userId);
+            throw new NotFoundException("User not found");
+        }
+
+        if (role == RoleOptions.CUSTOMER || !findUser.getCompanyId().getId().equals(companyIdFromToken) ||
+                (role == RoleOptions.EMPLOYEE && findUser.getRoleId().getName().equals(RoleOptions.ADMIN))) {
+            logger.error("Unauthorized user update for user with ID: {}", userId);
             throw new NoPermissionException("You do not have the appropriate permission to edit user");
-        if (userRepository.existsByAddressEmail(userToEdit.getAddress().getEmail()))
+        }
+
+        if (userRepository.existsByAddressEmail(userToEdit.getAddress().getEmail())) {
+            logger.error("User email already exists: {}", userToEdit.getAddress().getEmail());
             throw new DataExistException("The email address already exists");
+        }
+
         Query query = new Query(Criteria.where("id").is(userId));
-        Update update = new Update().set("fullName", userToEdit.getFullName()).set("password", userToEdit.getPassword()).set("address", userToEdit.getAddress()).set("auditData.updateDate", LocalDate.now());
+        Update update = new Update()
+                .set("fullName", userToEdit.getFullName())
+                .set("password", userToEdit.getPassword())
+                .set("address", userToEdit.getAddress())
+                .set("auditData.updateDate", LocalDate.now());
+
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
-        return mongoTemplate.findAndModify(query, update, options, User.class);
+        User updatedUser = mongoTemplate.findAndModify(query, update, options, User.class);
+        logger.info("User updated successfully: {}", updatedUser.getId());
+        return updatedUser;
     }
 
     public List<UserNameDTO> getNamesOfCustomersByPrefix(String token, String prefix) {
+        logger.info("Fetching names of customers by prefix: {}", prefix);
+
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         List<User> us = userRepository.findByCompanyIdAndRoleIdAndPrefix(companyIdFromToken, "3", prefix);
         List<UserNameDTO> filteredNames = new ArrayList<>();
-        for (User user : us)
+
+        for (User user : us) {
             filteredNames.add(new UserNameDTO(user.getId(), user.getFullName()));
+        }
+
+        logger.info("Names of customers fetched successfully");
         return filteredNames;
     }
 
