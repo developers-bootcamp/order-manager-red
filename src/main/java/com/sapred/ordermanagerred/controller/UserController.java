@@ -37,6 +37,11 @@ public class UserController {
         userService.fill();
     }
 
+    @GetMapping("/fillRoles")
+    public void fillRoles() {
+        userService.fillRoles();
+    }
+
     @PostMapping("/signUp")
     public ResponseEntity signUp(@RequestParam("fullName") String fullName, @RequestParam("companyName") String companyName,
                                  @RequestParam("currency") Currency currency, @RequestParam("email") String email,

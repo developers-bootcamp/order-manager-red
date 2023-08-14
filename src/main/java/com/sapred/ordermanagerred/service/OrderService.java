@@ -1,10 +1,13 @@
 package com.sapred.ordermanagerred.service;
 
+
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
+import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.*;
 import com.sapred.ordermanagerred.security.JwtToken;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +31,6 @@ public class OrderService {
 
     @Autowired
     private JwtToken jwtToken;
-
     @Autowired
     private RoleRepository roleRepository;
 
@@ -40,6 +42,8 @@ public class OrderService {
 
     @Autowired
     private CompanyRepository companyRepository;
+
+    private CurrencyConverterService currencyConverterService;
 
     @Autowired
     private UserRepository userRepository;
@@ -69,12 +73,10 @@ public class OrderService {
         log.info("Creating order");
 
         String companyId = jwtToken.getCompanyIdFromToken(token);
-        Company company = companyRepository.findById(companyId)
-                .orElseThrow(() -> new NotFoundException("Company not found"));
+        Company company = companyRepository.findById(companyId).orElseThrow(() -> new NotFoundException("Company not found"));
         order.setCompanyId(company);
         String employeeId = jwtToken.getUserIdFromToken(token);
-        User employee = userRepository.findById(employeeId)
-                .orElseThrow(() -> new NotFoundException("Employee not found"));
+        User employee = userRepository.findById(employeeId).orElseThrow(() -> new NotFoundException("Employee not found"));
         order.setEmployeeId(employee);
         AuditData auditData = new AuditData(LocalDate.now(), null);
         order.setAuditData(auditData);
@@ -104,24 +106,34 @@ public class OrderService {
         log.info("Products filled");
     }
 
-    public List<ProductCartDTO> calculateOrderAmount(Order order) {
+    @SneakyThrows
+    public List<ProductCartDTO> calculateOrderAmount(String token, Order order) {
         log.info("Calculating order amount");
-            List<ProductCartDTO> listOfCart = new ArrayList<>();
-            ProductCartDTO productCartDTO;
-            double sum = 0, discount = 0;
-            OrderItem orderItem = order.getOrderItemsList().get(order.getOrderItemsList().size() - 1);
-            Product product = productRepository.findById(orderItem.getProductId().getId()).get();
-            if (product.getDiscountType() == DiscountType.PERCENTAGE)
-                discount = product.getPrice() * orderItem.getQuantity() * product.getDiscount() * 0.01;
-            else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT) discount = product.getDiscount();
-            sum = product.getPrice() * orderItem.getQuantity() - discount;
-            productCartDTO = ProductCartDTO.builder().name(product.getName()).amount(sum).discount(discount).quantity(orderItem.getQuantity()).build();
-            listOfCart.add(productCartDTO);
-            listOfCart.add(ProductCartDTO.builder().name("Total").amount(order.getTotalAmount() + sum).build());
 
+        RoleOptions roleFromToken = jwtToken.getRoleIdFromToken(token);
+        if (roleFromToken == RoleOptions.CUSTOMER)
+            throw new NoPermissionException("You do not have the appropriate permission to calculate order");
 
+        Company company = companyRepository.findById(order.getCompanyId().getId()).get();
+        if (company == null) throw new NotFoundException("the company not exist in data");
+
+        String fromCurrency = company.getCurrency().getCode();
+        String toCurrency = order.getCurrency().getCode();
+        double rate = currencyConverterService.convertCurrency(fromCurrency, toCurrency);
+
+        List<ProductCartDTO> listOfCart = new ArrayList<>();
+        double sum = 0, discount = 0;
+        OrderItem orderItem = order.getOrderItemsList().get(order.getOrderItemsList().size() - 1);
+        Product product = productRepository.findById(orderItem.getProductId().getId()).get();
+        double price = product.getPrice() * rate;
+        if (product.getDiscountType() == DiscountType.PERCENTAGE)
+            discount = price * orderItem.getQuantity() * product.getDiscount() * 0.01;
+        else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT) discount = product.getDiscount() * rate;
+        sum = price * orderItem.getQuantity() - discount;
+        ProductCartDTO productCartDTO = ProductCartDTO.builder().name(product.getName()).amount(sum).discount(discount).quantity(orderItem.getQuantity()).build();
+        listOfCart.add(productCartDTO);
+        listOfCart.add(ProductCartDTO.builder().name("Total").amount(order.getTotalAmount() + sum).build());
         log.info("Order amount calculated");
-
         return listOfCart;
     }
 }

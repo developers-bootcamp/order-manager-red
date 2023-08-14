@@ -84,6 +84,16 @@ public class UserService {
         logger.info("Data filled successfully");
     }
 
+    public void fillRoles() {
+        AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
+        Role role1 = new Role("1", RoleOptions.ADMIN, "admin", d);
+        roleRepository.save(role1);
+        Role role2 = new Role("2", RoleOptions.EMPLOYEE, "employee", d);
+        roleRepository.save(role2);
+        Role role3 = new Role("3", RoleOptions.CUSTOMER, "customer", d);
+        roleRepository.save(role3);
+    }
+
     @SneakyThrows
     public String logIn(String email, String password) {
         logger.info("Logging in user with email: {}", email);
