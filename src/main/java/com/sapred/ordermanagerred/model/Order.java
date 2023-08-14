@@ -2,6 +2,7 @@ package com.sapred.ordermanagerred.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -13,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 @Document(collection = "Order")
+@FieldNameConstants
 public class Order {
 
     public enum StatusOptions {
@@ -36,6 +38,7 @@ public class Order {
     private StatusOptions orderStatus;
     @DBRef
     private Company companyId;
+    private Currency currency;
     private int creditCardNumber;
     private Date expireOn;
     private int cvc;
