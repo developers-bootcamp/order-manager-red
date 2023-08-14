@@ -25,8 +25,6 @@ import java.util.*;
 @Service
 public class ProductService {
     @Autowired
-    private RabbitMQProducer rabbitMQProducer;
-    @Autowired
     private ProductRepository productRepository;
     @Autowired
     private JwtToken jwtToken;
@@ -57,7 +55,6 @@ public class ProductService {
 
     @SneakyThrows
     public List<ProductDTO> getAllProducts(String token) {
-        rabbitMQProducer.sendMessage("ttttt");
         if (jwtToken.getRoleIdFromToken(token) == RoleOptions.CUSTOMER)
             throw new NoPermissionException("You can't get products");
         String companyId = jwtToken.getCompanyIdFromToken(token);
