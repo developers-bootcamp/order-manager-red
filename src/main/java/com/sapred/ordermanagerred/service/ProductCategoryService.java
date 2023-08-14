@@ -1,6 +1,5 @@
 package com.sapred.ordermanagerred.service;
 
-import com.sapred.ordermanagerred.exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.mapper.ProductCategoryMapper;
 import com.sapred.ordermanagerred.dto.ProductCategoryDto;
 import com.sapred.ordermanagerred.exception.DataExistException;
@@ -10,60 +9,99 @@ import com.sapred.ordermanagerred.model.ProductCategory;
 import com.sapred.ordermanagerred.model.RoleOptions;
 import com.sapred.ordermanagerred.repository.ProductCategoryRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.webjars.NotFoundException;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@Slf4j
 public class ProductCategoryService {
+
     @Autowired
     private ProductCategoryRepository productCategoryRepository;
+
     @Autowired
     private JwtToken jwtToken;
+
     @Autowired
     private ProductCategoryMapper productCategoryMapper;
 
     public void createProductCategory(ProductCategory productCategory, String token) {
-        if (!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)))
+        log.info("Creating new product category");
+
+        if (!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token))) {
+            log.error("Permission denied: You do not have permission to create new category");
             throw new NoPermissionException("You do not have permission to create new category");
-        if (productCategoryRepository.existsByNameAndCompanyId_id(productCategory.getName(), productCategory.getCompanyId().getId()))
-            throw new DataExistException("the name of the category already exist");
+        }
+
+        if (productCategoryRepository.existsByNameAndCompanyId_id(productCategory.getName(), productCategory.getCompanyId().getId())) {
+            log.error("Data exist: The name of the category already exists");
+            throw new DataExistException("The name of the category already exists");
+        }
+
         productCategory.setAuditData(AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
         productCategoryRepository.save(productCategory);
+
+        log.info("Product category created successfully");
     }
 
     public void deleteProductCategory(String token, String id) {
+        log.info("Deleting product category");
+
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
-        ProductCategory productCategory = productCategoryRepository.findById(id).get();
+        ProductCategory productCategory = productCategoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product category not found"));
 
-        if (role == RoleOptions.CUSTOMER || !productCategory.getCompanyId().getId().equals(companyIdFromToken))
+        if (role == RoleOptions.CUSTOMER || !productCategory.getCompanyId().getId().equals(companyIdFromToken)) {
+            log.error("Permission denied: You do not have the appropriate permission to delete product category");
             throw new NoPermissionException("You do not have the appropriate permission to delete product category");
+        }
 
         productCategoryRepository.deleteById(id);
 
+        log.info("Product category deleted successfully");
     }
 
     public List<ProductCategoryDto> getAllCategory(String token) {
+        log.info("Retrieving all product categories");
+
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
-        if (role == RoleOptions.CUSTOMER)
-            throw new NoPermissionException("You do not have the appropriate permission to get all product category");
+
+        if (role == RoleOptions.CUSTOMER) {
+            log.error("Permission denied: You do not have the appropriate permission to get all product categories");
+            throw new NoPermissionException("You do not have the appropriate permission to get all product categories");
+        }
+
         List<ProductCategory> productCategories = productCategoryRepository.getAllByCompanyId(companyIdFromToken);
         List<ProductCategoryDto> productCategoryDtos = productCategoryMapper.productCategoryDtoToProductCategory(productCategories);
+
+        log.info("Retrieved {} product categories", productCategoryDtos.size());
+
         return productCategoryDtos;
     }
+
     public void editProductCategory(String token, ProductCategoryDto productCategoryDto) {
+        log.info("Editing product category");
+
         ProductCategory productCategory = productCategoryRepository.findById(productCategoryDto.getId())
-                .orElseThrow(() -> new ObjectDoesNotExistException("This object does not exist"));
+                .orElseThrow(() -> new NotFoundException("Product category not found"));
+
         if (!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token)) || jwtToken.getRoleIdFromToken(token) == RoleOptions.CUSTOMER) {
-            throw new NoPermissionException("You dont have permission to edit the productCategory");
+            log.error("Permission denied: You do not have permission to edit the product category");
+            throw new NoPermissionException("You do not have permission to edit the product category");
         }
+
         productCategory.setName(productCategoryDto.getName());
         productCategory.setDesc(productCategoryDto.getDesc());
         productCategory.getAuditData().setUpdateDate((LocalDate.now()));
         productCategoryRepository.save(productCategory);
+
+        log.info("Product category edited successfully");
     }
 }
