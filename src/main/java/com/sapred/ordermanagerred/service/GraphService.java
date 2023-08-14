@@ -54,12 +54,6 @@ public class GraphService {
                         .and("_id").as("month")
                         .and("productCount").as("productCount")
         );
-        AggregationResults<Document> result = mongoTemplate.aggregate(
-                aggregation,
-                "Order",
-                Document.class
-        );
-        System.out.println(result.getMappedResults());
 
         AggregationResults<MonthProductCountDto> results = mongoTemplate
                 .aggregate(aggregation, "Order", MonthProductCountDto.class);
