@@ -1,32 +1,33 @@
 package com.sapred.ordermanagerred.model;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import java.util.Date;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 @Document(collection = "Order")
+@FieldNameConstants
 public class Order {
 
     public enum StatusOptions {
 
         NEW,
         APPROVED,
+        CANCELLED,
+        CHARGING,
+        PACKING,
+        DELIVERED,
 
-        DONE,
-
-        CREATED
-        //\\
     }
 
     @Id
@@ -40,6 +41,7 @@ public class Order {
     private StatusOptions orderStatus;
     @DBRef
     private Company companyId;
+    private Currency currency;
     private int creditCardNumber;
     private LocalDateTime ExpireOn;
     private int cvc;
