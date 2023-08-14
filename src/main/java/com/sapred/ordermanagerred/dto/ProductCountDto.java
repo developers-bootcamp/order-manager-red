@@ -1,5 +1,6 @@
 package com.sapred.ordermanagerred.dto;
 
+import com.sapred.ordermanagerred.model.Product;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 public class ProductCountDto {
-    private String productId;
+    private Product productId;
     private int totalQuantity;
     @Override
     public String toString() {
