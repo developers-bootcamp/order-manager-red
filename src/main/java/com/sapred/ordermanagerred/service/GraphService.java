@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
 
 import java.io.ObjectInputStream;
+
 import com.sapred.ordermanagerred.dto.TopEmployeeDTO;
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.repository.OrderRepository;
@@ -40,6 +41,8 @@ public class GraphService {
     private OrderRepository orderRepository;
     @Autowired
     private MongoTemplate mongoTemplate;
+    @Autowired
+    private JwtToken jwtToken;
 
     public List<TopEmployeeDTO> topEmployee() {
         log.info("Retrieving top employees based on delivered orders count");
@@ -63,19 +66,15 @@ public class GraphService {
 
         return topEmployees;
 
-public class GraphService {
-    @Autowired
-    private MongoTemplate mongoTemplate;
-    @Autowired
-    private JwtToken jwtToken;
-    @Autowired
-    private ObjectMapper objectMapper;
 
+    }
 
     public List<MonthProductCountDto> getTopProduct(String token, int rangeOfMonths) {
         String companyId = jwtToken.getCompanyIdFromToken(token);
-        Order.StatusOptions statusDone = Order.StatusOptions.DONE;
+        Order.StatusOptions statusDone = Order.StatusOptions.DELIVERED;
         LocalDate dateForLastMonth = LocalDate.now().minusMonths(rangeOfMonths);
+        log.info("Retrieving the company's products with a count of their popularity according to the orders");
+
         Aggregation aggregation = Aggregation.newAggregation(
 
                 match(Criteria.where("companyId.$id").is(companyId)
@@ -89,15 +88,17 @@ public class GraphService {
                         .sum("quantity").as("totalQuantity"),
                 group("_id.month")
                         .push(new BasicDBObject("productId", "$_id.productId")
-                                .append("totalQuantity", "$totalQuantity"))
-                        .as("productCount"),
+                                .append("totalQuantity", "$totalQuantity")).as("productCount"),
                 project()
                         .and("_id").as("month")
                         .and("productCount").as("productCount")
         );
 
-        AggregationResults<MonthProductCountDto> results = mongoTemplate
-                .aggregate(aggregation, "Order", MonthProductCountDto.class);
-        return results.getMappedResults();
+        List<MonthProductCountDto> results = mongoTemplate
+                .aggregate(aggregation, "Order", MonthProductCountDto.class).getMappedResults();
+
+        log.info("Top products retrieved: {}", results);
+
+        return results;
     }
 }
