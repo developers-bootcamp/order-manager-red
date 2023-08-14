@@ -64,12 +64,9 @@ public class OrderController {
     @PostMapping("/calculateOrderAmount")
     public ResponseEntity<List<ProductCartDTO>> calculateOrderAmount(@RequestHeader("token") String token, @RequestBody Order order) {
         log.debug("Entering calculateOrderAmount method. @RequestBody order: {}", order);
-        List<ProductCartDTO> result = orderService.calculateOrderAmount(token,order);
+        List<ProductCartDTO> result = orderService.calculateOrderAmount(token, order);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @GetMapping("/fill")
-    public void fill() {
-        orderService.fill();
-    }
+
 }

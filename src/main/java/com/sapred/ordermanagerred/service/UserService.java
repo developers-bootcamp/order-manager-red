@@ -3,7 +3,6 @@ package com.sapred.ordermanagerred.service;
 import com.sapred.ordermanagerred.dto.UserDTO;
 import com.sapred.ordermanagerred.dto.UserNameDTO;
 import com.sapred.ordermanagerred.exception.DataExistException;
-import com.sapred.ordermanagerred.exception.InvalidDataException;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.mapper.UserMapper;
 import com.sapred.ordermanagerred.model.*;
@@ -14,6 +13,8 @@ import com.sapred.ordermanagerred.security.JwtToken;
 import com.sapred.ordermanagerred.security.PasswordValidator;
 import lombok.SneakyThrows;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -34,12 +35,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Service
 public class UserService {
-      private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public UserService() {
         this.passwordEncoder = new BCryptPasswordEncoder();
@@ -79,7 +77,6 @@ public class UserService {
 
         logger.info("Data filled successfully");
     }
-
 
 
     @SneakyThrows
@@ -126,7 +123,7 @@ public class UserService {
     }
 
     @SneakyThrows
-    private Company createCompany(String companyName,Currency currency, AuditData auditData) {
+    private Company createCompany(String companyName, Currency currency, AuditData auditData) {
         logger.info("Creating company: {}", companyName);
 
         if (companyRepository.existsByName(companyName)) {
@@ -146,8 +143,7 @@ public class UserService {
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         User user = userRepository.findById(userId).orElse(null);
 
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
-                (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN))) {
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN))) {
             logger.error("Unauthorized deletion for user with ID: {}", userId);
             throw new NoPermissionException("You do not have the appropriate permission to delete user");
         }
@@ -163,8 +159,7 @@ public class UserService {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
 
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
-                (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN))) {
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN))) {
             logger.error("Unauthorized user addition");
             throw new UnsupportedOperationException();
         }
@@ -208,8 +203,7 @@ public class UserService {
             throw new NotFoundException("User not found");
         }
 
-        if (role == RoleOptions.CUSTOMER || !findUser.getCompanyId().getId().equals(companyIdFromToken) ||
-                (role == RoleOptions.EMPLOYEE && findUser.getRoleId().getName().equals(RoleOptions.ADMIN))) {
+        if (role == RoleOptions.CUSTOMER || !findUser.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && findUser.getRoleId().getName().equals(RoleOptions.ADMIN))) {
             logger.error("Unauthorized user update for user with ID: {}", userId);
             throw new NoPermissionException("You do not have the appropriate permission to edit user");
         }
@@ -220,11 +214,7 @@ public class UserService {
         }
 
         Query query = new Query(Criteria.where("id").is(userId));
-        Update update = new Update()
-                .set("fullName", userToEdit.getFullName())
-                .set("password", userToEdit.getPassword())
-                .set("address", userToEdit.getAddress())
-                .set("auditData.updateDate", LocalDate.now());
+        Update update = new Update().set("fullName", userToEdit.getFullName()).set("password", userToEdit.getPassword()).set("address", userToEdit.getAddress()).set("auditData.updateDate", LocalDate.now());
 
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
         User updatedUser = mongoTemplate.findAndModify(query, update, options, User.class);

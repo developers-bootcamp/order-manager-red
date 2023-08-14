@@ -3,11 +3,11 @@ package com.sapred.ordermanagerred.service;
 
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.exception.MapFilterMissedField;
-import com.sapred.ordermanagerred.exception.MismatchData;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.*;
 import com.sapred.ordermanagerred.security.JwtToken;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -18,13 +18,10 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.webjars.NotFoundException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import com.sapred.ordermanagerred.exception.NoPermissionException;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.webjars.NotFoundException;
 import java.util.List;
 import java.util.Map;
 
@@ -55,8 +52,6 @@ public class OrderService {
 
     private CurrencyConverterService currencyConverterService;
 
-    @Autowired
-    private UserRepository userRepository;
 
     @Value("${pageSize}")
     private int pageSize;
@@ -138,7 +133,7 @@ public class OrderService {
         }
     }
 
-    public List<ProductCartDTO> calculateOrderAmount(Order order) {
+    public List<ProductCartDTO> calculateOrderAmount(String token,Order order) {
         List<ProductCartDTO> listOfCart = new ArrayList<>();
         ProductCartDTO productCartDTO;
         double sum = 0, discount = 0;
