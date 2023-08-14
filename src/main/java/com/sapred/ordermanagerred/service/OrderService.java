@@ -2,6 +2,7 @@ package com.sapred.ordermanagerred.service;
 
 
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
+import com.sapred.ordermanagerred.exception.MapFilterMissedField;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.*;
@@ -15,12 +16,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -42,11 +47,13 @@ public class OrderService {
 
     @Autowired
     private CompanyRepository companyRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    MongoTemplate mongoTemplate;
 
     private CurrencyConverterService currencyConverterService;
 
-    @Autowired
-    private UserRepository userRepository;
 
     @Value("${pageSize}")
     private int pageSize;
@@ -69,9 +76,35 @@ public class OrderService {
         return orders;
     }
 
-    public String createOrder(String token, Order order) {
-        log.info("Creating order");
+    public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
+        if (!filterMap.containsKey(Order.Fields.companyId)) {
+            throw new MapFilterMissedField("the companyId key is require!");
+        }
 
+        Criteria criteria = new Criteria();
+
+        // Iterate through the filter map and construct filter for each entry
+        for (Map.Entry<String, Object> entry : filterMap.entrySet()) {
+            String filterName = entry.getKey();
+            Object filterValue = entry.getValue();
+
+            criteria = criteria.and(filterName).is(filterValue);
+        }
+
+        Query query = new Query(criteria);
+
+        int skip = (pageNumber - 1) * pageSize;
+        query.skip(skip);
+        query.limit(pageSize);
+        Sort.Order sortOrder = new Sort.Order(Sort.Direction.DESC, "updateDate");
+        query.with(Sort.by(sortOrder));
+
+        return mongoTemplate.find(query, Order.class);
+
+    }
+
+
+    public String createOrder(String token, Order order) {
         String companyId = jwtToken.getCompanyIdFromToken(token);
         Company company = companyRepository.findById(companyId).orElseThrow(() -> new NotFoundException("Company not found"));
         order.setCompanyId(company);
@@ -92,8 +125,6 @@ public class OrderService {
     }
 
     public void fillProducts() {
-        log.info("Filling products");
-
         for (int i = 1; i < 10; i++) {
             AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
             List<Order> orders = new ArrayList<Order>();
@@ -102,8 +133,6 @@ public class OrderService {
             Product p = new Product(String.valueOf(i), "aaa", "aaa", 40, 50, DiscountType.PERCENTAGE, pc, 4, companyRepository.findById("1").get(), AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
             productRepository.save(p);
         }
-
-        log.info("Products filled");
     }
 
     @SneakyThrows
@@ -137,3 +166,4 @@ public class OrderService {
         return listOfCart;
     }
 }
+

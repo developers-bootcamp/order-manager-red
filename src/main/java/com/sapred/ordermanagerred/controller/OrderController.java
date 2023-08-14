@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/order")
@@ -25,6 +26,26 @@ public class OrderController {
         log.debug("Entering getOrders method. @PathVariable userId: {}, statusId: {}, pageNumber: {}", userId, statusId, pageNumber);
         List<Order> orders = orderService.getOrders(token, statusId, pageNumber, userId);
         return ResponseEntity.ok().body(orders);
+    }
+
+    @GetMapping("/{pageNumber}")
+    public ResponseEntity getOrdersWithFilter(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap) {
+//here is an example how the map filter should look like. note the dbref way  ! ! !
+//        {
+//          "companyId": {
+//            "$ref": "Company",
+//                    "$id": "1002"
+//          },
+//          "notificationFlag":true
+//        }
+
+
+        try {
+            List<Order> orders = orderService.getOrdersByFilters(filterMap, token, pageNumber);
+            return ResponseEntity.ok().body(orders);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
 
     @PostMapping("/")
@@ -43,7 +64,9 @@ public class OrderController {
     @PostMapping("/calculateOrderAmount")
     public ResponseEntity<List<ProductCartDTO>> calculateOrderAmount(@RequestHeader("token") String token, @RequestBody Order order) {
         log.debug("Entering calculateOrderAmount method. @RequestBody order: {}", order);
-        List<ProductCartDTO> result = orderService.calculateOrderAmount(token,order);
+        List<ProductCartDTO> result = orderService.calculateOrderAmount(token, order);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
+
 }

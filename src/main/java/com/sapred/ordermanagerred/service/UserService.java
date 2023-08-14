@@ -1,12 +1,11 @@
 package com.sapred.ordermanagerred.service;
 
 import com.sapred.ordermanagerred.dto.UserDTO;
-import com.sapred.ordermanagerred.mapper.UserMapper;
 import com.sapred.ordermanagerred.dto.UserNameDTO;
 import com.sapred.ordermanagerred.exception.DataExistException;
-import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
-import com.sapred.ordermanagerred.model.Currency;
+import com.sapred.ordermanagerred.mapper.UserMapper;
+import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.CompanyRepository;
 import com.sapred.ordermanagerred.repository.RoleRepository;
 import com.sapred.ordermanagerred.repository.UserRepository;
@@ -14,6 +13,8 @@ import com.sapred.ordermanagerred.security.JwtToken;
 import com.sapred.ordermanagerred.security.PasswordValidator;
 import lombok.SneakyThrows;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -33,9 +34,6 @@ import org.webjars.NotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class UserService {
@@ -74,25 +72,12 @@ public class UserService {
         Company c = new Company("1", "osherad", Currency.SHEKEL, d);
         companyRepository.save(c);
         Address a = new Address("0580000000", "mezada 7", "custp");
-        User user = User.builder().fullName("cust")
-                .password("custp")
-                .address(a)
-                .roleId(role).companyId(c).auditData(d)
-                .build();
+        User user = User.builder().fullName("cust").password("custp").address(a).roleId(role).companyId(c).auditData(d).build();
         userRepository.save(user);
 
         logger.info("Data filled successfully");
     }
 
-    public void fillRoles() {
-        AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
-        Role role1 = new Role("1", RoleOptions.ADMIN, "admin", d);
-        roleRepository.save(role1);
-        Role role2 = new Role("2", RoleOptions.EMPLOYEE, "employee", d);
-        roleRepository.save(role2);
-        Role role3 = new Role("3", RoleOptions.CUSTOMER, "customer", d);
-        roleRepository.save(role3);
-    }
 
     @SneakyThrows
     public String logIn(String email, String password) {
@@ -130,12 +115,7 @@ public class UserService {
 
         AuditData auditData = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
         Address address = Address.builder().email(email).build();
-        User user = User.builder().fullName(fullName)
-                .password(passwordEncoder.encode(password))
-                .address(address)
-                .roleId((roleRepository.findFirstByName(RoleOptions.ADMIN)))
-                .companyId(createCompany(companyName, currency, auditData))
-                .auditData(auditData).build();
+        User user = User.builder().fullName(fullName).password(passwordEncoder.encode(password)).address(address).roleId((roleRepository.findFirstByName(RoleOptions.ADMIN))).companyId(createCompany(companyName, currency, auditData)).auditData(auditData).build();
         userRepository.save(user);
         String token = jwtToken.generateToken(user);
         logger.info("User signed up successfully: {}", email);
@@ -143,7 +123,7 @@ public class UserService {
     }
 
     @SneakyThrows
-    private Company createCompany(String companyName,Currency currency, AuditData auditData) {
+    private Company createCompany(String companyName, Currency currency, AuditData auditData) {
         logger.info("Creating company: {}", companyName);
 
         if (companyRepository.existsByName(companyName)) {
@@ -163,8 +143,7 @@ public class UserService {
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         User user = userRepository.findById(userId).orElse(null);
 
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
-                (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN))) {
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN))) {
             logger.error("Unauthorized deletion for user with ID: {}", userId);
             throw new NoPermissionException("You do not have the appropriate permission to delete user");
         }
@@ -180,8 +159,7 @@ public class UserService {
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
 
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
-                (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN))) {
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN))) {
             logger.error("Unauthorized user addition");
             throw new UnsupportedOperationException();
         }
@@ -225,8 +203,7 @@ public class UserService {
             throw new NotFoundException("User not found");
         }
 
-        if (role == RoleOptions.CUSTOMER || !findUser.getCompanyId().getId().equals(companyIdFromToken) ||
-                (role == RoleOptions.EMPLOYEE && findUser.getRoleId().getName().equals(RoleOptions.ADMIN))) {
+        if (role == RoleOptions.CUSTOMER || !findUser.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && findUser.getRoleId().getName().equals(RoleOptions.ADMIN))) {
             logger.error("Unauthorized user update for user with ID: {}", userId);
             throw new NoPermissionException("You do not have the appropriate permission to edit user");
         }
@@ -237,11 +214,7 @@ public class UserService {
         }
 
         Query query = new Query(Criteria.where("id").is(userId));
-        Update update = new Update()
-                .set("fullName", userToEdit.getFullName())
-                .set("password", userToEdit.getPassword())
-                .set("address", userToEdit.getAddress())
-                .set("auditData.updateDate", LocalDate.now());
+        Update update = new Update().set("fullName", userToEdit.getFullName()).set("password", userToEdit.getPassword()).set("address", userToEdit.getAddress()).set("auditData.updateDate", LocalDate.now());
 
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
         User updatedUser = mongoTemplate.findAndModify(query, update, options, User.class);
@@ -262,5 +235,15 @@ public class UserService {
 
         logger.info("Names of customers fetched successfully");
         return filteredNames;
+    }
+
+    public void fillRoles() {
+        AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
+        Role role1 = new Role("1", RoleOptions.ADMIN, "admin", d);
+        roleRepository.save(role1);
+        Role role2 = new Role("2", RoleOptions.EMPLOYEE, "employee", d);
+        roleRepository.save(role2);
+        Role role3 = new Role("3", RoleOptions.CUSTOMER, "customer", d);
+        roleRepository.save(role3);
     }
 }
