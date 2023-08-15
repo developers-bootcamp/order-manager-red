@@ -52,7 +52,7 @@ public class UserServiceTest {
     public void testLogIn_whenEmailNoFound_throwException() {
         when(this.userRepository.getByAddressEmail("jon@gmail.com")).thenReturn(null);
 
-        assertThatThrownBy(() -> userService.logIn("jon@gmail.com", "1234")).isInstanceOf(ResponseStatusException.class);
+        assertThatThrownBy(() -> userService.logIn("jon@gmail.com", "1234")).isInstanceOf(NotFoundException.class);
 
         System.out.println("✅ testLogIn_whenEmailNoFound");
     }
