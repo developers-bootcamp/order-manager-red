@@ -16,6 +16,7 @@ public class CurrencyConverterService {
 
     @Value("${exchangeRateApi}")
     private String exchangeRateApi;
+    
     @Autowired
     private RedisService redisService;
 

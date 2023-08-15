@@ -18,6 +18,7 @@ import java.io.ObjectInputStream;
 
 import com.sapred.ordermanagerred.dto.TopEmployeeDTO;
 import com.sapred.ordermanagerred.model.Order;
+import com.sapred.ordermanagerred.model.OrderStatus;
 import com.sapred.ordermanagerred.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ public class GraphService {
 
     @Autowired
     private OrderRepository orderRepository;
+
     @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
@@ -49,7 +51,7 @@ public class GraphService {
 
         Aggregation aggregation = newAggregation(
                 match(Criteria.where("auditData.createDate").gte(LocalDate.now().minusMonths(3))),
-                match(Criteria.where("orderStatus").is(Order.StatusOptions.APPROVED)),
+                match(Criteria.where("orderStatus").is(OrderStatus.APPROVED)),
                 group("employeeId").count().as("countOfDeliveredOrders"),
                 project("countOfDeliveredOrders").and("_id").as("employee"),
                 sort(Sort.Direction.DESC, "countOfDeliveredOrders"),

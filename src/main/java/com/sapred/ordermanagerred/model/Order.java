@@ -11,6 +11,7 @@ import java.util.Date;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,7 +21,6 @@ import java.util.List;
 public class Order {
 
     public enum StatusOptions {
-
         NEW,
         APPROVED,
         CANCELLED,
@@ -42,7 +42,7 @@ public class Order {
     @DBRef
     private Company companyId;
     private Currency currency;
-    private int creditCardNumber;
+    private String creditCardNumber;
     private LocalDateTime ExpireOn;
     private int cvc;
     private boolean notificationFlag;
