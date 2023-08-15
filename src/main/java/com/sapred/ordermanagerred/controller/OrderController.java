@@ -39,13 +39,9 @@ public class OrderController {
 //          "notificationFlag":true
 //        }
 
-
-        try {
             List<Order> orders = orderService.getOrdersByFilters(filterMap, token, pageNumber);
             return ResponseEntity.ok().body(orders);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
+
     }
 
     @PostMapping("/")

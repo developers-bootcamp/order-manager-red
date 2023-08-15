@@ -24,6 +24,7 @@ import org.webjars.NotFoundException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -77,10 +78,14 @@ public class OrderService {
     }
 
     public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
-        if (!filterMap.containsKey(Order.Fields.companyId)) {
-            throw new MapFilterMissedField("the companyId key is require!");
-        }
-
+//        if (!filterMap.containsKey(Order.Fields.companyId)) {
+//            throw new MapFilterMissedField("the companyId key is require!");
+//        }
+       int companyId=1002;
+        Map<String, Object> reference = new HashMap<>();
+        reference.put("$ref", "Company");
+        reference.put("$id", companyId);
+        filterMap.put("companyId", reference);
         Criteria criteria = new Criteria();
 
         // Iterate through the filter map and construct filter for each entry
