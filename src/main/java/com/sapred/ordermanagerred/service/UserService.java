@@ -63,6 +63,9 @@ public class UserService {
 
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Value("${pageSize}")
+    private int pageSize;
+
     public void fill() {
         logger.info("Filling data...");
 
@@ -86,12 +89,12 @@ public class UserService {
         User authenticatedUserEmail = userRepository.getByAddressEmail(email);
         if (authenticatedUserEmail == null) {
             logger.error("User not found with email: {}", email);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new NotFoundException("User not found with email: %s".formatted(email));
         }
 
         if (!passwordEncoder.matches(password, authenticatedUserEmail.getPassword())) {
             logger.error("Invalid password for user with email: {}", email);
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new NoPermissionException("Invalid password for user with email: {}".formatted(email));
         }
 
         String token = jwtToken.generateToken(authenticatedUserEmail);
@@ -143,7 +146,8 @@ public class UserService {
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         User user = userRepository.findById(userId).orElse(null);
 
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN))) {
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) ||
+                (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN))) {
             logger.error("Unauthorized deletion for user with ID: {}", userId);
             throw new NoPermissionException("You do not have the appropriate permission to delete user");
         }
@@ -175,9 +179,6 @@ public class UserService {
         return addedUser;
     }
 
-    @Value("${pageSize}")
-    private int pageSize;
-
     public List<UserDTO> getUsers(String token, int numPage) {
         logger.info("Fetching users");
 
@@ -203,7 +204,8 @@ public class UserService {
             throw new NotFoundException("User not found");
         }
 
-        if (role == RoleOptions.CUSTOMER || !findUser.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && findUser.getRoleId().getName().equals(RoleOptions.ADMIN))) {
+        if (role == RoleOptions.CUSTOMER || !findUser.getCompanyId().getId().equals(companyIdFromToken) ||
+                (role == RoleOptions.EMPLOYEE && findUser.getRoleId().getName().equals(RoleOptions.ADMIN))) {
             logger.error("Unauthorized user update for user with ID: {}", userId);
             throw new NoPermissionException("You do not have the appropriate permission to edit user");
         }
@@ -214,7 +216,11 @@ public class UserService {
         }
 
         Query query = new Query(Criteria.where("id").is(userId));
-        Update update = new Update().set("fullName", userToEdit.getFullName()).set("password", userToEdit.getPassword()).set("address", userToEdit.getAddress()).set("auditData.updateDate", LocalDate.now());
+        Update update = new Update()
+                .set("fullName", userToEdit.getFullName())
+                .set("password", userToEdit.getPassword())
+                .set("address", userToEdit.getAddress())
+                .set("auditData.updateDate", LocalDate.now());
 
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
         User updatedUser = mongoTemplate.findAndModify(query, update, options, User.class);
@@ -229,9 +235,8 @@ public class UserService {
         List<User> us = userRepository.findByCompanyIdAndRoleIdAndPrefix(companyIdFromToken, "3", prefix);
         List<UserNameDTO> filteredNames = new ArrayList<>();
 
-        for (User user : us) {
+        for (User user : us)
             filteredNames.add(new UserNameDTO(user.getId(), user.getFullName()));
-        }
 
         logger.info("Names of customers fetched successfully");
         return filteredNames;
