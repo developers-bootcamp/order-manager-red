@@ -36,8 +36,6 @@ public class OrderService {
 
     @Autowired
     private JwtToken jwtToken;
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Autowired
     private ProductRepository productRepository;
@@ -47,13 +45,15 @@ public class OrderService {
 
     @Autowired
     private CompanyRepository companyRepository;
+
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
-    MongoTemplate mongoTemplate;
+    private MongoTemplate mongoTemplate;
 
+    @Autowired
     private CurrencyConverterService currencyConverterService;
-
 
     @Value("${pageSize}")
     private int pageSize;
@@ -114,7 +114,7 @@ public class OrderService {
         AuditData auditData = new AuditData(LocalDate.now(), null);
         order.setAuditData(auditData);
 
-        if (order.getOrderStatus() != Order.StatusOptions.NEW && order.getOrderStatus() != Order.StatusOptions.APPROVED) {
+        if (order.getOrderStatus() != OrderStatus.NEW && order.getOrderStatus() != OrderStatus.APPROVED) {
             log.error("Cannot create order with status '{}'", order.getOrderStatus());
             throw new StatusException("Cannot create order with status other than NEW or APPROVED");
         }
@@ -143,10 +143,8 @@ public class OrderService {
         if (roleFromToken == RoleOptions.CUSTOMER)
             throw new NoPermissionException("You do not have the appropriate permission to calculate order");
 
-        Company company = companyRepository.findById(order.getCompanyId().getId()).get();
-        if (company == null) throw new NotFoundException("the company not exist in data");
-
-        String fromCurrency = company.getCurrency().getCode();
+        String companyId = jwtToken.getCompanyIdFromToken(token);
+        String fromCurrency = companyRepository.findById(companyId).get().getCurrency().getCode();
         String toCurrency = order.getCurrency().getCode();
         double rate = currencyConverterService.convertCurrency(fromCurrency, toCurrency);
 
@@ -157,7 +155,8 @@ public class OrderService {
         double price = product.getPrice() * rate;
         if (product.getDiscountType() == DiscountType.PERCENTAGE)
             discount = price * orderItem.getQuantity() * product.getDiscount() * 0.01;
-        else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT) discount = product.getDiscount() * rate;
+        else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT)
+            discount = product.getDiscount() * rate;
         sum = price * orderItem.getQuantity() - discount;
         ProductCartDTO productCartDTO = ProductCartDTO.builder().name(product.getName()).amount(sum).discount(discount).quantity(orderItem.getQuantity()).build();
         listOfCart.add(productCartDTO);
