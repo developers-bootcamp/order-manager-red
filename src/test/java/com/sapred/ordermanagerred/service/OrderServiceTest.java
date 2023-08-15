@@ -31,9 +31,6 @@ public class OrderServiceTest {
     private OrderService orderService;
 
     @Mock
-    private OrderRepository orderRepository;
-
-    @Mock
     private ProductRepository productRepository;
 
     @Mock
@@ -57,6 +54,7 @@ public class OrderServiceTest {
         double price = product.getPrice();
         double discount = product.getDiscount();
         double totalAmount = 50;
+        String companyId = "1";
 
         OrderItem orderItem = OrderItem.builder().quantity(quantity).productId(product).build();
         order.setOrderItemsList(List.of(orderItem));
@@ -64,11 +62,11 @@ public class OrderServiceTest {
         Currency currency = Currency.DOLLAR;
         order.setCurrency(currency);
         Company company = Company.builder().id("id").currency(currency).build();
-        order.setCompanyId(company);
 
         when(productRepository.findById(orderItem.getProductId().getId())).thenReturn(Optional.of(product));
         when(jwtToken.getRoleIdFromToken(token)).thenReturn(RoleOptions.EMPLOYEE);
-        when(companyRepository.findById(order.getCompanyId().getId())).thenReturn(Optional.of(company));
+        when(jwtToken.getCompanyIdFromToken(token)).thenReturn(companyId);
+        when(companyRepository.findById(companyId)).thenReturn(Optional.of(company));
         when(currencyConverterService.convertCurrency("USD", "USD")).thenReturn(1.0);
 
         List<ProductCartDTO> result = orderService.calculateOrderAmount(token, order);
