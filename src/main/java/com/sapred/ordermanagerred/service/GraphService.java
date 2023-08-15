@@ -94,11 +94,13 @@ public class GraphService {
                         .and("productCount").as("productCount")
         );
 
-        List<MonthProductCountDto> results = mongoTemplate
-                .aggregate(aggregation, "Order", MonthProductCountDto.class).getMappedResults();
+        AggregationResults<MonthProductCountDto> results = mongoTemplate
+                .aggregate(aggregation, "Order", MonthProductCountDto.class);
 
-        log.info("Top products retrieved: {}", results);
+        List<MonthProductCountDto> topProduct=results.getMappedResults();
 
-        return results;
+        log.info("Top products retrieved: {}", topProduct);
+
+        return topProduct;
     }
 }
