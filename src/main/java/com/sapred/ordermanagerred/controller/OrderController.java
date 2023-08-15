@@ -29,7 +29,7 @@ public class OrderController {
     }
 
     @GetMapping("/{pageNumber}")
-    public ResponseEntity getOrdersWithFilter(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap) {
+        public ResponseEntity getOrdersByFilter(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap) {
 //here is an example how the map filter should look like. note the dbref way  ! ! !
 //        {
 //          "companyId": {

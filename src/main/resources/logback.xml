@@ -1,5 +1,4 @@
 <configuration>
-    <!--    <springProperty name="rootLogLevel" source="logging.level.root" defaultValue="INFO"/>-->
 
     <!-- Define log file location -->
     <!--    <property name="LOG_PATH" value="C:\Users\1\Desktop"/>-->
@@ -15,9 +14,8 @@
 
     <!-- File Appender -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>orders_managment.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/myapp-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/orders_managment-%d{yyyy-MM-dd}.log</fileNamePattern>
             <totalSizeCap>1GB</totalSizeCap> <!-- Set the total size cap to retain log files -->
             <maxHistory>30</maxHistory>
         </rollingPolicy>
