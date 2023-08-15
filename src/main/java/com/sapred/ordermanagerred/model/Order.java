@@ -38,7 +38,7 @@ public class Order {
     private User customerId;
     private double totalAmount;
     private List<OrderItem> orderItemsList;
-    private StatusOptions orderStatus;
+    private OrderStatus orderStatus;
     @DBRef
     private Company companyId;
     private Currency currency;
