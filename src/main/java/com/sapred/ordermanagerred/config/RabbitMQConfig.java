@@ -3,10 +3,13 @@ package com.sapred.ordermanagerred.config;
 
 
 
-/*import org.springframework.amqp.core.BindingBuilder;
+import ch.qos.logback.classic.pattern.MessageConverter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Declarables;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 //RabbitMqDirectExchangeConfig
@@ -37,10 +40,9 @@ public class RabbitMQConfig {
                 BindingBuilder.bind(queueTaxiEcoLarge).to(exchangeTaxiDirect).with(ROUTING_KEY_TAXI_ECO_LARGE)
         );
     }
+}
 
-}*/
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+/*import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -89,6 +91,6 @@ public class RabbitMQConfig {
 
         return new Jackson2JsonMessageConverter(mapper);
     }
-}
+}*/
 
 

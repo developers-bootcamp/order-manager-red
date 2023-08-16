@@ -1,7 +1,8 @@
 package com.sapred.ordermanagerred;
 
 
-/*import lombok.RequiredArgsConstructor;
+import com.sapred.ordermanagerred.model.Order;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -17,21 +18,21 @@ import static com.sapred.ordermanagerred.config.RabbitMQConfig.*;
 public class RabbitMQProducer {
     private final RabbitTemplate rabbitTemplate;
 
-    public void sendMessage() {
-        sendMsg(ROUTING_KEY_TAXI_NORMAL_SMAL);
-        sendMsg(ROUTING_KEY_TAXI_ECO_LARGE);
-        sendMsg("not-matching");
+    public void sendMessage(Order message) {
+        sendMsg(ROUTING_KEY_TAXI_NORMAL_SMALL,message);
+        sendMsg(ROUTING_KEY_TAXI_ECO_LARGE,message);
+        sendMsg("not-matching",message);
     }
 
-    private void sendMsg(String routingKey) {
-        OrderTaxiMessage message = new OrderTaxiMessage();
+    private void sendMsg(String routingKey, Order message) {
+//        OrderTaxiMessage message = new OrderTaxiMessage();
         rabbitTemplate.convertAndSend(EXCHANGE_TAXI_DIRECT, routingKey, message);
         //logSendMessage(EXCHANGE_TAXI_DIRECT, routingKey, message);
     }
 
-}*/
+}
 
-import com.sapred.ordermanagerred.model.Order;
+/*import com.sapred.ordermanagerred.model.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -54,4 +55,4 @@ public class RabbitMQProducer {
 //        LOGGER.info(String.format("message sent: ",t);
         rabbitTemplate.convertAndSend(exchange,routingKey,message);
     }
-}
+}*/

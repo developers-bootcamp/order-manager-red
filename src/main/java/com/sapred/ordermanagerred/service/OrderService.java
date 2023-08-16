@@ -118,6 +118,7 @@ public class OrderService {
         order.setAuditData(auditData);
 
         if (order.getOrderStatus() != OrderStatus.NEW && order.getOrderStatus() != OrderStatus.APPROVED) {
+            rabbitMQProducer.sendMessage(order);
             log.error("Cannot create order with status '{}'", order.getOrderStatus());
             throw new StatusException("Cannot create order with status other than NEW or APPROVED");
         }
