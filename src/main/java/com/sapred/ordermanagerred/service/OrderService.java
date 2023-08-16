@@ -2,7 +2,6 @@ package com.sapred.ordermanagerred.service;
 
 
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
-import com.sapred.ordermanagerred.exception.MapFilterMissedField;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.exception.StatusException;
 import com.sapred.ordermanagerred.model.*;
@@ -24,6 +23,7 @@ import org.webjars.NotFoundException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -77,9 +77,13 @@ public class OrderService {
     }
 
     public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
-        if (!filterMap.containsKey(Order.Fields.companyId)) {
-            throw new MapFilterMissedField("the companyId key is require!");
-        }
+
+        String companyId = jwtToken.getCompanyIdFromToken(token);
+        Map<String, Object> reference = new HashMap<>();
+        reference.put("$ref", "Company");
+        reference.put("$id", companyId);
+        filterMap.put("companyId", reference);
+        log.info("filtermap {}", filterMap);
 
         Criteria criteria = new Criteria();
 
@@ -98,7 +102,7 @@ public class OrderService {
         query.limit(pageSize);
         Sort.Order sortOrder = new Sort.Order(Sort.Direction.DESC, "updateDate");
         query.with(Sort.by(sortOrder));
-
+        log.info("Executing query: {}", query);
         return mongoTemplate.find(query, Order.class);
 
     }
