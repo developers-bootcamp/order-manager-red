@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -160,14 +159,26 @@ public class OrderService {
         double price = product.getPrice() * rate;
         if (product.getDiscountType() == DiscountType.PERCENTAGE)
             discount = price * orderItem.getQuantity() * product.getDiscount() * 0.01;
-        else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT)
-            discount = product.getDiscount() * rate;
+        else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT) discount = product.getDiscount() * rate;
         sum = price * orderItem.getQuantity() - discount;
         ProductCartDTO productCartDTO = ProductCartDTO.builder().name(product.getName()).amount(sum).discount(discount).quantity(orderItem.getQuantity()).build();
         listOfCart.add(productCartDTO);
         listOfCart.add(ProductCartDTO.builder().name("Total").amount(order.getTotalAmount() + sum).build());
         log.info("Order amount calculated");
         return listOfCart;
+    }
+
+    public void updateOrder(String token, Order updateOrder) {
+        Order currentOrder = orderRepository.findById(updateOrder.getId()).orElseThrow(() -> new NotFoundException("can't update not found order"));
+        ;
+        if ((updateOrder.getOrderStatus() == OrderStatus.NEW && currentOrder.getOrderStatus() != OrderStatus.APPROVED) ||
+            (updateOrder.getOrderStatus() == OrderStatus.PACKING && (currentOrder.getOrderStatus() != OrderStatus.DELIVERED ||
+            currentOrder.getOrderStatus() != OrderStatus.CANCELLED)) || updateOrder.getOrderStatus() != OrderStatus.NEW || updateOrder.getOrderStatus() != OrderStatus.PACKING) {
+            log.error("can't update from status to status" + currentOrder.getOrderStatus() + "to status" + updateOrder.getOrderStatus());
+            throw new StatusException("can't update from status to status" + currentOrder.getOrderStatus() + "to status" + updateOrder.getOrderStatus());
+        }
+        orderRepository.save(updateOrder);
+        log.info("update order items");
     }
 }
 
