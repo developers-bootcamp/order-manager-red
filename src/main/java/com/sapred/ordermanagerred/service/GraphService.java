@@ -73,7 +73,7 @@ public class GraphService {
 
     public List<MonthProductCountDto> getTopProduct(String token, int rangeOfMonths) {
         String companyId = jwtToken.getCompanyIdFromToken(token);
-        Order.StatusOptions statusDone = Order.StatusOptions.DELIVERED;
+        OrderStatus statusDone = OrderStatus.DELIVERED;
         LocalDate dateForLastMonth = LocalDate.now().minusMonths(rangeOfMonths);
         log.info("Retrieving the company's products with a count of their popularity according to the orders");
 
@@ -99,7 +99,7 @@ public class GraphService {
         AggregationResults<MonthProductCountDto> results = mongoTemplate
                 .aggregate(aggregation, "Order", MonthProductCountDto.class);
 
-        List<MonthProductCountDto> topProduct=results.getMappedResults();
+        List<MonthProductCountDto> topProduct = results.getMappedResults();
 
         log.info("Top products retrieved: {}", topProduct);
 
