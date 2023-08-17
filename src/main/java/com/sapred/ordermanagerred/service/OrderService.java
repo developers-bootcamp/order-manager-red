@@ -22,6 +22,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 
 import java.time.LocalDate;
@@ -106,7 +107,7 @@ public class OrderService {
 
     }
 
-
+    @Transactional
     public String createOrder(String token, Order order) {
         String companyId = jwtToken.getCompanyIdFromToken(token);
         Company company = companyRepository.findById(companyId).orElseThrow(() -> new NotFoundException("Company not found"));
@@ -118,12 +119,23 @@ public class OrderService {
         order.setAuditData(auditData);
 
         if (order.getOrderStatus() != OrderStatus.NEW && order.getOrderStatus() != OrderStatus.APPROVED) {
-            rabbitMQProducer.sendMessage(order);
             log.error("Cannot create order with status '{}'", order.getOrderStatus());
             throw new StatusException("Cannot create order with status other than NEW or APPROVED");
         }
-
+        order.setOrderStatus(OrderStatus.CHARGING);
         String orderId = orderRepository.save(order).getId();
+        if(orderId!=null){ //  order.getOrderItemsList().stream().
+            for (OrderItem element : order.getOrderItemsList()) {
+                Product product = (Product) productRepository.findByIdAndCompanyId(element.getProductId().getId(), company.getId());
+                if(product.getInventory()-element.getQuantity()<0){
+                    order.setOrderStatus(OrderStatus.CANCELLED);
+                    orderRepository.save(order);
+                    break;
+                }
+                product.setInventory(product.getInventory()-element.getQuantity());
+                productRepository.save(product);
+            }
+        }
         log.info("Order created with ID '{}'", orderId);
         return orderId;
     }
