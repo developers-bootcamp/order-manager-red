@@ -7,6 +7,7 @@ import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.model.AuditData;
 import com.sapred.ordermanagerred.model.ProductCategory;
 import com.sapred.ordermanagerred.model.RoleOptions;
+import com.sapred.ordermanagerred.repository.CompanyRepository;
 import com.sapred.ordermanagerred.repository.ProductCategoryRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,9 @@ public class ProductCategoryService {
     private ProductCategoryRepository productCategoryRepository;
 
     @Autowired
+    private CompanyRepository companyRepository;
+
+    @Autowired
     private JwtToken jwtToken;
 
     @Autowired
@@ -33,17 +37,14 @@ public class ProductCategoryService {
     public void createProductCategory(ProductCategory productCategory, String token) {
         log.info("Creating new product category");
 
-        if (!productCategory.getCompanyId().getId().equals(jwtToken.getCompanyIdFromToken(token))) {
-            log.error("Permission denied: You do not have permission to create new category");
-            throw new NoPermissionException("You do not have permission to create new category");
-        }
-
-        if (productCategoryRepository.existsByNameAndCompanyId_id(productCategory.getName(), productCategory.getCompanyId().getId())) {
+        String companyId = jwtToken.getCompanyIdFromToken(token);
+        if (productCategoryRepository.existsByNameAndCompanyId_id(productCategory.getName(), companyId)) {
             log.error("Data exist: The name of the category already exists");
             throw new DataExistException("The name of the category already exists");
         }
 
         productCategory.setAuditData(AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
+        productCategory.setCompanyId(companyRepository.findFirstById(companyId));
         productCategoryRepository.save(productCategory);
 
         log.info("Product category created successfully");

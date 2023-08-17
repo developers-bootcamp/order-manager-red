@@ -29,7 +29,7 @@ public class OrderController {
     }
 
     @GetMapping("/{pageNumber}")
-    public ResponseEntity getOrdersWithFilter(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap) {
+        public ResponseEntity getOrdersByFilter(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap) {
 //here is an example how the map filter should look like. note the dbref way  ! ! !
 //        {
 //          "companyId": {
@@ -39,13 +39,9 @@ public class OrderController {
 //          "notificationFlag":true
 //        }
 
-
-        try {
             List<Order> orders = orderService.getOrdersByFilters(filterMap, token, pageNumber);
             return ResponseEntity.ok().body(orders);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
+
     }
 
     @PostMapping("/")
@@ -53,6 +49,14 @@ public class OrderController {
         log.debug("Entering createOrder method. @RequestBody order: {}", order);
         String id = orderService.createOrder(token, order);
         return ResponseEntity.ok().body(id);
+    }
+    @PutMapping ("/")
+    public ResponseEntity updateOrder(@RequestHeader("token") String token, @RequestBody Order order) {
+        log.debug("Entering updateOrder method. @RequestBody updated order: {}", order);
+        orderService.updateOrder(token, order);
+        log.info("the order updated successfully");
+        return ResponseEntity.ok().body("success");
+
     }
 
     @GetMapping("/fillProducts")
