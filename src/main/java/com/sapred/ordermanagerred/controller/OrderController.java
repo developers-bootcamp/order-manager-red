@@ -3,6 +3,7 @@ package com.sapred.ordermanagerred.controller;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.service.OrderService;
+import com.sapred.ordermanagerred.socket_io.OrderSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,11 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
-
+    private final OrderSocketServer orderSocketServer;
+    @Autowired
+    public OrderController( OrderSocketServer orderSocketServer) {
+        this.orderSocketServer = orderSocketServer;
+    }
     @GetMapping("/{userId}/{status}/{pageNumber}")
     public ResponseEntity getOrders(@RequestHeader("token") String token, @PathVariable("userId") String userId, @PathVariable("status") String statusId, @PathVariable("pageNumber") int pageNumber) {
         log.debug("Entering getOrders method. @PathVariable userId: {}, statusId: {}, pageNumber: {}", userId, statusId, pageNumber);
@@ -47,6 +52,8 @@ public class OrderController {
     @PostMapping("/")
     public ResponseEntity createOrder(@RequestHeader("token") String token, @RequestBody Order order) {
         log.debug("Entering createOrder method. @RequestBody order: {}", order);
+        String message = "A new order has been created: ";
+        orderSocketServer.sendNewOrderToCompany ("11", message);
         String id = orderService.createOrder(token, order);
         return ResponseEntity.ok().body(id);
     }
