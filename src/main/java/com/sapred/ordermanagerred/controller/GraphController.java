@@ -25,7 +25,6 @@ import java.util.Map;
 public class GraphController {
     @Autowired
     private GraphService graphService;
-
     @GetMapping("/topEmployee")
     public List<TopEmployeeDTO> topEmployee() {
         log.debug("Entering topEmployee method");
