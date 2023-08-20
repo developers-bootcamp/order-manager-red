@@ -13,7 +13,7 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
     List<Product> findAllByCompanyId(String companyId);
 
-    List<Product> findByIdAndCompanyId(String id,String companyId);
+    Product findOneByIdAndCompanyId(String id,String companyId);
 
     @Query("{'name': { $regex: '^?1' }}")
     List<Product> findByCompanyIdAndNameAndPrefix(String companyId, String prefix);

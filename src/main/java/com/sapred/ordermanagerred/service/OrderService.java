@@ -6,6 +6,7 @@ import com.sapred.ordermanagerred.RabbitMQProducer;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.exception.StatusException;
+import com.sapred.ordermanagerred.mapper.OrderMapper;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.*;
 import com.sapred.ordermanagerred.security.JwtToken;
@@ -128,17 +129,19 @@ public class OrderService {
         }
         order.setOrderStatus(OrderStatus.CHARGING);
         String orderId = orderRepository.save(order).getId();
+        order=orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
         if(orderId!=null){ //  order.getOrderItemsList().stream().
             for (OrderItem element : order.getOrderItemsList()) {
-                Product product = (Product) productRepository.findByIdAndCompanyId(element.getProductId().getId(), company.getId());
+                Product product = (Product) productRepository.findOneByIdAndCompanyId(element.getProductId().getId(), company.getId());
                 if(product.getInventory()-element.getQuantity()<0){
                     order.setOrderStatus(OrderStatus.CANCELLED);
                     orderRepository.save(order);
-                    break;
+                    break;//throw exception
                 }
                 product.setInventory(product.getInventory()-element.getQuantity());
                 productRepository.save(product);
             }
+            rabbitMQProducer.sendMessage(OrderMapper.INSTANCE.orderToDTO(order));
         }
         log.info("Order created with ID '{}'", orderId);
         return orderId;

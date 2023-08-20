@@ -1,10 +1,11 @@
 package com.sapred.ordermanagerred.dto;
 
+import com.sapred.ordermanagerred.model.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.sapred.ordermanagerred.model.Order.StatusOptions;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -17,8 +18,8 @@ public class OrderDTO {
     private String address;
     private String email;
     private String phone;
-    private StatusOptions statusOptions;
+    private OrderStatus orderStatus;
     private int creditCardNumber;
-    private Date ExpireOn;
+    private LocalDateTime expireOn;
     private int cvc;
 }

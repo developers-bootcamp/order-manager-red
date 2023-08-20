@@ -1,10 +1,10 @@
 package com.sapred.ordermanagerred.config;
 
-
-
-
-import ch.qos.logback.classic.pattern.MessageConverter;
+/*import ch.qos.logback.classic.pattern.MessageConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Declarables;
 import org.springframework.amqp.core.DirectExchange;
@@ -40,9 +40,22 @@ public class RabbitMQConfig {
                 BindingBuilder.bind(queueTaxiEcoLarge).to(exchangeTaxiDirect).with(ROUTING_KEY_TAXI_ECO_LARGE)
         );
     }
-}
+    // Up to Jackson 2.9: (but not with 3.0)
+    ObjectMapper mapper = new ObjectMapper()
+            .registerModule(new ParameterNamesModule())
+            .registerModule(new Jdk8Module())
+            .registerModule(new JavaTimeModule()); // new module, NOT JSR310Module
 
-/*import com.fasterxml.jackson.databind.ObjectMapper;
+    // with 3.0 (or with 2.10 as alternative)
+//    ObjectMapper mapper = JsonMapper.builder() // or different mapper for other format
+//            .addModule(new ParameterNamesModule())
+//            .addModule(new Jdk8Module())
+//            .addModule(new JavaTimeModule())
+//            // and possibly other configuration, modules, then:
+//            .build();
+}
+*/
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -91,6 +104,6 @@ public class RabbitMQConfig {
 
         return new Jackson2JsonMessageConverter(mapper);
     }
-}*/
+}
 
 
