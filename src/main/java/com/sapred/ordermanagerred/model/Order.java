@@ -43,7 +43,7 @@ public class Order {
     private Company companyId;
     private Currency currency;
     private String creditCardNumber;
-    private LocalDateTime ExpireOn;
+    private LocalDateTime expireOn;
     private int cvc;
     private boolean notificationFlag;
     private AuditData auditData;
