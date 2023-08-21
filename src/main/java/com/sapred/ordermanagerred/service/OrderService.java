@@ -1,8 +1,7 @@
 package com.sapred.ordermanagerred.service;
 
-
-//import com.sapred.ordermanagerred.Exception.ObjectDoesNotExistException;
 import com.sapred.ordermanagerred.RabbitMQProducer;
+import com.sapred.ordermanagerred.dto.OrderDTO;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.exception.StatusException;
@@ -129,16 +128,16 @@ public class OrderService {
         }
         order.setOrderStatus(OrderStatus.CHARGING);
         String orderId = orderRepository.save(order).getId();
-        order=orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
-        if(orderId!=null){ //  order.getOrderItemsList().stream().
+        order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
+        if (orderId != null) { //  order.getOrderItemsList().stream().
             for (OrderItem element : order.getOrderItemsList()) {
                 Product product = (Product) productRepository.findOneByIdAndCompanyId(element.getProductId().getId(), company.getId());
-                if(product.getInventory()-element.getQuantity()<0){
+                if (product.getInventory() - element.getQuantity() < 0) {
                     order.setOrderStatus(OrderStatus.CANCELLED);
                     orderRepository.save(order);
                     break;//throw exception
                 }
-                product.setInventory(product.getInventory()-element.getQuantity());
+                product.setInventory(product.getInventory() - element.getQuantity());
                 productRepository.save(product);
             }
             rabbitMQProducer.sendMessage(OrderMapper.INSTANCE.orderToDTO(order));
@@ -191,13 +190,30 @@ public class OrderService {
         Order currentOrder = orderRepository.findById(updateOrder.getId()).orElseThrow(() -> new NotFoundException("can't update not found order"));
         ;
         if ((updateOrder.getOrderStatus() == OrderStatus.NEW && currentOrder.getOrderStatus() != OrderStatus.APPROVED) ||
-            (updateOrder.getOrderStatus() == OrderStatus.PACKING && (currentOrder.getOrderStatus() != OrderStatus.DELIVERED ||
-            currentOrder.getOrderStatus() != OrderStatus.CANCELLED)) || updateOrder.getOrderStatus() != OrderStatus.NEW || updateOrder.getOrderStatus() != OrderStatus.PACKING) {
+                (updateOrder.getOrderStatus() == OrderStatus.PACKING && (currentOrder.getOrderStatus() != OrderStatus.DELIVERED ||
+                        currentOrder.getOrderStatus() != OrderStatus.CANCELLED)) || updateOrder.getOrderStatus() != OrderStatus.NEW || updateOrder.getOrderStatus() != OrderStatus.PACKING) {
             log.error("can't update from status to status" + currentOrder.getOrderStatus() + "to status" + updateOrder.getOrderStatus());
             throw new StatusException("can't update from status to status" + currentOrder.getOrderStatus() + "to status" + updateOrder.getOrderStatus());
         }
         orderRepository.save(updateOrder);
         log.info("update order items");
+    }
+
+    public void processOrder(OrderDTO orderDTO) {
+        if (orderDTO.getOrderStatus() == OrderStatus.APPROVED) {
+            orderDTO.setOrderStatus(OrderStatus.PACKING);
+            Order order = OrderMapper.INSTANCE.DTOToOrder(orderDTO);
+            orderRepository.save(order);
+        } else {
+            orderDTO.setOrderStatus(OrderStatus.CANCELLED);
+            Order order = OrderMapper.INSTANCE.DTOToOrder(orderDTO);
+            orderRepository.save(order);
+            for (OrderItem element : order.getOrderItemsList()) {
+                Product product = (Product) productRepository.findOneByIdAndCompanyId(element.getProductId().getId(), order.getCompanyId().getId());
+                product.setInventory(product.getInventory() + element.getQuantity());
+                productRepository.save(product);
+            }
+        }
     }
 }
 

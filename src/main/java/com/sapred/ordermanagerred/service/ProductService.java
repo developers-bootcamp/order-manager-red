@@ -1,7 +1,5 @@
 package com.sapred.ordermanagerred.service;
 
-import com.sapred.ordermanagerred.RabbitMQProducer;
-import com.sapred.ordermanagerred.SenderApplication;
 import com.sapred.ordermanagerred.dto.ProductNameDTO;
 import com.sapred.ordermanagerred.exception.DataExistException;
 import com.sapred.ordermanagerred.mapper.productMapper;
@@ -14,10 +12,8 @@ import com.sapred.ordermanagerred.model.RoleOptions;
 import com.sapred.ordermanagerred.repository.ProductRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
 import lombok.SneakyThrows;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
