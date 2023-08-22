@@ -157,13 +157,18 @@ public class UserService {
     }
 
     @SneakyThrows
-    public User addUser(String token, User user) {
+    public void addUser(String token, UserDTO userDTO) {
         logger.info("Adding new user");
+       User user=UserMapper.INSTANCE.DTOToUser(userDTO);
 
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
-
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE && user.getRoleId().getName().equals(RoleOptions.ADMIN))) {
+        user.setCompanyId(companyRepository.findFirstById(companyIdFromToken));
+        user.setFullName(userDTO.getFullName());
+        String roleId=roleRepository.findFirstByName(RoleOptions.ADMIN).getId();
+//        user.setRoleId();
+//        && user.getRoleId().getName().equals(RoleOptions.ADMIN)
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE )) {
             logger.error("Unauthorized user addition");
             throw new UnsupportedOperationException();
         }
@@ -173,11 +178,14 @@ public class UserService {
             throw new IllegalArgumentException();
         }
 
-        user.setAuditData(new AuditData(LocalDate.now(), LocalDate.now()));
-        User addedUser = userRepository.insert(user);
-        logger.info("User added successfully: {}", addedUser.getId());
-        return addedUser;
+        user.setAuditData(AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
+        userRepository.save(user);
+
+       logger.info("User added successfully: {}", user.getId());
     }
+
+
+
 
     public List<UserDTO> getUsers(String token, int numPage) {
         logger.info("Fetching users");
