@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@RestController
 @RequestMapping("/order")
+@RestController
 @CrossOrigin("http://localhost:3000")
 @Slf4j
 public class OrderController {
