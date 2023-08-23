@@ -113,6 +113,12 @@ public class OrderService {
 
     @Transactional
     public String createOrder(String token, Order order) {
+
+        if (order.getOrderStatus() != OrderStatus.NEW && order.getOrderStatus() != OrderStatus.APPROVED) {
+            log.error("Cannot create order with status '{}'", order.getOrderStatus());
+            throw new StatusException("Cannot create order with status other than NEW or APPROVED");
+        }
+
         String companyId = jwtToken.getCompanyIdFromToken(token);
         Company company = companyRepository.findById(companyId).orElseThrow(() -> new NotFoundException("Company not found"));
         order.setCompanyId(company);
@@ -122,10 +128,6 @@ public class OrderService {
         AuditData auditData = new AuditData(LocalDate.now(), null);
         order.setAuditData(auditData);
 
-        if (order.getOrderStatus() != OrderStatus.NEW && order.getOrderStatus() != OrderStatus.APPROVED) {
-            log.error("Cannot create order with status '{}'", order.getOrderStatus());
-            throw new StatusException("Cannot create order with status other than NEW or APPROVED");
-        }
         order.setOrderStatus(OrderStatus.CHARGING);
         String orderId = orderRepository.save(order).getId();
         order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
@@ -188,12 +190,13 @@ public class OrderService {
 
     public void updateOrder(String token, Order updateOrder) {
         Order currentOrder = orderRepository.findById(updateOrder.getId()).orElseThrow(() -> new NotFoundException("can't update not found order"));
-        ;
-        if ((updateOrder.getOrderStatus() == OrderStatus.NEW && currentOrder.getOrderStatus() != OrderStatus.APPROVED) ||
-                (updateOrder.getOrderStatus() == OrderStatus.PACKING && (currentOrder.getOrderStatus() != OrderStatus.DELIVERED ||
-                        currentOrder.getOrderStatus() != OrderStatus.CANCELLED)) || updateOrder.getOrderStatus() != OrderStatus.NEW || updateOrder.getOrderStatus() != OrderStatus.PACKING) {
-            log.error("can't update from status to status" + currentOrder.getOrderStatus() + "to status" + updateOrder.getOrderStatus());
-            throw new StatusException("can't update from status to status" + currentOrder.getOrderStatus() + "to status" + updateOrder.getOrderStatus());
+
+        if ((currentOrder.getOrderStatus() == OrderStatus.NEW && updateOrder.getOrderStatus() != OrderStatus.APPROVED) || (currentOrder.getOrderStatus() == OrderStatus.PACKING && (updateOrder.getOrderStatus() != OrderStatus.DELIVERED || updateOrder.getOrderStatus() != OrderStatus.CANCELLED))) {
+            log.error("can't update from status to status " + currentOrder.getOrderStatus() + " to status " + updateOrder.getOrderStatus());
+            throw new StatusException("can't update from status " + currentOrder.getOrderStatus() + " to status " + updateOrder.getOrderStatus());
+        }
+        if ((currentOrder.getOrderStatus() != OrderStatus.NEW && currentOrder.getOrderStatus() != OrderStatus.PACKING)) {
+            throw new StatusException("can't update from status " + currentOrder.getOrderStatus());
         }
         orderRepository.save(updateOrder);
         log.info("update order items");
