@@ -1,6 +1,6 @@
 package com.sapred.ordermanagerred.service;
 
-import com.sapred.ordermanagerred.RabbitMQProducer;
+//import com.sapred.ordermanagerred.RabbitMQProducer;
 import com.sapred.ordermanagerred.dto.OrderDTO;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
@@ -44,8 +44,8 @@ public class OrderService {
     private ProductRepository productRepository;
     @Autowired
     private ProductCategoryRepository productCategoryRepository;
-    @Autowired
-    private RabbitMQProducer rabbitMQProducer;
+//    @Autowired
+//    private RabbitMQProducer rabbitMQProducer;
 
     @Autowired
     private CompanyRepository companyRepository;
@@ -140,7 +140,7 @@ public class OrderService {
                 product.setInventory(product.getInventory() - element.getQuantity());
                 productRepository.save(product);
             }
-            rabbitMQProducer.sendMessage(OrderMapper.INSTANCE.orderToDTO(order));
+//            rabbitMQProducer.sendMessage(OrderMapper.INSTANCE.orderToDTO(order));
         }
         log.info("Order created with ID '{}'", orderId);
         return orderId;

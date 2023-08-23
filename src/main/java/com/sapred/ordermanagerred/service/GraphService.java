@@ -36,11 +36,11 @@ import java.util.List;
 import java.util.Map;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+import static org.springframework.data.mongodb.core.aggregation.ComparisonOperators.*;
 
 @Service
 @Slf4j
 public class GraphService {
-
     @Autowired
     private OrderRepository orderRepository;
 
@@ -111,17 +111,19 @@ public class GraphService {
 
     public Map<Month, Map<Integer, Integer>> getStatus(String token, Integer monthAmount) {
         String companyId = jwtToken.getCompanyIdFromToken(token);
+        System.out.println("companyId" + companyId);
         LocalDate currentDate = LocalDate.now();
         LocalDate MonthsAgo = currentDate.minusMonths(monthAmount);
+
         Aggregation aggregation = newAggregation(
                 match(Criteria.where("auditData.createDate").gte(MonthsAgo)),
-                match(Criteria.where("companyId").is(companyId)),
+                match(Criteria.where("companyId").is("1")),
                 project()
                         .andExpression("month(auditData.createDate)").as("month")
                         .and("orderStatusId").as("orderStatusId"),
                 group("month")
-                        .sum(ConditionalOperators.when(ComparisonOperators.valueOf("orderStatus").equalToValue(Order.StatusOptions.CANCELLED)).then(1).otherwise(0)).as("cancelled")
-                        .sum(ConditionalOperators.when(ComparisonOperators.valueOf("orderStatus").equalToValue(Order.StatusOptions.DELIVERED)).then(1).otherwise(0)).as("delivered"),
+                        .sum(ConditionalOperators.when(valueOf("orderStatus").equalTo(String.valueOf(OrderStatus.CANCELLED))).then(1).otherwise(0)).as("cancelled")
+                        .sum(ConditionalOperators.when(valueOf("orderStatus").equalTo(String.valueOf(OrderStatus.DELIVERED))).then(1).otherwise(0)).as("delivered"),
                 project()
                         .and("_id").as("month")
                         .and("cancelled").as("cancelled")
@@ -129,7 +131,6 @@ public class GraphService {
         );
         AggregationResults<Document> results = mongoTemplate.aggregate(aggregation, "Order", Document.class);
         List<Document> mappedResults = results.getMappedResults();
-        System.out.println("Results" + results);
         System.out.println("mappedResults" + mappedResults);
 
         Map<Month, Map<Integer, Integer>> resultMap = new HashMap<>();
