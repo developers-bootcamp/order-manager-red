@@ -27,7 +27,6 @@ public class Order {
         CHARGING,
         PACKING,
         DELIVERED,
-
     }
 
     @Id

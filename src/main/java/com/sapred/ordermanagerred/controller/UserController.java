@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.Console;
 import java.util.List;
 
 @RestController
@@ -25,6 +26,7 @@ public class UserController {
     @GetMapping("/logIn/{email}/{password}")
     public ResponseEntity logIn(@PathVariable("email") String email, @PathVariable("password") String password) {
         log.debug("Entering logIn method with email: {}", email);
+        System.out.println(password + email);
         String response = userService.logIn(email, password);
         return new ResponseEntity(response, HttpStatus.OK);
     }
