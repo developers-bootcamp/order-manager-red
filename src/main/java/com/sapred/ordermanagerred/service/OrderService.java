@@ -78,48 +78,11 @@ public class OrderService {
     }
 
 
-//    public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
-//
-////        String companyId = jwtToken.getCompanyIdFromToken(token);
-//        String companyId ="11";
-//
-//        Map<String, Object> reference = new HashMap<>();
-//        reference.put("$ref", "Company");
-//        reference.put("$id", companyId);
-//        filterMap.put("companyId", reference);
-//        log.info("filtermap {}", filterMap);
-//
-//        Criteria criteria = new Criteria();
-//
-//        // Iterate through the filter map and construct filter for each entry
-//        for (Map.Entry<String, Object> entry : filterMap.entrySet()) {
-//            String filterName = entry.getKey();
-//            Object filterValue = entry.getValue();
-//
-////            if (filterName.equals(Order.Fields.orderStatus)) {
-////                List<String> filterValue1 = Arrays.asList("DONE", "CREATED");
-////                criteria = criteria.and(filterName).in(filterValue1);
-////            } else {
-////
-//               criteria = criteria.and(filterName).is(filterValue);
-////            }
-//        }
-//
-//        Query query = new Query(criteria);
-//
-//        int skip = (pageNumber - 1) * pageSize;
-//        query.skip(skip);
-//        query.limit(pageSize);
-//        Sort.Order sortOrder = new Sort.Order(Sort.Direction.DESC, "updateDate");
-//        query.with(Sort.by(sortOrder));
-//        log.info("Executing query: {}", query);
-//        return mongoTemplate.find(query, Order.class);
-//
-//    }
 
-    public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber, Criteria criteria) {
+    public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber, Criteria criteria,String sortParameter) {
 
 //        String companyId = jwtToken.getCompanyIdFromToken(token);
+        //-------------just for now-----------------------//
         String companyId = "11";
 
         Map<String, Object> reference = new HashMap<>();
@@ -142,29 +105,32 @@ public class OrderService {
         int skip = (pageNumber - 1) * pageSize;
         query.skip(skip);
         query.limit(pageSize);
-        Sort.Order sortOrder = new Sort.Order(Sort.Direction.DESC, "updateDate");
+
+        Sort.Order sortOrder = new Sort.Order(Sort.Direction.DESC, sortParameter);
         query.with(Sort.by(sortOrder));
         log.info("Executing query: {}", query);
         return mongoTemplate.find(query, Order.class);
 
     }
 
-    public List<Order> getOrdersFilterByFailedStatus(Map<String, Object> filterMap, String token, int pageNumber) {
+    public List<Order> getOrdersFilterByFailedStatus(Map<String, Object> filterMap, String token, int pageNumber,String sortParameter) {
 
         Criteria criteria = new Criteria();
         List<String> filterValue1 = Arrays.asList(OrderStatus.CANCELLED.toString());
         criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
 
-        return getOrdersByFilters(filterMap, token, pageNumber, criteria);
+        return getOrdersByFilters(filterMap, token, pageNumber, criteria,sortParameter);
 
     }
-    public List<Order> getOrdersFilterByStatuses(Map<String, Object> filterMap, String token, int pageNumber) {
+    public List<Order> getOrdersFilterByStatuses(Map<String, Object> filterMap, String token, int pageNumber,String sortParameter) {
 
         Criteria criteria = new Criteria();
-        List<String> filterValue1 = Arrays.asList(OrderStatus.NEW.toString(),OrderStatus.APPROVED.toString(),OrderStatus.PACKING.toString(),OrderStatus.CHARGING.toString(),OrderStatus.DELIVERED.toString());
-        criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
+        //-------------just for now-----------------------//
 
-        return getOrdersByFilters(filterMap, token, pageNumber, criteria);
+//        List<String> filterValue1 = Arrays.asList(OrderStatus.NEW.toString(),OrderStatus.APPROVED.toString(),OrderStatus.PACKING.toString(),OrderStatus.CHARGING.toString(),OrderStatus.DELIVERED.toString());
+//        criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
+
+        return getOrdersByFilters(filterMap, token, pageNumber, criteria,sortParameter);
 
     }
     @Transactional

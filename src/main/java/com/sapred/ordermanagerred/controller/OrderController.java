@@ -21,15 +21,9 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @GetMapping("/{userId}/{status}/{pageNumber}")
-    public ResponseEntity getOrders(@RequestHeader("token") String token, @PathVariable("userId") String userId, @PathVariable("status") String statusId, @PathVariable("pageNumber") int pageNumber) {
-        log.debug("Entering getOrders method. @PathVariable userId: {}, statusId: {}, pageNumber: {}", userId, statusId, pageNumber);
-        List<Order> orders = orderService.getOrders(token, statusId, pageNumber, userId);
-        return ResponseEntity.ok().body(orders);
-    }
 
     @GetMapping("failedStatus/{pageNumber}")
-        public ResponseEntity getOrdersFilterByFailedStatus(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap) {
+        public ResponseEntity getOrdersFilterByFailedStatus(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap,@RequestParam(name = "sortParameter", defaultValue = "auditData.updateDate") String sortParameter) {
 //here is an example how the map filter should look like. note the dbref way  ! ! !
 //        {
 //          "companyId": {
@@ -39,11 +33,11 @@ public class OrderController {
 //          "notificationFlag":true
 //        }
 
-            List<Order> orders = orderService.getOrdersFilterByFailedStatus(filterMap, token, pageNumber);
+            List<Order> orders = orderService.getOrdersFilterByFailedStatus(filterMap, token, pageNumber,sortParameter);
             return ResponseEntity.ok().body(orders);
 
     }@GetMapping("statuses/{pageNumber}")
-    public ResponseEntity getOrdersFilterByStatuses(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap) {
+    public ResponseEntity getOrdersFilterByStatuses(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap, @RequestParam(name = "sortParameter", defaultValue = "auditData.updateDate") String sortParameter) {
 //here is an example how the map filter should look like. note the dbref way  ! ! !
 //        {
 //          "companyId": {
@@ -53,7 +47,7 @@ public class OrderController {
 //          "notificationFlag":true
 //        }
 
-        List<Order> orders = orderService.getOrdersFilterByStatuses(filterMap, token, pageNumber);
+        List<Order> orders = orderService.getOrdersFilterByStatuses(filterMap, token, pageNumber,sortParameter);
         return ResponseEntity.ok().body(orders);
 
     }
