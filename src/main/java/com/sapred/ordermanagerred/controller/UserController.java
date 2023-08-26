@@ -66,7 +66,7 @@ public class UserController {
 
 
     @PutMapping("/{userId}")
-    public ResponseEntity<Boolean> updateUser(@RequestHeader("token") String token, @PathVariable("userId") String userId, @RequestBody User user) {
+    public ResponseEntity<Boolean> updateUser(@RequestHeader("token") String token, @PathVariable("userId") String userId, @RequestBody UserDTO user) {
         log.debug("Entering updateUser method with userId: {}", userId);
         userService.updateUser(token, userId, user);
         return new ResponseEntity<>(true, HttpStatus.OK);
