@@ -14,8 +14,7 @@ public class RabbitMQConsumer {
 
     @Autowired
     private OrderService orderService;
-    @Autowired
-    private ProductRepository productRepository;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQConsumer.class);
 
     @RabbitListener(queues = "${rabbitmq.queue.namePayment}")

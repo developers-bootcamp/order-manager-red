@@ -186,7 +186,7 @@ public class OrderService {
         return listOfCart;
     }
 
-    public void updateOrder(String token, Order updateOrder) {
+    public void updateOrder(Order updateOrder) {
         Order currentOrder = orderRepository.findById(updateOrder.getId()).orElseThrow(() -> new NotFoundException("can't update not found order"));
         ;
         if ((updateOrder.getOrderStatus() == OrderStatus.NEW && currentOrder.getOrderStatus() != OrderStatus.APPROVED) ||
@@ -203,10 +203,12 @@ public class OrderService {
         if (orderDTO.getOrderStatus() == OrderStatus.APPROVED) {
             orderDTO.setOrderStatus(OrderStatus.PACKING);
             Order order = OrderMapper.INSTANCE.DTOToOrder(orderDTO);
+            order.setNotificationFlag(true);
             orderRepository.save(order);
         } else {
             orderDTO.setOrderStatus(OrderStatus.CANCELLED);
             Order order = OrderMapper.INSTANCE.DTOToOrder(orderDTO);
+            order.setNotificationFlag(true);
             orderRepository.save(order);
             for (OrderItem element : order.getOrderItemsList()) {
                 Product product = (Product) productRepository.findOneByIdAndCompanyId(element.getProductId().getId(), order.getCompanyId().getId());
@@ -214,6 +216,10 @@ public class OrderService {
                 productRepository.save(product);
             }
         }
+    }
+
+    public List<Order> getOrdersWithNotificationFlag() {
+        return orderRepository.findByNotificationFlag(true);
     }
 }
 
