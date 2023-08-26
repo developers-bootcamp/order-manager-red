@@ -1,6 +1,6 @@
 package com.sapred.ordermanagerred.service;
 
-import com.sapred.ordermanagerred.RabbitMQProducer;
+//import com.sapred.ordermanagerred.RabbitMQProducer;
 import com.sapred.ordermanagerred.dto.OrderDTO;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
@@ -25,10 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -44,8 +41,8 @@ public class OrderService {
     private ProductRepository productRepository;
     @Autowired
     private ProductCategoryRepository productCategoryRepository;
-    @Autowired
-    private RabbitMQProducer rabbitMQProducer;
+//    @Autowired
+//    private RabbitMQProducer rabbitMQProducer;
 
     @Autowired
     private CompanyRepository companyRepository;
@@ -80,16 +77,56 @@ public class OrderService {
         return orders;
     }
 
-    public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
 
-        String companyId = jwtToken.getCompanyIdFromToken(token);
+//    public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
+//
+////        String companyId = jwtToken.getCompanyIdFromToken(token);
+//        String companyId ="11";
+//
+//        Map<String, Object> reference = new HashMap<>();
+//        reference.put("$ref", "Company");
+//        reference.put("$id", companyId);
+//        filterMap.put("companyId", reference);
+//        log.info("filtermap {}", filterMap);
+//
+//        Criteria criteria = new Criteria();
+//
+//        // Iterate through the filter map and construct filter for each entry
+//        for (Map.Entry<String, Object> entry : filterMap.entrySet()) {
+//            String filterName = entry.getKey();
+//            Object filterValue = entry.getValue();
+//
+////            if (filterName.equals(Order.Fields.orderStatus)) {
+////                List<String> filterValue1 = Arrays.asList("DONE", "CREATED");
+////                criteria = criteria.and(filterName).in(filterValue1);
+////            } else {
+////
+//               criteria = criteria.and(filterName).is(filterValue);
+////            }
+//        }
+//
+//        Query query = new Query(criteria);
+//
+//        int skip = (pageNumber - 1) * pageSize;
+//        query.skip(skip);
+//        query.limit(pageSize);
+//        Sort.Order sortOrder = new Sort.Order(Sort.Direction.DESC, "updateDate");
+//        query.with(Sort.by(sortOrder));
+//        log.info("Executing query: {}", query);
+//        return mongoTemplate.find(query, Order.class);
+//
+//    }
+
+    public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber, Criteria criteria) {
+
+//        String companyId = jwtToken.getCompanyIdFromToken(token);
+        String companyId = "11";
+
         Map<String, Object> reference = new HashMap<>();
         reference.put("$ref", "Company");
         reference.put("$id", companyId);
         filterMap.put("companyId", reference);
         log.info("filtermap {}", filterMap);
-
-        Criteria criteria = new Criteria();
 
         // Iterate through the filter map and construct filter for each entry
         for (Map.Entry<String, Object> entry : filterMap.entrySet()) {
@@ -98,6 +135,7 @@ public class OrderService {
 
             criteria = criteria.and(filterName).is(filterValue);
         }
+
 
         Query query = new Query(criteria);
 
@@ -111,6 +149,24 @@ public class OrderService {
 
     }
 
+    public List<Order> getOrdersFilterByFailedStatus(Map<String, Object> filterMap, String token, int pageNumber) {
+
+        Criteria criteria = new Criteria();
+        List<String> filterValue1 = Arrays.asList(OrderStatus.CANCELLED.toString());
+        criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
+
+        return getOrdersByFilters(filterMap, token, pageNumber, criteria);
+
+    }
+    public List<Order> getOrdersFilterByStatuses(Map<String, Object> filterMap, String token, int pageNumber) {
+
+        Criteria criteria = new Criteria();
+        List<String> filterValue1 = Arrays.asList(OrderStatus.NEW.toString(),OrderStatus.APPROVED.toString(),OrderStatus.PACKING.toString(),OrderStatus.CHARGING.toString(),OrderStatus.DELIVERED.toString());
+        criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
+
+        return getOrdersByFilters(filterMap, token, pageNumber, criteria);
+
+    }
     @Transactional
     public String createOrder(String token, Order order) {
         String companyId = jwtToken.getCompanyIdFromToken(token);
@@ -140,7 +196,7 @@ public class OrderService {
                 product.setInventory(product.getInventory() - element.getQuantity());
                 productRepository.save(product);
             }
-            rabbitMQProducer.sendMessage(OrderMapper.INSTANCE.orderToDTO(order));
+//            rabbitMQProducer.sendMessage(OrderMapper.INSTANCE.orderToDTO(order));
         }
         log.info("Order created with ID '{}'", orderId);
         return orderId;

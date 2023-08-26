@@ -12,12 +12,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 public class OrderManagerRedApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(OrderManagerRedApplication.class, args);
 	}
 
 	@Bean
 	public OrdersNotificationJob ordersNotificationJob() {
-		return new OrdersNotificationJob();}
+		return new OrdersNotificationJob();
+	}
 }
