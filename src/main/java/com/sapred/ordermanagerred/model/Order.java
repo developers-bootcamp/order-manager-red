@@ -1,6 +1,7 @@
 package com.sapred.ordermanagerred.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
@@ -19,7 +20,6 @@ import java.util.List;
 @Document(collection = "Order")
 @FieldNameConstants
 public class Order {
-
     public enum StatusOptions {
         NEW,
         APPROVED,
@@ -27,7 +27,6 @@ public class Order {
         CHARGING,
         PACKING,
         DELIVERED,
-
     }
 
     @Id
@@ -43,7 +42,7 @@ public class Order {
     private Company companyId;
     private Currency currency;
     private String creditCardNumber;
-    private LocalDateTime ExpireOn;
+    private LocalDateTime expireOn;
     private int cvc;
     private boolean notificationFlag;
     private AuditData auditData;

@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@RestController
 @RequestMapping("/order")
+@RestController
 @CrossOrigin("http://localhost:3000")
 @Slf4j
 public class OrderController {
@@ -28,8 +28,8 @@ public class OrderController {
         return ResponseEntity.ok().body(orders);
     }
 
-    @GetMapping("/{pageNumber}")
-        public ResponseEntity getOrdersByFilter(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap) {
+    @GetMapping("failedStatus/{pageNumber}")
+        public ResponseEntity getOrdersFilterByFailedStatus(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap) {
 //here is an example how the map filter should look like. note the dbref way  ! ! !
 //        {
 //          "companyId": {
@@ -39,8 +39,22 @@ public class OrderController {
 //          "notificationFlag":true
 //        }
 
-            List<Order> orders = orderService.getOrdersByFilters(filterMap, token, pageNumber);
+            List<Order> orders = orderService.getOrdersFilterByFailedStatus(filterMap, token, pageNumber);
             return ResponseEntity.ok().body(orders);
+
+    }@GetMapping("statuses/{pageNumber}")
+    public ResponseEntity getOrdersFilterByStatuses(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap) {
+//here is an example how the map filter should look like. note the dbref way  ! ! !
+//        {
+//          "companyId": {
+//            "$ref": "Company",
+//                    "$id": "1002"
+//          },
+//          "notificationFlag":true
+//        }
+
+        List<Order> orders = orderService.getOrdersFilterByStatuses(filterMap, token, pageNumber);
+        return ResponseEntity.ok().body(orders);
 
     }
 

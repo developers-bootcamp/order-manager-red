@@ -1,9 +1,11 @@
 package com.sapred.ordermanagerred.service;
 
-
+//import com.sapred.ordermanagerred.RabbitMQProducer;
+import com.sapred.ordermanagerred.dto.OrderDTO;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
 import com.sapred.ordermanagerred.exception.StatusException;
+import com.sapred.ordermanagerred.mapper.OrderMapper;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.*;
 import com.sapred.ordermanagerred.security.JwtToken;
@@ -19,13 +21,11 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -39,9 +39,10 @@ public class OrderService {
 
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private ProductCategoryRepository productCategoryRepository;
+//    @Autowired
+//    private RabbitMQProducer rabbitMQProducer;
 
     @Autowired
     private CompanyRepository companyRepository;
@@ -76,16 +77,56 @@ public class OrderService {
         return orders;
     }
 
-    public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
 
-        String companyId = jwtToken.getCompanyIdFromToken(token);
+//    public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber) {
+//
+////        String companyId = jwtToken.getCompanyIdFromToken(token);
+//        String companyId ="11";
+//
+//        Map<String, Object> reference = new HashMap<>();
+//        reference.put("$ref", "Company");
+//        reference.put("$id", companyId);
+//        filterMap.put("companyId", reference);
+//        log.info("filtermap {}", filterMap);
+//
+//        Criteria criteria = new Criteria();
+//
+//        // Iterate through the filter map and construct filter for each entry
+//        for (Map.Entry<String, Object> entry : filterMap.entrySet()) {
+//            String filterName = entry.getKey();
+//            Object filterValue = entry.getValue();
+//
+////            if (filterName.equals(Order.Fields.orderStatus)) {
+////                List<String> filterValue1 = Arrays.asList("DONE", "CREATED");
+////                criteria = criteria.and(filterName).in(filterValue1);
+////            } else {
+////
+//               criteria = criteria.and(filterName).is(filterValue);
+////            }
+//        }
+//
+//        Query query = new Query(criteria);
+//
+//        int skip = (pageNumber - 1) * pageSize;
+//        query.skip(skip);
+//        query.limit(pageSize);
+//        Sort.Order sortOrder = new Sort.Order(Sort.Direction.DESC, "updateDate");
+//        query.with(Sort.by(sortOrder));
+//        log.info("Executing query: {}", query);
+//        return mongoTemplate.find(query, Order.class);
+//
+//    }
+
+    public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber, Criteria criteria) {
+
+//        String companyId = jwtToken.getCompanyIdFromToken(token);
+        String companyId = "11";
+
         Map<String, Object> reference = new HashMap<>();
         reference.put("$ref", "Company");
         reference.put("$id", companyId);
         filterMap.put("companyId", reference);
         log.info("filtermap {}", filterMap);
-
-        Criteria criteria = new Criteria();
 
         // Iterate through the filter map and construct filter for each entry
         for (Map.Entry<String, Object> entry : filterMap.entrySet()) {
@@ -94,6 +135,7 @@ public class OrderService {
 
             criteria = criteria.and(filterName).is(filterValue);
         }
+
 
         Query query = new Query(criteria);
 
@@ -107,7 +149,25 @@ public class OrderService {
 
     }
 
+    public List<Order> getOrdersFilterByFailedStatus(Map<String, Object> filterMap, String token, int pageNumber) {
 
+        Criteria criteria = new Criteria();
+        List<String> filterValue1 = Arrays.asList(OrderStatus.CANCELLED.toString());
+        criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
+
+        return getOrdersByFilters(filterMap, token, pageNumber, criteria);
+
+    }
+    public List<Order> getOrdersFilterByStatuses(Map<String, Object> filterMap, String token, int pageNumber) {
+
+        Criteria criteria = new Criteria();
+        List<String> filterValue1 = Arrays.asList(OrderStatus.NEW.toString(),OrderStatus.APPROVED.toString(),OrderStatus.PACKING.toString(),OrderStatus.CHARGING.toString(),OrderStatus.DELIVERED.toString());
+        criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
+
+        return getOrdersByFilters(filterMap, token, pageNumber, criteria);
+
+    }
+    @Transactional
     public String createOrder(String token, Order order) {
         String companyId = jwtToken.getCompanyIdFromToken(token);
         Company company = companyRepository.findById(companyId).orElseThrow(() -> new NotFoundException("Company not found"));
@@ -122,8 +182,22 @@ public class OrderService {
             log.error("Cannot create order with status '{}'", order.getOrderStatus());
             throw new StatusException("Cannot create order with status other than NEW or APPROVED");
         }
-
+        order.setOrderStatus(OrderStatus.CHARGING);
         String orderId = orderRepository.save(order).getId();
+        order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
+        if (orderId != null) { //  order.getOrderItemsList().stream().
+            for (OrderItem element : order.getOrderItemsList()) {
+                Product product = (Product) productRepository.findOneByIdAndCompanyId(element.getProductId().getId(), company.getId());
+                if (product.getInventory() - element.getQuantity() < 0) {
+                    order.setOrderStatus(OrderStatus.CANCELLED);
+                    orderRepository.save(order);
+                    break;//throw exception
+                }
+                product.setInventory(product.getInventory() - element.getQuantity());
+                productRepository.save(product);
+            }
+//            rabbitMQProducer.sendMessage(OrderMapper.INSTANCE.orderToDTO(order));
+        }
         log.info("Order created with ID '{}'", orderId);
         return orderId;
     }
@@ -172,13 +246,30 @@ public class OrderService {
         Order currentOrder = orderRepository.findById(updateOrder.getId()).orElseThrow(() -> new NotFoundException("can't update not found order"));
         ;
         if ((updateOrder.getOrderStatus() == OrderStatus.NEW && currentOrder.getOrderStatus() != OrderStatus.APPROVED) ||
-            (updateOrder.getOrderStatus() == OrderStatus.PACKING && (currentOrder.getOrderStatus() != OrderStatus.DELIVERED ||
-            currentOrder.getOrderStatus() != OrderStatus.CANCELLED)) || updateOrder.getOrderStatus() != OrderStatus.NEW || updateOrder.getOrderStatus() != OrderStatus.PACKING) {
+                (updateOrder.getOrderStatus() == OrderStatus.PACKING && (currentOrder.getOrderStatus() != OrderStatus.DELIVERED ||
+                        currentOrder.getOrderStatus() != OrderStatus.CANCELLED)) || updateOrder.getOrderStatus() != OrderStatus.NEW || updateOrder.getOrderStatus() != OrderStatus.PACKING) {
             log.error("can't update from status to status" + currentOrder.getOrderStatus() + "to status" + updateOrder.getOrderStatus());
             throw new StatusException("can't update from status to status" + currentOrder.getOrderStatus() + "to status" + updateOrder.getOrderStatus());
         }
         orderRepository.save(updateOrder);
         log.info("update order items");
+    }
+
+    public void processOrder(OrderDTO orderDTO) {
+        if (orderDTO.getOrderStatus() == OrderStatus.APPROVED) {
+            orderDTO.setOrderStatus(OrderStatus.PACKING);
+            Order order = OrderMapper.INSTANCE.DTOToOrder(orderDTO);
+            orderRepository.save(order);
+        } else {
+            orderDTO.setOrderStatus(OrderStatus.CANCELLED);
+            Order order = OrderMapper.INSTANCE.DTOToOrder(orderDTO);
+            orderRepository.save(order);
+            for (OrderItem element : order.getOrderItemsList()) {
+                Product product = (Product) productRepository.findOneByIdAndCompanyId(element.getProductId().getId(), order.getCompanyId().getId());
+                product.setInventory(product.getInventory() + element.getQuantity());
+                productRepository.save(product);
+            }
+        }
     }
 }
 
