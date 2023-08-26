@@ -87,6 +87,7 @@ public class UserService {
         logger.info("Logging in user with email: {}", email);
 
         User authenticatedUserEmail = userRepository.getByAddressEmail(email);
+
         if (authenticatedUserEmail == null) {
             logger.error("User not found with email: {}", email);
             throw new NotFoundException("User not found with email: %s".formatted(email));
@@ -96,7 +97,6 @@ public class UserService {
             logger.error("Invalid password for user with email: {}", email);
             throw new NoPermissionException("Invalid password for user with email: {}".formatted(email));
         }
-
         String token = jwtToken.generateToken(authenticatedUserEmail);
         logger.info("User logged in successfully: {}", email);
         return token;
