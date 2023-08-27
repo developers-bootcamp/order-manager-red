@@ -3,6 +3,7 @@ package com.sapred.ordermanagerred.service;
 import com.sapred.ordermanagerred.dto.TopEmployeeDTO;
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.repository.OrderRepository;
+import com.sapred.ordermanagerred.security.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -22,11 +23,15 @@ public class GraphService {
     private OrderRepository orderRepository;
     @Autowired
     private MongoTemplate mongoTemplate;
+    @Autowired
+    private JwtToken jwtToken;
 
-    public List<TopEmployeeDTO> topEmployee() {
+    public List<TopEmployeeDTO> topEmployee(String token) {
+        String companyId=jwtToken.getCompanyIdFromToken(token);
         Aggregation aggregation = newAggregation(
                 match(Criteria.where("auditData.createDate").gte(LocalDate.now().minusMonths(3))),
                 match(Criteria.where("orderStatus").is(Order.StatusOptions.APPROVED)),
+                match(Criteria.where("companyId.id").is(companyId)),
                 group("employeeId").count().as("countOfDeliveredOrders"),
                 project("countOfDeliveredOrders").and("_id").as("employee"),
                 sort(Sort.Direction.DESC, "countOfDeliveredOrders"),

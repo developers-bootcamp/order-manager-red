@@ -6,10 +6,7 @@ import com.sapred.ordermanagerred.service.GraphService;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,7 +18,7 @@ public class GraphController {
     private GraphService graphService;
 
     @GetMapping("/topEmployee")
-    public List<TopEmployeeDTO> topEmployee() {
-       return graphService.topEmployee();
+    public List<TopEmployeeDTO> topEmployee(@RequestHeader("token") String token) {
+       return graphService.topEmployee(token);
     }
 }
