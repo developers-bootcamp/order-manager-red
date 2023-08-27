@@ -3,6 +3,7 @@ package com.sapred.ordermanagerred.controller;
 import com.sapred.ordermanagerred.dto.UserDTO;
 import com.sapred.ordermanagerred.dto.UserNameDTO;
 import com.sapred.ordermanagerred.model.Currency;
+import com.sapred.ordermanagerred.model.ProductCategory;
 import com.sapred.ordermanagerred.model.User;
 import com.sapred.ordermanagerred.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.Console;
 import java.util.List;
 
 @RestController
@@ -25,6 +27,7 @@ public class UserController {
     @GetMapping("/logIn/{email}/{password}")
     public ResponseEntity logIn(@PathVariable("email") String email, @PathVariable("password") String password) {
         log.debug("Entering logIn method with email: {}", email);
+        System.out.println(password + email);
         String response = userService.logIn(email, password);
         return new ResponseEntity(response, HttpStatus.OK);
     }
@@ -38,6 +41,13 @@ public class UserController {
     @GetMapping("/fillRoles")
     public void fillRoles() {
         userService.fillRoles();
+    }
+
+    @PostMapping
+    public ResponseEntity addUser(@RequestHeader("token") String token, @RequestBody UserDTO user) {
+        log.debug("Entering addUser method");
+       userService.addUser(token, user);
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PostMapping("/signUp")
@@ -56,15 +66,9 @@ public class UserController {
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity addUser(@RequestHeader("token") String token, @RequestBody User user) {
-        log.debug("Entering addUser method");
-        User newUser = userService.addUser(token, user);
-        return ResponseEntity.ok().body(newUser);
-    }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<Boolean> updateUser(@RequestHeader("token") String token, @PathVariable("userId") String userId, @RequestBody User user) {
+    public ResponseEntity<Boolean> updateUser(@RequestHeader("token") String token, @PathVariable("userId") String userId, @RequestBody UserDTO user) {
         log.debug("Entering updateUser method with userId: {}", userId);
         userService.updateUser(token, userId, user);
         return new ResponseEntity<>(true, HttpStatus.OK);
