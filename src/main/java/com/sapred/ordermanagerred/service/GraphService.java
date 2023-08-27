@@ -2,34 +2,34 @@ package com.sapred.ordermanagerred.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.sapred.ordermanagerred.dto.DynamicGraph;
 import com.sapred.ordermanagerred.dto.MonthProductCountDto;
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.security.JwtToken;
-import jdk.security.jarsigner.JarSignerException;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
-
-import java.io.ObjectInputStream;
-
 import com.sapred.ordermanagerred.dto.TopEmployeeDTO;
-import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.model.OrderStatus;
 import com.sapred.ordermanagerred.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.stereotype.Service;
+import com.mongodb.client.MongoClient;
+
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
@@ -105,4 +105,28 @@ public class GraphService {
 
         return topProduct;
     }
+
+    public List<DynamicGraph> dynamicGraph(String token, String subject, String field) {
+        log.info("Retrieving dynamic graph based");
+
+        String companyId = jwtToken.getCompanyIdFromToken(token);
+        List<DynamicGraph> dynamicGraphs;
+
+        Aggregation aggregation = newAggregation(
+                match(Criteria.where("companyId.$id").is(new ObjectId(companyId))),
+                group(field).count().as("count"),
+                project("count").and("_id").as("obj"),
+                limit(5)
+        );
+
+        AggregationResults<DynamicGraph> result = mongoTemplate.aggregate(
+                aggregation, subject, DynamicGraph.class
+        );
+
+        dynamicGraphs = result.getMappedResults();
+
+
+        return dynamicGraphs;
+    }
+
 }
