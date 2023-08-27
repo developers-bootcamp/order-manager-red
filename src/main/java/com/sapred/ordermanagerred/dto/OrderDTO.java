@@ -1,6 +1,5 @@
 package com.sapred.ordermanagerred.dto;
 
-import com.sapred.ordermanagerred.model.Order.StatusOptions;
 import com.sapred.ordermanagerred.model.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class OrderDTO {
     private String id;
-    private  String customerId;
+    private String customerId;
     private double totalAmount;
     private String address;
     private String email;

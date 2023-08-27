@@ -109,29 +109,6 @@ public class GraphService {
         return topProduct;
     }
 
-    public List<DynamicGraph> dynamicGraph(String token, String subject, String field) {
-        log.info("Retrieving dynamic graph based");
-
-        String companyId = jwtToken.getCompanyIdFromToken(token);
-        List<DynamicGraph> dynamicGraphs;
-
-        Aggregation aggregation = newAggregation(
-                match(Criteria.where("companyId.$id").is(new ObjectId(companyId))),
-                group(field).count().as("count"),
-                project("count").and("_id").as("obj"),
-                limit(5)
-        );
-
-        AggregationResults<DynamicGraph> result = mongoTemplate.aggregate(
-                aggregation, subject, DynamicGraph.class
-        );
-
-        dynamicGraphs = result.getMappedResults();
-
-
-        return dynamicGraphs;
-    }
-
     public Map<Month, Map<Integer, Integer>> getStatus(String token, Integer monthAmount) {
         String companyId = jwtToken.getCompanyIdFromToken(token);
         System.out.println("companyId" + companyId);
@@ -166,5 +143,28 @@ public class GraphService {
             resultMap.put(month, tempMap);
         }
         return resultMap;
+    }
+
+    public List<DynamicGraph> dynamicGraph(String token, String subject, String field) {
+        log.info("Retrieving dynamic graph based");
+
+        String companyId = jwtToken.getCompanyIdFromToken(token);
+        List<DynamicGraph> dynamicGraphs;
+
+        Aggregation aggregation = newAggregation(
+                match(Criteria.where("companyId.$id").is(new ObjectId(companyId))),
+                group(field).count().as("count"),
+                project("count").and("_id").as("obj"),
+                limit(5)
+        );
+
+        AggregationResults<DynamicGraph> result = mongoTemplate.aggregate(
+                aggregation, subject, DynamicGraph.class
+        );
+
+        dynamicGraphs = result.getMappedResults();
+
+
+        return dynamicGraphs;
     }
 }
