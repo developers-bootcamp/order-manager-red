@@ -1,20 +1,14 @@
 package com.sapred.ordermanagerred.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import com.sapred.ordermanagerred.dto.DynamicGraph;
 import com.sapred.ordermanagerred.dto.MonthProductCountDto;
-import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.security.JwtToken;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
@@ -24,12 +18,8 @@ import com.sapred.ordermanagerred.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import com.mongodb.client.MongoClient;
-
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.time.Month;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +36,7 @@ public class GraphService {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
     @Autowired
     private JwtToken jwtToken;
 
@@ -163,7 +154,6 @@ public class GraphService {
         );
 
         dynamicGraphs = result.getMappedResults();
-
 
         return dynamicGraphs;
     }
