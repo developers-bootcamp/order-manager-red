@@ -70,9 +70,9 @@ public class OrderController {
         return ResponseEntity.ok().body(id);
     }
     @PutMapping ("/")
-    public ResponseEntity updateOrder(@RequestHeader("token") String token, @RequestBody Order order) {
+    public ResponseEntity updateOrder(@RequestBody Order order) {
         log.debug("Entering updateOrder method. @RequestBody updated order: {}", order);
-        orderService.updateOrder(token, order);
+        orderService.updateOrder(order);
         log.info("the order updated successfully");
         return ResponseEntity.ok().body("success");
 

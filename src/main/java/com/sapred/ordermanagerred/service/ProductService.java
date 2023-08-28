@@ -5,10 +5,7 @@ import com.sapred.ordermanagerred.exception.DataExistException;
 import com.sapred.ordermanagerred.mapper.productMapper;
 import com.sapred.ordermanagerred.dto.ProductDTO;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
-import com.sapred.ordermanagerred.model.AuditData;
-import com.sapred.ordermanagerred.model.Company;
-import com.sapred.ordermanagerred.model.Product;
-import com.sapred.ordermanagerred.model.RoleOptions;
+import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.ProductRepository;
 import com.sapred.ordermanagerred.security.JwtToken;
 import lombok.SneakyThrows;
@@ -31,6 +28,9 @@ public class ProductService {
 
     @Autowired
     private CompanyService companyService;
+
+    @Autowired
+    private ProductCategoryService productCategoryService;
 
     @SneakyThrows
     public Product addProduct(String token, Product product) {
@@ -88,14 +88,14 @@ public class ProductService {
     }
 
     @SneakyThrows
-    public Product editProduct(String token, Product product) {
+    public Product editProduct(String token, ProductDTO productDTO) {
         log.info("Editing product");
 
         if (jwtToken.getRoleIdFromToken(token) != RoleOptions.ADMIN) {
             log.error("Permission denied: You can't edit product");
             throw new NoPermissionException("You can't edit product");
         }
-
+        Product product = productMapper.INSTANCE.dtoToProduct(productDTO);
         Optional<Product> productOptional = productRepository.findById(product.getId());
         Product productToUpdate = productOptional.orElseThrow(() -> new Exception("Product not found"));
 
@@ -104,8 +104,12 @@ public class ProductService {
             throw new DataExistException("You need unique name for product");
         }
 
+        product.setAuditData(productToUpdate.getAuditData());
+        product.getAuditData().setUpdateDate(LocalDate.now());
+        product.setCompanyId(productToUpdate.getCompanyId());
+        product.setProductCategoryId(productCategoryService.getProductCategoryByName(token, productDTO.getProductCategoryName()));
         productToUpdate.getAuditData().setUpdateDate(LocalDate.now());
-        productToUpdate = productRepository.save(product);
+        productRepository.save(product);
 
         log.info("Product edited successfully");
 
