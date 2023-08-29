@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
@@ -54,6 +55,11 @@ public class OrderService {
     @Autowired
     private CurrencyConverterService currencyConverterService;
 
+    private final SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    public OrderService(SimpMessagingTemplate messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
+    }
     @Value("${pageSize}")
     private int pageSize;
 
@@ -161,6 +167,8 @@ public class OrderService {
 //            rabbitMQProducer.sendMessage(OrderMapper.INSTANCE.orderToDTO(order));
         }
         log.info("Order created with ID '{}'", orderId);
+
+        messagingTemplate.convertAndSend("/topic/newOrder/", order);
         return orderId;
     }
 
