@@ -30,38 +30,47 @@ import java.util.*;
 @Slf4j
 public class OrderService {
 
-    @Autowired
+//    @Autowired
     private OrderRepository orderRepository;
 
-    @Autowired
+//    @Autowired
     private JwtToken jwtToken;
 
-    @Autowired
+//    @Autowired
     private ProductRepository productRepository;
-    @Autowired
+//    @Autowired
     private ProductCategoryRepository productCategoryRepository;
 //    @Autowired
 //    private RabbitMQProducer rabbitMQProducer;
 
-    @Autowired
+//    @Autowired
     private CompanyRepository companyRepository;
 
-    @Autowired
+//    @Autowired
     private UserRepository userRepository;
 
-    @Autowired
+//    @Autowired
     private MongoTemplate mongoTemplate;
 
-    @Autowired
+//    @Autowired
     private CurrencyConverterService currencyConverterService;
 
     private final SimpMessagingTemplate messagingTemplate;
     @Autowired
-    public OrderService(SimpMessagingTemplate messagingTemplate) {
+    public OrderService(OrderRepository orderRepository, JwtToken jwtToken, ProductRepository productRepository, ProductCategoryRepository productCategoryRepository, CompanyRepository companyRepository, UserRepository userRepository, MongoTemplate mongoTemplate, CurrencyConverterService currencyConverterService, SimpMessagingTemplate messagingTemplate) {
+        this.orderRepository = orderRepository;
+        this.jwtToken = jwtToken;
+        this.productRepository = productRepository;
+        this.productCategoryRepository = productCategoryRepository;
+        this.companyRepository = companyRepository;
+        this.userRepository = userRepository;
+        this.mongoTemplate = mongoTemplate;
+        this.currencyConverterService = currencyConverterService;
         this.messagingTemplate = messagingTemplate;
     }
     @Value("${pageSize}")
     private int pageSize;
+
 
     public List<Order> getOrders(String token, String statusId, int pageNumber, String userId) {
         log.info("Retrieving orders with status '{}' for user ID '{}' and page number '{}'", statusId, userId, pageNumber);
@@ -168,7 +177,7 @@ public class OrderService {
         }
         log.info("Order created with ID '{}'", orderId);
 
-        messagingTemplate.convertAndSend("/topic/newOrder", order);
+//        messagingTemplate.convertAndSend("/topic/newOrder", order);
         return orderId;
     }
 
@@ -211,6 +220,7 @@ public class OrderService {
         log.info("Order amount calculated");
         return listOfCart;
     }
+
 
     public void updateOrder(String token, Order updateOrder) {
         Order currentOrder = orderRepository.findById(updateOrder.getId()).orElseThrow(() -> new NotFoundException("can't update not found order"));
