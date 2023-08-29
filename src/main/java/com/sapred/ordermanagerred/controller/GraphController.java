@@ -1,6 +1,9 @@
 package com.sapred.ordermanagerred.controller;
 
+import com.mongodb.client.AggregateIterable;
+import com.sapred.ordermanagerred.dto.DynamicGraph;
 import com.sapred.ordermanagerred.dto.MonthProductCountDto;
+import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.service.GraphService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,10 +29,11 @@ public class GraphController {
     @Autowired
     private GraphService graphService;
     @GetMapping("/topEmployee")
-    public List<TopEmployeeDTO> topEmployee() {
+    public List<TopEmployeeDTO> topEmployee(@RequestHeader("token") String token) {
         log.debug("Entering topEmployee method");
-        return graphService.topEmployee();
+        return graphService.topEmployee(token);
     }
+
 
     @GetMapping("/{rangeOfMonths}")
     public List<MonthProductCountDto> getTopProducts(
@@ -46,6 +50,12 @@ public class GraphController {
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @GetMapping("/dynamicGraph/{subject}/{field}")
+    public List<DynamicGraph> dynamicGraph(@RequestHeader("token") String token, @PathVariable("subject") String subject, @PathVariable("field") String field) {
+        log.debug("Entering dynamicGraph method");
+        return graphService.dynamicGraph(token, subject, field);
     }
 
 }

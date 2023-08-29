@@ -3,6 +3,7 @@ package com.sapred.ordermanagerred.service;
 import com.sapred.ordermanagerred.dto.UserDTO;
 import com.sapred.ordermanagerred.dto.UserNameDTO;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
+import com.sapred.ordermanagerred.mapper.UserMapper;
 import com.sapred.ordermanagerred.model.*;
 import com.sapred.ordermanagerred.repository.UserRepository;
 import com.sapred.ordermanagerred.resolver.UserResolver;
@@ -43,6 +44,8 @@ public class UserServiceTest {
     @Mock
     private MongoTemplate mongoTemplate;
 
+    @Mock
+    private UserMapper userMapper;
 
     @BeforeEach
     private void setUp() {
@@ -108,44 +111,25 @@ public class UserServiceTest {
         System.out.println("✅ testGetNamesOfCustomersByPrefix_WhenPrefixIsEmpty");
     }
 
-//    @Test
-//    public void testUpdateUser_WhenUserFoundAndHasPermissionAndEmailNotExists_ThenReturnUpdatedUser() {
-//        String token = "token";
-//        String userId = "userId";
-//        UserDTO userToEdit = UserDTO.builder().address(Address.builder().email("email").build()).build();
-//
-//        User findUser = User.builder().companyId(Company.builder().id("companyId").build()).build();
-//
-//        when(jwtToken.getRoleIdFromToken(anyString())).thenReturn(RoleOptions.ADMIN);
-//        when(jwtToken.getCompanyIdFromToken(anyString())).thenReturn("companyId");
-//        when(userRepository.findById(anyString())).thenReturn(Optional.of(findUser));
-//        when(userRepository.existsByAddressEmail(anyString())).thenReturn(false);
-//        when(mongoTemplate.findAndModify(any(Query.class), any(Update.class), any(FindAndModifyOptions.class), eq(User.class)))
-//                .thenReturn(new User());
-//
-//        UserDTO result = userService.updateUser(token, userId, userToEdit);
-//
-//        assertNotNull(result);
-//
-//        System.out.println("✅ testUpdateUser_WhenUserFoundAndHasPermissionAndEmailNotExists");
-//    }
 
-//    @Test
-//    public void testUpdateUser_WhenUserNotFound_ThenThrowNotFoundException() {
-//        String token = "token";
-//        String userId = "userId";
-//        User userToEdit = new User();
-//
-//        when(jwtToken.getRoleIdFromToken(anyString())).thenReturn(RoleOptions.ADMIN);
-//        when(jwtToken.getCompanyIdFromToken(anyString())).thenReturn("companyId");
-//        when(userRepository.findById(anyString())).thenReturn(Optional.empty());
-//
-//        assertThrows(NotFoundException.class, () -> {
-//            userService.updateUser(token, userId, userToEdit);
-//        });
-//
-//        System.out.println("✅ testUpdateUser_WhenUserNotFound");
-//    }
+    @Test
+    public void testUpdateUser_WhenUserNotFound_ThenThrowNotFoundException() {
+        String token = "token";
+        String userId = "userId";
+        UserDTO userToEdit = new UserDTO();
+
+        when(jwtToken.getRoleIdFromToken(anyString())).thenReturn(RoleOptions.ADMIN);
+        when(jwtToken.getCompanyIdFromToken(anyString())).thenReturn("companyId");
+        when(userRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> {
+            userService.updateUser(token, userId, userToEdit);
+        });
+
+        System.out.println("✅ testUpdateUser_WhenUserNotFound");
+    }
+
+
 
 }
 
