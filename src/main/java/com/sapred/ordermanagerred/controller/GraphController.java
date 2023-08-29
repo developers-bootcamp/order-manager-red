@@ -29,10 +29,11 @@ public class GraphController {
     @Autowired
     private GraphService graphService;
     @GetMapping("/topEmployee")
-    public List<TopEmployeeDTO> topEmployee() {
+    public List<TopEmployeeDTO> topEmployee(@RequestHeader("token") String token) {
         log.debug("Entering topEmployee method");
-        return graphService.topEmployee();
+        return graphService.topEmployee(token);
     }
+
 
     @GetMapping("/{rangeOfMonths}")
     public List<MonthProductCountDto> getTopProducts(
