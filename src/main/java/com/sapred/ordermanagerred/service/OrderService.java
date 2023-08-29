@@ -44,28 +44,6 @@ public class OrderService {
 
     @Autowired
     private CompanyRepository companyRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private ProductCategoryRepository productCategoryRepository;
-//    @Autowired
-//    private RabbitMQProducer rabbitMQProducer;
-
-    @Autowired
-    private CompanyRepository companyRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private MongoTemplate mongoTemplate;
-
-    @Autowired
-    private CurrencyConverterService currencyConverterService;
 
     @Autowired
     private UserRepository userRepository;
@@ -262,4 +240,3 @@ public class OrderService {
         return orderRepository.findByNotificationFlag(true);
     }
 }
-
