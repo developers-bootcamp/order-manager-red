@@ -105,4 +105,8 @@ public class ProductCategoryService {
 
         log.info("Product category edited successfully");
     }
+
+    public ProductCategory getProductCategoryByName(String token, String name) {
+        return productCategoryRepository.findOneByCompanyIdAndName(jwtToken.getCompanyIdFromToken(token), name);
+    }
 }
