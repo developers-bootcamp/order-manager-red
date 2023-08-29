@@ -42,9 +42,9 @@ public class ProductController {
     }
 
     @PutMapping
-    public ResponseEntity editProduct(@RequestHeader("token") String token, @RequestBody Product product) {
-        log.debug("Entering editProduct method. Request body: {}", product);
-        Product productEdit = productService.editProduct(token, product);
+    public ResponseEntity editProduct(@RequestHeader("token") String token, @RequestBody ProductDTO productDTO) {
+        log.debug("Entering editProduct method. Request body: {}", productDTO);
+        Product productEdit = productService.editProduct(token, productDTO);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 

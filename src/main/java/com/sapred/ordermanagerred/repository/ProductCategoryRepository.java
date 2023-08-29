@@ -18,4 +18,8 @@ public interface ProductCategoryRepository extends MongoRepository<ProductCatego
     ProductCategory findByIdAndCompanyId_Id(String id, String companyId);
 
 
+    ProductCategory findByIdAndCompanyId_Id(String id, String companyId);
+
+    ProductCategory findOneByCompanyIdAndName(String companyId, String name);
+
 }

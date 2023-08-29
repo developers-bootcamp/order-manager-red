@@ -8,7 +8,9 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.util.Date;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,14 +21,6 @@ import java.util.List;
 @Document(collection = "Order")
 @FieldNameConstants
 public class Order {
-    public enum StatusOptions {
-        NEW,
-        APPROVED,
-        CANCELLED,
-        CHARGING,
-        PACKING,
-        DELIVERED,
-    }
 
     @Id
     private String id;
