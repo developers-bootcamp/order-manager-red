@@ -159,15 +159,15 @@ public class UserService {
     @SneakyThrows
     public void addUser(String token, UserDTO userDTO) {
         logger.info("Adding new user");
-       User user=UserMapper.INSTANCE.DTOToUser(userDTO);
+        User user = UserMapper.INSTANCE.DTOToUser(userDTO);
 
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         user.setCompanyId(companyRepository.findFirstById(companyIdFromToken));
         user.setFullName(userDTO.getFullName());
         user.setPassword(userDTO.getPassword());
-        String roleId=roleRepository.findFirstByName(RoleOptions.ADMIN).getId();
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE )) {
+        String roleId = roleRepository.findFirstByName(RoleOptions.ADMIN).getId();
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE)) {
             logger.error("Unauthorized user addition");
             throw new UnsupportedOperationException();
         }
@@ -180,10 +180,8 @@ public class UserService {
         user.setAuditData(AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build());
         userRepository.save(user);
 
-       logger.info("User added successfully: {}", user.getId());
+        logger.info("User added successfully: {}", user.getId());
     }
-
-
 
 
     public List<UserDTO> getUsers(String token, int numPage) {
@@ -202,12 +200,11 @@ public class UserService {
     @SneakyThrows
     public UserDTO updateUser(String token, String userId, UserDTO userToEdit1) {
         logger.info("Updating user with ID: {}", userId);
-        User userToEdit=UserMapper.INSTANCE.DTOToUser(userToEdit1);
+        User userToEdit = UserMapper.INSTANCE.DTOToUser(userToEdit1);
 
         RoleOptions role = jwtToken.getRoleIdFromToken(token);
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         User findUser = userRepository.findById(userId).orElse(null);
-
 
         if (findUser == null) {
             logger.error("User not found with ID: {}", userId);
@@ -220,7 +217,8 @@ public class UserService {
             throw new NoPermissionException("You do not have the appropriate permission to edit user");
         }
 
-        if (userRepository.existsByAddressEmail(userToEdit.getAddress().getEmail())) {
+        if (!findUser.getAddress().getEmail().equals(userToEdit.getAddress().getEmail()) &&
+                userRepository.existsByAddressEmail(userToEdit.getAddress().getEmail())) {
             logger.error("User email already exists: {}", userToEdit.getAddress().getEmail());
             throw new DataExistException("The email address already exists");
         }
@@ -235,7 +233,7 @@ public class UserService {
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
         User updatedUser = mongoTemplate.findAndModify(query, update, options, User.class);
 
-        UserDTO updatedUser1=UserMapper.INSTANCE.userToDTO(updatedUser);
+        UserDTO updatedUser1 = UserMapper.INSTANCE.userToDTO(updatedUser);
         logger.info("User updated successfully: {}", updatedUser.getId());
         return updatedUser1;
     }

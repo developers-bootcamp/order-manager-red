@@ -204,11 +204,14 @@ public class OrderService {
         return listOfCart;
     }
 
-    public void updateOrder(Order updateOrder) {
+    public void updateOrder(String token, Order updateOrder) {
         Order currentOrder = orderRepository.findById(updateOrder.getId()).orElseThrow(() -> new NotFoundException("can't update not found order"));
-        if ((updateOrder.getOrderStatus() == OrderStatus.NEW && currentOrder.getOrderStatus() != OrderStatus.APPROVED) || (updateOrder.getOrderStatus() == OrderStatus.PACKING && (currentOrder.getOrderStatus() != OrderStatus.DELIVERED || currentOrder.getOrderStatus() != OrderStatus.CANCELLED)) || updateOrder.getOrderStatus() != OrderStatus.NEW || updateOrder.getOrderStatus() != OrderStatus.PACKING) {
-            log.error("can't update from status to status" + currentOrder.getOrderStatus() + "to status" + updateOrder.getOrderStatus());
-            throw new StatusException("can't update from status to status" + currentOrder.getOrderStatus() + "to status" + updateOrder.getOrderStatus());
+        if ((currentOrder.getOrderStatus() == OrderStatus.NEW && updateOrder.getOrderStatus() != OrderStatus.APPROVED) || (currentOrder.getOrderStatus() == OrderStatus.PACKING && (updateOrder.getOrderStatus() != OrderStatus.DELIVERED || updateOrder.getOrderStatus() != OrderStatus.CANCELLED))) {
+            log.error("can't update from status to status " + currentOrder.getOrderStatus() + " to status " + updateOrder.getOrderStatus());
+            throw new StatusException("can't update from status " + currentOrder.getOrderStatus() + " to status " + updateOrder.getOrderStatus());
+        }
+        if ((currentOrder.getOrderStatus() != OrderStatus.NEW && currentOrder.getOrderStatus() != OrderStatus.PACKING)) {
+            throw new StatusException("can't update from status " + currentOrder.getOrderStatus());
         }
         orderRepository.save(updateOrder);
         log.info("update order items");
