@@ -128,7 +128,7 @@ public class OrderService {
 
         Criteria criteria = new Criteria();
 
-        List<String> filterValue1 = Arrays.asList(OrderStatus.NEW.toString(), OrderStatus.APPROVED.toString(), OrderStatus.PACKING.toString(), OrderStatus.CHARGING.toString(), OrderStatus.DELIVERED.toString());
+        List<String> filterValue1 = Arrays.asList(OrderStatus.NEW.toString(), OrderStatus.APPROVED.toString(), OrderStatus.CREATED.toString(), OrderStatus.PACKING.toString(), OrderStatus.CHARGING.toString(), OrderStatus.DELIVERED.toString());
         criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
 
         return getOrdersByFilters(filterMap, token, pageNumber, criteria, sortParameter);
@@ -168,7 +168,7 @@ public class OrderService {
         }
         log.info("Order created with ID '{}'", orderId);
 
-        messagingTemplate.convertAndSend("/topic/newOrder/", order);
+        messagingTemplate.convertAndSend("/topic/newOrder", order);
         return orderId;
     }
 
