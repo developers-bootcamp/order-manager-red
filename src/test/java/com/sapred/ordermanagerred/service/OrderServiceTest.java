@@ -30,12 +30,12 @@ public class OrderServiceTest {
     @InjectMocks
     private OrderService orderService;
 
-    @Mock
-    private ProductRepository productRepository;
+
 
     @Mock
     private JwtToken jwtToken;
-
+    @Mock
+    private ProductRepository productRepository;
     @Mock
     private CompanyRepository companyRepository;
 
