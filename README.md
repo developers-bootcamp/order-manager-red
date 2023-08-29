@@ -10,7 +10,7 @@
 | Get         | /user/getNamesOfCustomersByPrefix/{prefix}                                                             | prefix: string                                                                                           | "abc"                                                  |
 | Post        | /user/signUp?fullName=TOm& companyName=Poto& email=Poto@gmail.com& currency=SHEKEL& password=123456789 | fullName:string, companyName:string, currency:Currency, email:string, currency:Currency, password:string | "TOm", "Poto", "Poto@gmail.com", "SHEKEL", "123456789" |
 | Get         | /graph/{rangeOfMonths}                                                                                 | rangeOfMonths:int                                                                                        | 3                                                      |
-
+| Get         | /graph/dynamicGraph/{subject}/{field}                                                                  | subject: string, field: string                                                                           | "Product", "productCategoryId"                         |
 ## Docker Compose for Services: mongodb, redis and rabbitmq
 
 ### Prerequisites

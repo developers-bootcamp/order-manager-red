@@ -69,13 +69,12 @@ public class OrderController {
         String id = orderService.createOrder(token, order);
         return ResponseEntity.ok().body(id);
     }
-    @PutMapping ("/")
-    public ResponseEntity updateOrder(@RequestBody Order order) {
+    @PutMapping("/")
+    public ResponseEntity updateOrder(@RequestHeader("token") String token, @RequestBody Order order) {
         log.debug("Entering updateOrder method. @RequestBody updated order: {}", order);
-        orderService.updateOrder(order);
+        orderService.updateOrder(token, order);
         log.info("the order updated successfully");
         return ResponseEntity.ok().body("success");
-
     }
 
     @GetMapping("/fillProducts")
