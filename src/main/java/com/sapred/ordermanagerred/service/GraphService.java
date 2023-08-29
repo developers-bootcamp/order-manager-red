@@ -46,7 +46,7 @@ public class GraphService {
         Aggregation aggregation = newAggregation(
                 match(Criteria.where("auditData.createDate").gte(LocalDate.now().minusMonths(3))),
                 match(Criteria.where("orderStatus").is(OrderStatus.APPROVED)),
-                match(Criteria.where("companyId.id").is(companyId)),
+                match(Criteria.where("companyId.$id").is(new ObjectId(companyId))),
                 group("employeeId").count().as("countOfDeliveredOrders"),
                 project("countOfDeliveredOrders").and("_id").as("employee"),
                 sort(Sort.Direction.DESC, "countOfDeliveredOrders"),
@@ -74,7 +74,7 @@ public class GraphService {
 
         Aggregation aggregation = Aggregation.newAggregation(
 
-                match(Criteria.where("companyId.$id").is(companyId)
+                match(Criteria.where("companyId.$id").is(new ObjectId(companyId))
                         .and("orderStatus").is(statusDone)
                         .and("auditData.createDate").gte(dateForLastMonth)),
                 unwind("orderItemsList"),
