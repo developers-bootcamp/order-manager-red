@@ -1,4 +1,5 @@
 package com.sapred.ordermanagerred.service;
+import com.sapred.ordermanagerred.RabbitMQProducer;
 import com.sapred.ordermanagerred.dto.OrderDTO;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
@@ -30,23 +31,19 @@ import java.util.*;
 @Slf4j
 public class OrderService {
 
-//    @Autowired
+    @Autowired
     private OrderRepository orderRepository;
-
-//    @Autowired
+    @Autowired
     private JwtToken jwtToken;
-
-//    @Autowired
+   @Autowired
     private ProductRepository productRepository;
-//    @Autowired
+    @Autowired
     private ProductCategoryRepository productCategoryRepository;
-//    @Autowired
-//    private RabbitMQProducer rabbitMQProducer;
-
-//    @Autowired
+    @Autowired
+    private RabbitMQProducer rabbitMQProducer;
+    @Autowired
     private CompanyRepository companyRepository;
-
-//    @Autowired
+    @Autowired
     private UserRepository userRepository;
 
 //    @Autowired
@@ -173,7 +170,9 @@ public class OrderService {
                 product.setInventory(product.getInventory() - element.getQuantity());
                 productRepository.save(product);
             }
-//            rabbitMQProducer.sendMessage(OrderMapper.INSTANCE.orderToDTO(order));
+            OrderDTO orderDTO=OrderMapper.INSTANCE.orderToDTO(order);
+            orderDTO.setPaymentType(OrderDTO.PaymentType.Debit);
+            rabbitMQProducer.sendMessage(orderDTO);
         }
         log.info("Order created with ID '{}'", orderId);
 
