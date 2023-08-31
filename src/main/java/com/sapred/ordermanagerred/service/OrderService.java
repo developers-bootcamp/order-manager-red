@@ -23,36 +23,40 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
-
 import java.time.LocalDate;
 import java.util.*;
-
 @Service
 @Slf4j
 public class OrderService {
 
-    @Autowired
+    //    @Autowired
     private OrderRepository orderRepository;
-    @Autowired
+
+    //    @Autowired
     private JwtToken jwtToken;
-   @Autowired
+
+    //    @Autowired
     private ProductRepository productRepository;
-    @Autowired
+    //    @Autowired
     private ProductCategoryRepository productCategoryRepository;
-    @Autowired
-    private RabbitMQProducer rabbitMQProducer;
-    @Autowired
+//    @Autowired
+//    private RabbitMQProducer rabbitMQProducer;
+
+    //    @Autowired
     private CompanyRepository companyRepository;
-    @Autowired
+
+    //    @Autowired
+
     private UserRepository userRepository;
 
-//    @Autowired
+    //    @Autowired
     private MongoTemplate mongoTemplate;
 
-//    @Autowired
+    //    @Autowired
     private CurrencyConverterService currencyConverterService;
 
     private final SimpMessagingTemplate messagingTemplate;
+
     @Autowired
     public OrderService(OrderRepository orderRepository, JwtToken jwtToken, ProductRepository productRepository, ProductCategoryRepository productCategoryRepository, CompanyRepository companyRepository, UserRepository userRepository, MongoTemplate mongoTemplate, CurrencyConverterService currencyConverterService, SimpMessagingTemplate messagingTemplate) {
         this.orderRepository = orderRepository;
@@ -65,8 +69,10 @@ public class OrderService {
         this.currencyConverterService = currencyConverterService;
         this.messagingTemplate = messagingTemplate;
     }
+
     @Value("${pageSize}")
     private int pageSize;
+
 
 
     public List<Order> getOrders(String token, String statusId, int pageNumber, String userId) {
@@ -86,6 +92,7 @@ public class OrderService {
 
         return orders;
     }
+
 
 
     public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber, Criteria criteria, String sortParameter) {
@@ -120,8 +127,8 @@ public class OrderService {
 
     }
 
-    public List<Order> getOrdersFilterByFailedStatus(Map<String, Object> filterMap, String token, int pageNumber, String sortParameter) {
 
+    public List<Order> getOrdersFilterByFailedStatus(Map<String, Object> filterMap, String token, int pageNumber, String sortParameter) {
         Criteria criteria = new Criteria();
         List<String> filterValue1 = Collections.singletonList(OrderStatus.CANCELLED.toString());
         criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
@@ -129,6 +136,7 @@ public class OrderService {
         return getOrdersByFilters(filterMap, token, pageNumber, criteria, sortParameter);
 
     }
+
 
     public List<Order> getOrdersFilterByStatuses(Map<String, Object> filterMap, String token, int pageNumber, String sortParameter) {
 
@@ -140,6 +148,7 @@ public class OrderService {
         return getOrdersByFilters(filterMap, token, pageNumber, criteria, sortParameter);
 
     }
+
 
     @Transactional
     public String createOrder(String token, Order order) {
@@ -169,6 +178,8 @@ public class OrderService {
                 }
                 product.setInventory(product.getInventory() - element.getQuantity());
                 productRepository.save(product);
+                OrderDTO orderDto=OrderMapper.INSTANCE.orderToDTO(order);
+                orderDto.setPaymentType(OrderDTO.PaymentType.Debit);
             }
             OrderDTO orderDTO=OrderMapper.INSTANCE.orderToDTO(order);
             orderDTO.setPaymentType(OrderDTO.PaymentType.Debit);
@@ -180,6 +191,7 @@ public class OrderService {
         return orderId;
     }
 
+
     public void fillProducts() {
         for (int i = 1; i < 10; i++) {
             AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
@@ -190,6 +202,7 @@ public class OrderService {
             productRepository.save(p);
         }
     }
+
 
     @SneakyThrows
     public List<ProductCartDTO> calculateOrderAmount(String token, Order order) {
@@ -234,6 +247,7 @@ public class OrderService {
         log.info("update order items");
     }
 
+
     public void processOrder(OrderDTO orderDTO) {
         if (orderDTO.getOrderStatus() == OrderStatus.APPROVED) {
             orderDTO.setOrderStatus(OrderStatus.PACKING);
@@ -257,4 +271,3 @@ public class OrderService {
         return orderRepository.findByNotificationFlag(true);
     }
 }
-
