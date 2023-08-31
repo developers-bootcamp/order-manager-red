@@ -1,4 +1,5 @@
 package com.sapred.ordermanagerred.service;
+import com.sapred.ordermanagerred.RabbitMQProducer;
 import com.sapred.ordermanagerred.dto.OrderDTO;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
 import com.sapred.ordermanagerred.exception.NoPermissionException;
@@ -45,6 +46,7 @@ public class OrderService {
     private CompanyRepository companyRepository;
 
     //    @Autowired
+
     private UserRepository userRepository;
 
     //    @Autowired
@@ -179,7 +181,9 @@ public class OrderService {
                 OrderDTO orderDto=OrderMapper.INSTANCE.orderToDTO(order);
                 orderDto.setPaymentType(OrderDTO.PaymentType.Debit);
             }
-//            rabbitMQProducer.sendMessage(orderDto);
+            OrderDTO orderDTO=OrderMapper.INSTANCE.orderToDTO(order);
+            orderDTO.setPaymentType(OrderDTO.PaymentType.Debit);
+            rabbitMQProducer.sendMessage(orderDTO);
         }
         log.info("Order created with ID '{}'", orderId);
 
