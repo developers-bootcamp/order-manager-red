@@ -12,14 +12,18 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderDTO {
+
+    public enum  PaymentType{
+        Credit,
+        Debit,
+
+    }
     private String id;
     private String customerId;
     private double totalAmount;
-    private String address;
-    private String email;
-    private String phone;
     private OrderStatus orderStatus;
+    private PaymentType paymentType;
     private int creditCardNumber;
-    private LocalDateTime expireOn;
+    private String expireOn;
     private int cvc;
 }
