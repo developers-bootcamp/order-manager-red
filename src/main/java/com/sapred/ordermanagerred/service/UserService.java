@@ -1,5 +1,6 @@
 package com.sapred.ordermanagerred.service;
 
+import com.sapred.ordermanagerred.dto.TokenRole;
 import com.sapred.ordermanagerred.dto.UserDTO;
 import com.sapred.ordermanagerred.dto.UserNameDTO;
 import com.sapred.ordermanagerred.exception.DataExistException;
@@ -33,7 +34,9 @@ import org.webjars.NotFoundException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -66,24 +69,13 @@ public class UserService {
     @Value("${pageSize}")
     private int pageSize;
 
-    public void fill() {
-        logger.info("Filling data...");
-
-        AuditData d = AuditData.builder().updateDate(LocalDate.now()).createDate(LocalDate.now()).build();
-        Role role = new Role("2", RoleOptions.EMPLOYEE, "cust", d);
-        roleRepository.save(role);
-        Company c = new Company("1", "osherad", Currency.SHEKEL, d);
-        companyRepository.save(c);
-        Address a = new Address("0580000000", "mezada 7", "custp");
-        User user = User.builder().fullName("cust").password("custp").address(a).roleId(role).companyId(c).auditData(d).build();
-        userRepository.save(user);
-
-        logger.info("Data filled successfully");
+    public RoleOptions getRoleFromToken(String token) {
+        RoleOptions roleOptions = jwtToken.getRoleIdFromToken(token);
+        return roleOptions;
     }
 
-
     @SneakyThrows
-    public String logIn(String email, String password) {
+    public TokenRole logIn(String email, String password) {
         logger.info("Logging in user with email: {}", email);
 
         User authenticatedUserEmail = userRepository.getByAddressEmail(email);
@@ -99,11 +91,13 @@ public class UserService {
         }
         String token = jwtToken.generateToken(authenticatedUserEmail);
         logger.info("User logged in successfully: {}", email);
-        return token;
+        RoleOptions roleOptions = jwtToken.getRoleIdFromToken(token);
+        TokenRole tokenRole = TokenRole.builder().token(token).role(roleOptions).build();
+        return tokenRole;
     }
 
     @SneakyThrows
-    public String signUp(String fullName, String companyName, Currency currency, String email, String password) {
+    public TokenRole signUp(String fullName, String companyName, Currency currency, String email, String password) {
         logger.info("Signing up user with email: {}", email);
 
         if (!EmailValidator.getInstance().isValid(email) || !passwordValidator.isValid(password)) {
@@ -122,7 +116,9 @@ public class UserService {
         userRepository.save(user);
         String token = jwtToken.generateToken(user);
         logger.info("User signed up successfully: {}", email);
-        return token;
+        RoleOptions roleOptions = jwtToken.getRoleIdFromToken(token);
+        TokenRole tokenRole = TokenRole.builder().token(token).role(roleOptions).build();
+        return tokenRole;
     }
 
     @SneakyThrows
@@ -165,7 +161,7 @@ public class UserService {
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         user.setCompanyId(companyRepository.findFirstById(companyIdFromToken));
         user.setFullName(userDTO.getFullName());
-        user.setPassword(userDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         String roleId = roleRepository.findFirstByName(RoleOptions.ADMIN).getId();
         if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE)) {
             logger.error("Unauthorized user addition");
