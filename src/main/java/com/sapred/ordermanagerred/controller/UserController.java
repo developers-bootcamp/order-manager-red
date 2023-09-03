@@ -46,7 +46,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity addUser(@RequestHeader("token") String token, @RequestBody UserDTO user) {
         log.debug("Entering addUser method");
-       userService.addUser(token, user);
+        userService.addUser(token, user);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
