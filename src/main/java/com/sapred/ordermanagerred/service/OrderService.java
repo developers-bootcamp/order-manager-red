@@ -1,4 +1,5 @@
 package com.sapred.ordermanagerred.service;
+
 import com.sapred.ordermanagerred.RabbitMQProducer;
 import com.sapred.ordermanagerred.dto.OrderDTO;
 import com.sapred.ordermanagerred.dto.ProductCartDTO;
@@ -31,28 +32,26 @@ import java.util.*;
 @Slf4j
 public class OrderService {
 
-    @Autowired
     private OrderRepository orderRepository;
-    @Autowired
+
     private JwtToken jwtToken;
-   @Autowired
+
     private ProductRepository productRepository;
-    @Autowired
+
     private ProductCategoryRepository productCategoryRepository;
-    @Autowired
+
     private RabbitMQProducer rabbitMQProducer;
-    @Autowired
+
     private CompanyRepository companyRepository;
-    @Autowired
+
     private UserRepository userRepository;
 
-//    @Autowired
     private MongoTemplate mongoTemplate;
 
-//    @Autowired
     private CurrencyConverterService currencyConverterService;
 
     private final SimpMessagingTemplate messagingTemplate;
+
     @Autowired
     public OrderService(OrderRepository orderRepository, JwtToken jwtToken, ProductRepository productRepository, ProductCategoryRepository productCategoryRepository, CompanyRepository companyRepository, UserRepository userRepository, MongoTemplate mongoTemplate, CurrencyConverterService currencyConverterService, SimpMessagingTemplate messagingTemplate) {
         this.orderRepository = orderRepository;
@@ -65,6 +64,7 @@ public class OrderService {
         this.currencyConverterService = currencyConverterService;
         this.messagingTemplate = messagingTemplate;
     }
+
     @Value("${pageSize}")
     private int pageSize;
 
@@ -170,7 +170,7 @@ public class OrderService {
                 product.setInventory(product.getInventory() - element.getQuantity());
                 productRepository.save(product);
             }
-            OrderDTO orderDTO=OrderMapper.INSTANCE.orderToDTO(order);
+            OrderDTO orderDTO = OrderMapper.INSTANCE.orderToDTO(order);
             orderDTO.setPaymentType(OrderDTO.PaymentType.Debit);
             rabbitMQProducer.sendMessage(orderDTO);
         }

@@ -28,7 +28,7 @@ public class OrderController {
         return ResponseEntity.ok().body(orders);
     }
 
-    @GetMapping("failedStatus/{pageNumber}")
+    @PostMapping("failedStatus/{pageNumber}")
     public ResponseEntity getOrdersFilterByFailedStatus(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap, @RequestParam(name = "sortParameter", defaultValue = "auditData.updateDate") String sortParameter) {
 //here is an example how the map filter should look like. note the dbref way  ! ! !
 //        {
@@ -44,7 +44,7 @@ public class OrderController {
 
     }
 
-    @GetMapping("statuses/{pageNumber}")
+    @PostMapping("statuses/{pageNumber}")
     public ResponseEntity getOrdersFilterByStatuses(@RequestHeader("token") String token, @PathVariable("pageNumber") int pageNumber, @RequestBody Map<String, Object> filterMap, @RequestParam(name = "sortParameter", defaultValue = "auditData.updateDate") String sortParameter) {
 //here is an example how the map filter should look like. note the dbref way  ! ! !
 //        {

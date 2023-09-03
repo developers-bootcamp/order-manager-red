@@ -42,7 +42,7 @@ public class GraphService {
 
     public List<TopEmployeeDTO> topEmployee(String token) {
         log.info("Retrieving top employees based on delivered orders count");
-        String companyId=jwtToken.getCompanyIdFromToken(token);
+        String companyId = jwtToken.getCompanyIdFromToken(token);
         Aggregation aggregation = newAggregation(
                 match(Criteria.where("auditData.createDate").gte(LocalDate.now().minusMonths(3))),
                 match(Criteria.where("orderStatus").is(OrderStatus.APPROVED)),
@@ -109,7 +109,7 @@ public class GraphService {
 
         Aggregation aggregation = newAggregation(
                 match(Criteria.where("auditData.createDate").gte(MonthsAgo)),
-                match(Criteria.where("companyId").is("1")),
+                match(Criteria.where("companyId.$id").is(new ObjectId(companyId))),
                 project()
                         .andExpression("month(auditData.createDate)").as("month")
                         .and("orderStatusId").as("orderStatusId"),
@@ -143,12 +143,24 @@ public class GraphService {
         String companyId = jwtToken.getCompanyIdFromToken(token);
         List<DynamicGraph> dynamicGraphs;
 
-        Aggregation aggregation = newAggregation(
-                match(Criteria.where("companyId.$id").is(new ObjectId(companyId))),
-                group(field).count().as("count"),
-                project("count").and("_id").as("obj"),
-                limit(5)
-        );
+        Aggregation aggregation;
+
+        if (field.equals("month-year")) {
+            aggregation = newAggregation(
+                    match(Criteria.where("companyId.$id").is(new ObjectId(companyId))),
+                    project().andExpression("auditData.createDate").substring(0, 7).as("month"),
+                    group("month").count().as("count"),
+                    project("count").and("_id").as("obj"),
+                    limit(5)
+            );
+        } else {
+            aggregation = newAggregation(
+                    match(Criteria.where("companyId.$id").is(new ObjectId(companyId))),
+                    group(field).count().as("count"),
+                    project("count").and("_id").as("obj"),
+                    limit(5)
+            );
+        }
 
         AggregationResults<DynamicGraph> result = mongoTemplate.aggregate(
                 aggregation, subject, DynamicGraph.class
