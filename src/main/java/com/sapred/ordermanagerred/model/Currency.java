@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public enum Currency {
-    EURO("EUR"), SHEKEL("ILS"), FRANC("CHF"), LIRA("GBP"), DOLLAR("USD");
+    €("EUR"), ₪("ILS"), Fr("CHF"), £("GBP"), $("USD");
 
     private @Getter @Setter String code;
 

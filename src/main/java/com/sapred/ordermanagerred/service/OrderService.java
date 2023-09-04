@@ -206,15 +206,22 @@ public class OrderService {
 
         List<ProductCartDTO> listOfCart = new ArrayList<>();
         double sum = 0, discount = 0;
-        OrderItem orderItem = order.getOrderItemsList().get(order.getOrderItemsList().size() - 1);
-        Product product = productRepository.findById(orderItem.getProductId().getId()).get();
-        double price = product.getPrice() * rate;
-        if (product.getDiscountType() == DiscountType.PERCENTAGE)
-            discount = price * orderItem.getQuantity() * product.getDiscount() * 0.01;
-        else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT) discount = product.getDiscount() * rate;
-        sum = price * orderItem.getQuantity() - discount;
-        ProductCartDTO productCartDTO = ProductCartDTO.builder().name(product.getName()).amount(sum).discount(discount).quantity(orderItem.getQuantity()).build();
-        listOfCart.add(productCartDTO);
+
+        Product product;
+        double price;
+        ProductCartDTO productCartDTO;
+        for (OrderItem orderItem: order.getOrderItemsList()) {
+            product = productRepository.findById(orderItem.getProductId().getId()).get();
+            price = product.getPrice() * rate;
+            if (product.getDiscountType() == DiscountType.PERCENTAGE)
+                discount = price * orderItem.getQuantity() * product.getDiscount() * 0.01;
+            else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT)
+                discount = product.getDiscount() * rate;
+            sum = price * orderItem.getQuantity() - discount;
+            productCartDTO = ProductCartDTO.builder().name(product.getName()).amount(sum).discount(discount).quantity(orderItem.getQuantity()).build();
+            listOfCart.add(productCartDTO);
+        }
+
         listOfCart.add(ProductCartDTO.builder().name("Total").amount(order.getTotalAmount() + sum).build());
         log.info("Order amount calculated");
         return listOfCart;
