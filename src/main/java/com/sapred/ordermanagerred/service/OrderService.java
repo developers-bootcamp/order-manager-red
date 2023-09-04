@@ -53,7 +53,7 @@ public class OrderService {
     private final SimpMessagingTemplate messagingTemplate;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, JwtToken jwtToken, ProductRepository productRepository, ProductCategoryRepository productCategoryRepository, CompanyRepository companyRepository, UserRepository userRepository, MongoTemplate mongoTemplate, CurrencyConverterService currencyConverterService, SimpMessagingTemplate messagingTemplate) {
+    public OrderService(OrderRepository orderRepository, JwtToken jwtToken, ProductRepository productRepository, ProductCategoryRepository productCategoryRepository, CompanyRepository companyRepository, UserRepository userRepository, MongoTemplate mongoTemplate, CurrencyConverterService currencyConverterService, SimpMessagingTemplate messagingTemplate, RabbitMQProducer rabbitMQProducer) {
         this.orderRepository = orderRepository;
         this.jwtToken = jwtToken;
         this.productRepository = productRepository;
@@ -63,6 +63,7 @@ public class OrderService {
         this.mongoTemplate = mongoTemplate;
         this.currencyConverterService = currencyConverterService;
         this.messagingTemplate = messagingTemplate;
+        this.rabbitMQProducer = rabbitMQProducer;
     }
 
     @Value("${pageSize}")
@@ -243,13 +244,15 @@ public class OrderService {
         } else {
             orderDTO.setOrderStatus(OrderStatus.CANCELLED);
             Order order = OrderMapper.INSTANCE.DTOToOrder(orderDTO);
+            Order orderFromDB = orderRepository.findById(order.getId()).orElseThrow();
             order.setNotificationFlag(true);
             orderRepository.save(order);
-            for (OrderItem element : order.getOrderItemsList()) {
-                Product product = productRepository.findOneByIdAndCompanyId(element.getProductId().getId(), order.getCompanyId().getId());
-                product.setInventory(product.getInventory() + element.getQuantity());
-                productRepository.save(product);
-            }
+            if (orderFromDB.getOrderItemsList() != null)
+                for (OrderItem element : orderFromDB.getOrderItemsList()) {
+                    Product product = productRepository.findOneByIdAndCompanyId(element.getProductId().getId(), order.getCompanyId().getId());
+                    product.setInventory(product.getInventory() + element.getQuantity());
+                    productRepository.save(product);
+                }
         }
     }
 
