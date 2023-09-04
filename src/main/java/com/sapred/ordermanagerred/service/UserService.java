@@ -167,7 +167,15 @@ public class UserService {
         user.setFullName(userDTO.getFullName());
         user.setPassword(userDTO.getPassword());
         String roleId = roleRepository.findFirstByName(RoleOptions.ADMIN).getId();
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE)) {
+        if(userDTO.getRoleId().equals("1")) {
+            logger.error("Unauthorized user addition is Admin");
+            throw new UnsupportedOperationException();
+        }
+        if((userDTO.getRoleId().equals("2") && role==RoleOptions.CUSTOMER) ||  (userDTO.getRoleId().equals("2") && role==RoleOptions.EMPLOYEE) ){
+            logger.error("Unauthorized user addition customer or employee add employee");
+            throw new UnsupportedOperationException();
+        }
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken)) {
             logger.error("Unauthorized user addition");
             throw new UnsupportedOperationException();
         }
