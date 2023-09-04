@@ -218,12 +218,13 @@ public class OrderService {
                 discount = price * orderItem.getQuantity() * product.getDiscount() * 0.01;
             else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT)
                 discount = product.getDiscount() * rate;
-            sum = price * orderItem.getQuantity() - discount;
-            productCartDTO = ProductCartDTO.builder().name(product.getName()).amount(sum).discount(discount).quantity(orderItem.getQuantity()).build();
+            price = price * orderItem.getQuantity() - discount;
+            productCartDTO = ProductCartDTO.builder().name(product.getName()).amount(price).discount(discount).quantity(orderItem.getQuantity()).build();
             listOfCart.add(productCartDTO);
+            sum += price;
         }
 
-        listOfCart.add(ProductCartDTO.builder().name("Total").amount(order.getTotalAmount() + sum).build());
+        listOfCart.add(ProductCartDTO.builder().name("Total").amount(sum).build());
         log.info("Order amount calculated");
         return listOfCart;
     }
