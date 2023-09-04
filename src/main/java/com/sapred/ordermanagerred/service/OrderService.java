@@ -90,7 +90,7 @@ public class OrderService {
 
     public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber, Criteria criteria, String sortParameter) {
 
-        String companyId = jwtToken.getCompanyIdFromToken(token);
+        String companyId ="11";// jwtToken.getCompanyIdFromToken(token);
 
         Map<String, Object> reference = new HashMap<>();
         reference.put("$ref", "Company");
