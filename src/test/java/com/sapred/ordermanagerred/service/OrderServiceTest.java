@@ -53,13 +53,11 @@ public class OrderServiceTest {
         int quantity = 2;
         double price = product.getPrice();
         double discount = product.getDiscount();
-        double totalAmount = 50;
         String companyId = "1";
 
         OrderItem orderItem = OrderItem.builder().quantity(quantity).productId(product).build();
         order.setOrderItemsList(List.of(orderItem));
-        order.setTotalAmount(totalAmount);
-        Currency currency = Currency.DOLLAR;
+        Currency currency = Currency.$;
         order.setCurrency(currency);
         Company company = Company.builder().id("id").currency(currency).build();
 
@@ -76,7 +74,7 @@ public class OrderServiceTest {
         assertEquals(result.get(0).getDiscount(), price * quantity * discount * 0.01);
         assertEquals(result.get(0).getQuantity(), quantity);
         assertEquals(result.get(1).getName(), "Total");
-        assertEquals(result.get(1).getAmount(), totalAmount + (price * quantity - (price * quantity * discount * 0.01)));
+        assertEquals(result.get(1).getAmount(), price * quantity - (price * quantity * discount * 0.01));
 
         System.out.println("✅ testCalculateOrderAmount");
     }
