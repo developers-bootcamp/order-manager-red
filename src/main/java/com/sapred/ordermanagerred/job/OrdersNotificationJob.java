@@ -2,10 +2,10 @@ package com.sapred.ordermanagerred.job;
 
 import com.sapred.ordermanagerred.model.Order;
 import com.sapred.ordermanagerred.repository.OrderRepository;
+import com.sapred.ordermanagerred.service.EmailService;
 import com.sapred.ordermanagerred.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 
 import java.util.List;
@@ -15,6 +15,8 @@ public class OrdersNotificationJob {
     private OrderService orderService;
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private EmailService emailService;
 
     @Scheduled(cron = "0 0,30 * * * ?")
     public void OrderNotifications() throws NotFoundException {
@@ -28,6 +30,7 @@ public class OrdersNotificationJob {
     }
 
     private void Notification(Order order) {
+        emailService.sendSimpleMail(order.getOrderStatus().toString(),order.getCustomerId().getAddress().getEmail());
         mockNotification(order);
     }
 
