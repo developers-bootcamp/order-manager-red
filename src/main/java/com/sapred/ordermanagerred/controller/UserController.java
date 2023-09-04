@@ -1,9 +1,11 @@
 package com.sapred.ordermanagerred.controller;
 
+import com.sapred.ordermanagerred.dto.TokenRole;
 import com.sapred.ordermanagerred.dto.UserDTO;
 import com.sapred.ordermanagerred.dto.UserNameDTO;
 import com.sapred.ordermanagerred.model.Currency;
 import com.sapred.ordermanagerred.model.ProductCategory;
+import com.sapred.ordermanagerred.model.RoleOptions;
 import com.sapred.ordermanagerred.model.User;
 import com.sapred.ordermanagerred.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.Console;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -28,14 +31,14 @@ public class UserController {
     public ResponseEntity logIn(@PathVariable("email") String email, @PathVariable("password") String password) {
         log.debug("Entering logIn method with email: {}", email);
         System.out.println(password + email);
-        String response = userService.logIn(email, password);
+        TokenRole response = userService.logIn(email, password);
         return new ResponseEntity(response, HttpStatus.OK);
     }
 
-    @GetMapping("/fill")
-    public void fill() {
-        log.debug("Entering fill method");
-        userService.fill();
+    @GetMapping("/getRoleFromToken")
+    public RoleOptions getRoleFromToken(@RequestHeader("token") String token) {
+        log.debug("Entering getRoleFromToken method");
+        return userService.getRoleFromToken(token);
     }
 
     @GetMapping("/fillRoles")
@@ -46,7 +49,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity addUser(@RequestHeader("token") String token, @RequestBody UserDTO user) {
         log.debug("Entering addUser method");
-       userService.addUser(token, user);
+        userService.addUser(token, user);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
@@ -55,7 +58,7 @@ public class UserController {
                                  @RequestParam("currency") Currency currency, @RequestParam("email") String email,
                                  @RequestParam("password") String password) {
         log.debug("Entering signUp method with email: {}", email);
-        String token = userService.signUp(fullName, companyName, currency, email, password);
+        TokenRole token = userService.signUp(fullName, companyName, currency, email, password);
         return new ResponseEntity(token, HttpStatus.OK);
     }
 
