@@ -110,7 +110,7 @@ public class OrderService {
 
         Query query = new Query(criteria);
 
-        int skip = (pageNumber ) * pageSize;
+        int skip = (pageNumber) * pageSize;
         query.skip(skip);
         query.limit(pageSize);
 
@@ -127,7 +127,7 @@ public class OrderService {
         List<String> filterValue1 = Collections.singletonList(OrderStatus.CANCELLED.toString());
         criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
 
-        List<Order> orderList= getOrdersByFilters(filterMap, token, pageNumber, criteria, sortParameter);
+        List<Order> orderList = getOrdersByFilters(filterMap, token, pageNumber, criteria, sortParameter);
         return orderList;
     }
 
@@ -211,7 +211,7 @@ public class OrderService {
         Product product;
         double price;
         ProductCartDTO productCartDTO;
-        for (OrderItem orderItem: order.getOrderItemsList()) {
+        for (OrderItem orderItem : order.getOrderItemsList()) {
             product = productRepository.findById(orderItem.getProductId().getId()).get();
             price = product.getPrice() * rate;
             if (product.getDiscountType() == DiscountType.PERCENTAGE)
