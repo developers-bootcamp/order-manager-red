@@ -110,7 +110,7 @@ public class OrderService {
 
         Query query = new Query(criteria);
 
-        int skip = (pageNumber - 1) * pageSize;
+        int skip = (pageNumber ) * pageSize;
         query.skip(skip);
         query.limit(pageSize);
 
