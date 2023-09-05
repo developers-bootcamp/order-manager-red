@@ -20,7 +20,12 @@ public class RabbitMQConsumer {
     @RabbitListener(queues = "${rabbitmq.queue.namePayment}")
     public void consume(OrderDTO message) {
         LOGGER.info(String.format("Received message -> %s ", message));
-        orderService.processOrder(message);
+        try {
+            orderService.processOrder(message);
+        }catch (Exception e){
+            LOGGER.error(String.format("Received message error-> %s ", message));
+        }
+
     }
 
 }

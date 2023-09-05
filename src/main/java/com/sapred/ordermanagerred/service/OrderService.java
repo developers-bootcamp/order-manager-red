@@ -150,7 +150,7 @@ public class OrderService {
         String employeeId = jwtToken.getUserIdFromToken(token);
         User employee = userRepository.findById(employeeId).orElseThrow(() -> new NotFoundException("Employee not found"));
         order.setEmployeeId(employee);
-        AuditData auditData = new AuditData(LocalDate.now(), null);
+        AuditData auditData = new AuditData(LocalDate.now(), LocalDate.now());
         order.setAuditData(auditData);
 
         if (order.getOrderStatus() != OrderStatus.NEW && order.getOrderStatus() != OrderStatus.APPROVED) {
