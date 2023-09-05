@@ -23,7 +23,7 @@ public class OrderDTO {
     private double totalAmount;
     private OrderStatus orderStatus;
     private PaymentType paymentType;
-    private int creditCardNumber;
+    private String creditCardNumber;
     private String expireOn;
     private int cvc;
 }

@@ -20,6 +20,7 @@ public interface OrderRepository extends MongoRepository<Order, String>  {
 
     List<Order> findByNotificationFlag(boolean notificationFlag);
 
+    List<Order> findByCompanyId_Id(String companyId);
 
 
     //        @Query("{"

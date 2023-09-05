@@ -91,12 +91,12 @@ public class OrderService {
 
     public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber, Criteria criteria, String sortParameter) {
 
-        String companyId ="11";// jwtToken.getCompanyIdFromToken(token);
+        String companyId = jwtToken.getCompanyIdFromToken(token);
 
         Map<String, Object> reference = new HashMap<>();
         reference.put("$ref", "Company");
         reference.put("$id", companyId);
-        filterMap.put("companyId", reference);
+        filterMap.put("companyId", companyId);
         log.info("filtermap {}", filterMap);
 
         // Iterate through the filter map and construct filter for each entry
@@ -110,7 +110,7 @@ public class OrderService {
 
         Query query = new Query(criteria);
 
-        int skip = (pageNumber ) * pageSize;
+        int skip = (pageNumber) * pageSize;
         query.skip(skip);
         query.limit(pageSize);
 
@@ -127,12 +127,12 @@ public class OrderService {
         List<String> filterValue1 = Collections.singletonList(OrderStatus.CANCELLED.toString());
         criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
 
-        return getOrdersByFilters(filterMap, token, pageNumber, criteria, sortParameter);
-
+        List<Order> orderList = getOrdersByFilters(filterMap, token, pageNumber, criteria, sortParameter);
+        return orderList;
     }
 
     public List<Order> getOrdersFilterByStatuses(Map<String, Object> filterMap, String token, int pageNumber, String sortParameter) {
-
+        System.out.println(orderRepository.findByCompanyId_Id(jwtToken.getCompanyIdFromToken(token)));
         Criteria criteria = new Criteria();
 
         List<String> filterValue1 = Arrays.asList(OrderStatus.NEW.toString(), OrderStatus.APPROVED.toString(), OrderStatus.CREATED.toString(), OrderStatus.PACKING.toString(), OrderStatus.CHARGING.toString(), OrderStatus.DELIVERED.toString());
@@ -150,7 +150,7 @@ public class OrderService {
         String employeeId = jwtToken.getUserIdFromToken(token);
         User employee = userRepository.findById(employeeId).orElseThrow(() -> new NotFoundException("Employee not found"));
         order.setEmployeeId(employee);
-        AuditData auditData = new AuditData(LocalDate.now(), null);
+        AuditData auditData = new AuditData(LocalDate.now(), LocalDate.now());
         order.setAuditData(auditData);
 
         if (order.getOrderStatus() != OrderStatus.NEW && order.getOrderStatus() != OrderStatus.APPROVED) {
@@ -177,7 +177,7 @@ public class OrderService {
         }
         log.info("Order created with ID '{}'", orderId);
 
-//        messagingTemplate.convertAndSend("/topic/newOrder", order);
+        messagingTemplate.convertAndSend("/topic/newOrder", order);
         return orderId;
     }
 
@@ -211,7 +211,7 @@ public class OrderService {
         Product product;
         double price;
         ProductCartDTO productCartDTO;
-        for (OrderItem orderItem: order.getOrderItemsList()) {
+        for (OrderItem orderItem : order.getOrderItemsList()) {
             product = productRepository.findById(orderItem.getProductId().getId()).get();
             price = product.getPrice() * rate;
             if (product.getDiscountType() == DiscountType.PERCENTAGE)
