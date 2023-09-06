@@ -41,7 +41,7 @@ public class ProductService {
             throw new NoPermissionException("You can't add product");
         }
 
-        if (productRepository.existsByName(product.getName())) {
+        if (productRepository.existsByNameAndCompanyId(product.getName(),jwtToken.getCompanyIdFromToken(token))) {
             log.error("Data exist: The product already exists");
             throw new DataExistException("The product already exists");
         }
@@ -99,7 +99,7 @@ public class ProductService {
         Optional<Product> productOptional = productRepository.findById(product.getId());
         Product productToUpdate = productOptional.orElseThrow(() -> new Exception("Product not found"));
 
-        if (!productToUpdate.getName().equals(product.getName()) && productRepository.existsByName(product.getName())) {
+        if (!productToUpdate.getName().equals(product.getName()) && productRepository.existsByNameAndCompanyId(product.getName(),jwtToken.getCompanyIdFromToken(token))) {
             log.error("Data exist: You need unique name for product");
             throw new DataExistException("You need unique name for product");
         }
