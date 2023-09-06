@@ -32,25 +32,18 @@ import java.util.*;
 @Slf4j
 public class OrderService {
 
-    private OrderRepository orderRepository;
-
-    private JwtToken jwtToken;
-
-    private ProductRepository productRepository;
-
-    private ProductCategoryRepository productCategoryRepository;
-
-    private RabbitMQProducer rabbitMQProducer;
-
-    private CompanyRepository companyRepository;
-
-    private UserRepository userRepository;
-
-    private MongoTemplate mongoTemplate;
-
-    private CurrencyConverterService currencyConverterService;
-
     private final SimpMessagingTemplate messagingTemplate;
+    private OrderRepository orderRepository;
+    private JwtToken jwtToken;
+    private ProductRepository productRepository;
+    private ProductCategoryRepository productCategoryRepository;
+    private RabbitMQProducer rabbitMQProducer;
+    private CompanyRepository companyRepository;
+    private UserRepository userRepository;
+    private MongoTemplate mongoTemplate;
+    private CurrencyConverterService currencyConverterService;
+    @Value("${pageSize}")
+    private int pageSize;
 
     @Autowired
     public OrderService(OrderRepository orderRepository, JwtToken jwtToken, ProductRepository productRepository, ProductCategoryRepository productCategoryRepository, CompanyRepository companyRepository, UserRepository userRepository, MongoTemplate mongoTemplate, CurrencyConverterService currencyConverterService, SimpMessagingTemplate messagingTemplate, RabbitMQProducer rabbitMQProducer) {
@@ -65,10 +58,6 @@ public class OrderService {
         this.messagingTemplate = messagingTemplate;
         this.rabbitMQProducer = rabbitMQProducer;
     }
-
-    @Value("${pageSize}")
-    private int pageSize;
-
 
     public List<Order> getOrders(String token, String statusId, int pageNumber, String userId) {
         log.info("Retrieving orders with status '{}' for user ID '{}' and page number '{}'", statusId, userId, pageNumber);
@@ -92,10 +81,6 @@ public class OrderService {
     public List<Order> getOrdersByFilters(Map<String, Object> filterMap, String token, int pageNumber, Criteria criteria, String sortParameter) {
 
         String companyId = jwtToken.getCompanyIdFromToken(token);
-
-        Map<String, Object> reference = new HashMap<>();
-        reference.put("$ref", "Company");
-        reference.put("$id", companyId);
         filterMap.put("companyId", companyId);
         log.info("filtermap {}", filterMap);
 
@@ -104,7 +89,16 @@ public class OrderService {
             String filterName = entry.getKey();
             Object filterValue = entry.getValue();
 
-            criteria = criteria.and(filterName).is(filterValue);
+            if (Order.Fields.totalAmount.equals(filterName) && filterValue instanceof List) {
+                List<Integer> priceRange = (List<Integer>) filterValue;
+                Double lowerPrice = Double.parseDouble(priceRange.get(0).toString());
+                Double upperPrice = Double.parseDouble(priceRange.get(1).toString());
+
+                criteria = criteria.and(Order.Fields.totalAmount).gte(lowerPrice).lte(upperPrice);
+            } else {
+
+                criteria = criteria.and(filterName).is(filterValue);
+            }
         }
 
 
@@ -124,9 +118,10 @@ public class OrderService {
     public List<Order> getOrdersFilterByFailedStatus(Map<String, Object> filterMap, String token, int pageNumber, String sortParameter) {
 
         Criteria criteria = new Criteria();
-        List<String> filterValue1 = Collections.singletonList(OrderStatus.CANCELLED.toString());
-        criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
-
+        if (!filterMap.containsKey(Order.Fields.orderStatus)) {
+            List<String> filterValue1 = Collections.singletonList(OrderStatus.CANCELLED.toString());
+            criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
+        }
         List<Order> orderList = getOrdersByFilters(filterMap, token, pageNumber, criteria, sortParameter);
         return orderList;
     }
@@ -134,10 +129,10 @@ public class OrderService {
     public List<Order> getOrdersFilterByStatuses(Map<String, Object> filterMap, String token, int pageNumber, String sortParameter) {
         System.out.println(orderRepository.findByCompanyId_Id(jwtToken.getCompanyIdFromToken(token)));
         Criteria criteria = new Criteria();
-
-        List<String> filterValue1 = Arrays.asList(OrderStatus.NEW.toString(), OrderStatus.APPROVED.toString(), OrderStatus.CREATED.toString(), OrderStatus.PACKING.toString(), OrderStatus.CHARGING.toString(), OrderStatus.DELIVERED.toString());
-        criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
-
+        if (!filterMap.containsKey(Order.Fields.orderStatus)) {
+            List<String> filterValue1 = Arrays.asList(OrderStatus.NEW.toString(), OrderStatus.APPROVED.toString(), OrderStatus.CREATED.toString(), OrderStatus.PACKING.toString(), OrderStatus.CHARGING.toString(), OrderStatus.DELIVERED.toString());
+            criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
+        }
         return getOrdersByFilters(filterMap, token, pageNumber, criteria, sortParameter);
 
     }
@@ -173,7 +168,7 @@ public class OrderService {
             }
             OrderDTO orderDTO = OrderMapper.INSTANCE.orderToDTO(order);
             orderDTO.setPaymentType(OrderDTO.PaymentType.Debit);
-            rabbitMQProducer.sendMessage(orderDTO);
+//            rabbitMQProducer.sendMessage(orderDTO);
         }
         log.info("Order created with ID '{}'", orderId);
 
@@ -216,8 +211,7 @@ public class OrderService {
             price = product.getPrice() * rate;
             if (product.getDiscountType() == DiscountType.PERCENTAGE)
                 discount = price * orderItem.getQuantity() * product.getDiscount() * 0.01;
-            else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT)
-                discount = product.getDiscount() * rate;
+            else if (product.getDiscountType() == DiscountType.FIXED_AMOUNT) discount = product.getDiscount() * rate;
             price = price * orderItem.getQuantity() - discount;
             productCartDTO = ProductCartDTO.builder().name(product.getName()).amount(price).discount(discount).quantity(orderItem.getQuantity()).build();
             listOfCart.add(productCartDTO);
@@ -255,12 +249,11 @@ public class OrderService {
             Order orderFromDB = orderRepository.findById(order.getId()).orElseThrow();
             order.setNotificationFlag(true);
             orderRepository.save(order);
-            if (orderFromDB.getOrderItemsList() != null)
-                for (OrderItem element : orderFromDB.getOrderItemsList()) {
-                    Product product = productRepository.findOneByIdAndCompanyId(element.getProductId().getId(), order.getCompanyId().getId());
-                    product.setInventory(product.getInventory() + element.getQuantity());
-                    productRepository.save(product);
-                }
+            if (orderFromDB.getOrderItemsList() != null) for (OrderItem element : orderFromDB.getOrderItemsList()) {
+                Product product = productRepository.findOneByIdAndCompanyId(element.getProductId().getId(), order.getCompanyId().getId());
+                product.setInventory(product.getInventory() + element.getQuantity());
+                productRepository.save(product);
+            }
         }
     }
 
