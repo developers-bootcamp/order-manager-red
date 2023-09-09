@@ -88,7 +88,8 @@ public class GraphService {
                                 .append("totalQuantity", "$totalQuantity")).as("productCount"),
                 project()
                         .and("_id").as("month")
-                        .and("productCount").as("productCount")
+                        .and("productCount").as("productCount"),
+                sort(Sort.Direction.DESC, "productCount")
         );
 
         AggregationResults<MonthProductCountDto> results = mongoTemplate
@@ -110,6 +111,7 @@ public class GraphService {
         Aggregation aggregation = newAggregation(
                 match(Criteria.where("auditData.createDate").gte(MonthsAgo)),
                 match(Criteria.where("companyId.$id").is(new ObjectId(companyId))),
+
                 project()
                         .andExpression("month(auditData.createDate)").as("month")
                         .and("orderStatusId").as("orderStatusId"),
@@ -121,6 +123,7 @@ public class GraphService {
                         .and("cancelled").as("cancelled")
                         .and("delivered").as("delivered")
         );
+
         AggregationResults<Document> results = mongoTemplate.aggregate(aggregation, "Order", Document.class);
         List<Document> mappedResults = results.getMappedResults();
         System.out.println("mappedResults" + mappedResults);

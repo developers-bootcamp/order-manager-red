@@ -1,6 +1,7 @@
 package com.sapred.ordermanagerred.repository;
 
 import com.sapred.ordermanagerred.model.Product;
+import com.sapred.ordermanagerred.model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,7 +16,7 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
     Product findOneByIdAndCompanyId(String id,String companyId);
 
-    @Query("{'name': { $regex: '^?1' }}")
+    @Query("{'companyId.id': ?0, 'name': { $regex: '^?1' }}")
     List<Product> findByCompanyIdAndNameAndPrefix(String companyId, String prefix);
 
 }

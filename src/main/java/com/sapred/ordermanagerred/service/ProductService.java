@@ -61,7 +61,8 @@ public class ProductService {
             throw new NoPermissionException("You can't get name's products");
         }
 
-        List<Product> products = productRepository.findByCompanyIdAndNameAndPrefix(token, prefix);
+        String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
+        List<Product> products = productRepository.findByCompanyIdAndNameAndPrefix(companyIdFromToken, prefix);
         List<ProductNameDTO> productList = productMapper.INSTANCE.productToProductNameDto(products);
 
         log.info("Retrieved {} product names", productList.size());
