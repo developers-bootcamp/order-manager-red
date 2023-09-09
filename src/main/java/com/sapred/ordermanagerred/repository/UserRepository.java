@@ -18,7 +18,7 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     User getByAddressEmail(String email);
 
-    @Query("{'companyId.id': ?0, 'roleId.id': ?1, 'fullName': { $regex: '^?2' }}}")
+    @Query("{'companyId.id': ?0, 'roleId.id': ?1, 'fullName': { $regex: '^?2' }}")
     List<User> findByCompanyIdAndRoleIdAndPrefix(String companyId, String roleId, String prefix);
     Page<User> findByCompanyId(String companyId, Pageable pageable);
 
