@@ -116,12 +116,12 @@ public class OrderService {
     }
 
     public List<Order> getOrdersFilterByFailedStatus(Map<String, Object> filterMap, String token, int pageNumber, String sortParameter) {
-
         Criteria criteria = new Criteria();
-        if (!filterMap.containsKey(Order.Fields.orderStatus)) {
-            List<String> filterValue1 = Collections.singletonList(OrderStatus.CANCELLED.toString());
-            criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
+        if (filterMap.containsKey(Order.Fields.orderStatus)) {
+            return new LinkedList<Order>();
         }
+        List<String> filterValue1 = Collections.singletonList(OrderStatus.CANCELLED.toString());
+        criteria = criteria.and(Order.Fields.orderStatus).in(filterValue1);
         List<Order> orderList = getOrdersByFilters(filterMap, token, pageNumber, criteria, sortParameter);
         return orderList;
     }
