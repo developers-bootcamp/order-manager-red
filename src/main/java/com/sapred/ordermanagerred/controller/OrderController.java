@@ -76,5 +76,16 @@ public class OrderController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @GetMapping("/getCountOfOrders")
+    public int getCountOfOrders(@RequestHeader("token") String token) {
+        log.debug("Entering getCountOfOrders method");
+        return orderService.getCountOfOrders(token);
+    }
+
+    @GetMapping("/getCountOfOrdersByFailed")
+    public int getCountOfOrdersByFailed(@RequestHeader("token") String token) {
+        log.debug("Entering getCountOfOrdersByFailed method");
+        return orderService.getCountOfOrdersByFailed(token);
+    }
 
 }

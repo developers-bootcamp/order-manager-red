@@ -168,7 +168,7 @@ public class OrderService {
             }
             OrderDTO orderDTO = OrderMapper.INSTANCE.orderToDTO(order);
             orderDTO.setPaymentType(OrderDTO.PaymentType.Debit);
-//            rabbitMQProducer.sendMessage(orderDTO);
+            rabbitMQProducer.sendMessage(orderDTO);
         }
         log.info("Order created with ID '{}'", orderId);
 
@@ -239,16 +239,21 @@ public class OrderService {
 
     public void processOrder(OrderDTO orderDTO) {
         if (orderDTO.getOrderStatus() == OrderStatus.APPROVED) {
-            orderDTO.setOrderStatus(OrderStatus.PACKING);
-            Order order = OrderMapper.INSTANCE.DTOToOrder(orderDTO);
+//            orderDTO.setOrderStatus(OrderStatus.PACKING);
+//            Order order = OrderMapper.INSTANCE.DTOToOrder(orderDTO);
+//            order.setNotificationFlag(true);
+//            orderRepository.save(order);
+            Order order = orderRepository.findById(orderDTO.getId()).get();
+            order.setOrderStatus(OrderStatus.PACKING);
             order.setNotificationFlag(true);
             orderRepository.save(order);
         } else {
-            orderDTO.setOrderStatus(OrderStatus.CANCELLED);
+//            orderDTO.setOrderStatus(OrderStatus.CANCELLED);
             Order order = OrderMapper.INSTANCE.DTOToOrder(orderDTO);
             Order orderFromDB = orderRepository.findById(order.getId()).orElseThrow();
-            order.setNotificationFlag(true);
-            orderRepository.save(order);
+            orderFromDB.setNotificationFlag(true);
+            orderFromDB.setOrderStatus(OrderStatus.CANCELLED);
+            orderRepository.save(orderFromDB);
             if (orderFromDB.getOrderItemsList() != null) for (OrderItem element : orderFromDB.getOrderItemsList()) {
                 Product product = productRepository.findOneByIdAndCompanyId(element.getProductId().getId(), order.getCompanyId().getId());
                 product.setInventory(product.getInventory() + element.getQuantity());
@@ -259,6 +264,14 @@ public class OrderService {
 
     public List<Order> getOrdersWithNotificationFlag() {
         return orderRepository.findByNotificationFlag(true);
+    }
+
+    public int getCountOfOrdersByFailed(String token) {
+        return orderRepository.findByCompanyId_IdAndOrderStatus(jwtToken.getCompanyIdFromToken(token), OrderStatus.CANCELLED).size();
+    }
+
+    public int getCountOfOrders(String token) {
+        return orderRepository.findByCompanyId_Id(jwtToken.getCompanyIdFromToken(token)).size() - getCountOfOrdersByFailed(token);
     }
 }
 

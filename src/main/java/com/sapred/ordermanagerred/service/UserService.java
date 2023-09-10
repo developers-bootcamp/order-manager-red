@@ -66,8 +66,7 @@ public class UserService {
 
     private BCryptPasswordEncoder passwordEncoder;
 
-    @Value("${pageSize}")
-    private int pageSize;
+    private int pageSize = 100;
 
     public RoleOptions getRoleFromToken(String token) {
         RoleOptions roleOptions = jwtToken.getRoleIdFromToken(token);
@@ -161,9 +160,12 @@ public class UserService {
         String companyIdFromToken = jwtToken.getCompanyIdFromToken(token);
         user.setCompanyId(companyRepository.findFirstById(companyIdFromToken));
         user.setFullName(userDTO.getFullName());
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        String customerRoleId = roleRepository.findFirstByName(RoleOptions.CUSTOMER).getId();
+        if (!user.getRoleId().getId().equals(customerRoleId))
+            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         String roleId = roleRepository.findFirstByName(RoleOptions.ADMIN).getId();
-        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken) || (role == RoleOptions.EMPLOYEE)) {
+        if (role == RoleOptions.CUSTOMER || !user.getCompanyId().getId().equals(companyIdFromToken)
+                || (role == RoleOptions.EMPLOYEE && !user.getRoleId().getId().equals(customerRoleId))) {
             logger.error("Unauthorized user addition");
             throw new UnsupportedOperationException();
         }

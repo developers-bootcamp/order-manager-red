@@ -3,6 +3,7 @@ package com.sapred.ordermanagerred.repository;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoIterable;
 import com.sapred.ordermanagerred.model.Order;
+import com.sapred.ordermanagerred.model.OrderStatus;
 import org.bson.conversions.Bson;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ public interface OrderRepository extends MongoRepository<Order, String>  {
 
     List<Order> findByCompanyId_Id(String companyId);
 
+    List<Order> findByCompanyId_IdAndOrderStatus(String companyId, OrderStatus orderStatus);
 
     //        @Query("{"
     //  + "?#{( #companyId == null || #companyId == '') ? {_id: {$exists: true}} : {'companyId.$id': #companyId}}, "
